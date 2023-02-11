@@ -1,6 +1,6 @@
 const User = require("../models/staff.model");
 
-const getUsers = async (_req, res) => {
+const getStaff = async (_req, res) => {
     //create an array of documents
     try {
       const users = await User.find({});
@@ -14,7 +14,7 @@ const getUsers = async (_req, res) => {
 module.exports = [
   {
     method: "get", //define method http
-    controller: getUsers, //this is method handle when have request on server
-    route: "/users", //define API
+    controller: getStaff, //this is method handle when have request on server
+    route: "/staff", //define API
   }
 ]

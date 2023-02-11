@@ -1,3 +1,3 @@
-const userRoutes = require("./user.route");
+const staffRoutes = require("./staff.route");
 
-module.exports = [ userRoutes ];
+module.exports = [ staffRoutes ];

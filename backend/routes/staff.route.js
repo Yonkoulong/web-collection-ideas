@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const useController = require("../controllers/user.controller");
+const useController = require("../controllers/staff.controller");
 
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
