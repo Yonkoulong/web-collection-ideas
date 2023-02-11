@@ -28,7 +28,7 @@ const setupApp = async () => {
 
    //route
    setupRoutes(app);
-   //thao code ne
+   
    return app.listen(process.env.PORT || 8080);
 }
 
