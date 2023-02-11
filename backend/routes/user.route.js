@@ -8,8 +8,8 @@ const useController = require("../controllers/user.controller");
 useController.forEach((item) => {
     //next, each item is element of useController or called a method which can handle a things
     //i use descstructuring declare from javascript ES6
-    const { method, routeName, controller } = item;
-    router[method](routeName, controller);
+    const { method, route, controller } = item;
+    router[method](route, controller);
     
     //C2
     // router[item.method](item.routeName, item.controller);

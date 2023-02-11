@@ -1,13 +1,15 @@
 const express = require("express");
+const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const setupRoutes = require("./app-routes");
-const session = require('express-session');
 
 const app = express();
 
 const setupApp = async () => {
-
-   //connect db
+   dotenv.config();
+   
+   // connect db
+   mongoose.set("strictQuery", false);
    await mongoose
    .connect(process.env.MONGO_URL)
    .then(() => {
@@ -18,13 +20,6 @@ const setupApp = async () => {
    })
 
    //middleware
-   app.use(session({
-      secret: '2C44-4D44-WppQ38S',
-      resave: true,
-      saveUninitialized: true,
-      cookie: { maxAge: 3600000 }
-   }));
-   // app.use(bodyParser.urlencoded({ extended: true }));
 
    //route
    setupRoutes(app);
