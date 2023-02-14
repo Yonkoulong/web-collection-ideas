@@ -1,7 +1,7 @@
 //require model
-const User = require("../models/account.model");
+const User = require("../models/idea.model");
 
-const getAdmin = async (_req, res) => {
+const getIdeas = async (_req, res) => {
     //create an array of documents
     try {
       const users = await User.find({});
@@ -15,8 +15,8 @@ const getAdmin = async (_req, res) => {
 module.exports = [
   {
     method: "get", //define method http
-    controller: getAdmin, //this is method handle when have request on server
-    route: "/admin", //define API
+    controller: getIdeas, //this is method handle when have request on server
+    route: "/ideas", //define API
   }
  
 ]

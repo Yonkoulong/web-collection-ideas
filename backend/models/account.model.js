@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
-
 const Schema = mongoose.Schema;
-
-const staffSchema  = new Schema({
+const accountSchema  = new Schema({
     email:{
         type: String,
         required: true,
@@ -14,9 +12,8 @@ const staffSchema  = new Schema({
     },
     role:{
         type: String,
-        required: true
+        required: true    
     }
 });
 
-
-module.exports = mongoose.model('Staff', staffSchema );
+module.exports = mongoose.model('account', accountSchema );

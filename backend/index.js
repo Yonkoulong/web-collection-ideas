@@ -1,9 +1,14 @@
 const express = require("express");
+const bodyParser = require('body-parser')
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const setupRoutes = require("./app-routes");
 
 const app = express();
+// create application/x-www-form-urlencoded parser
+app.use(bodyParser.urlencoded({ extended: false }))
+
+app.use(bodyParser.json())
 
 const setupApp = async () => {
    dotenv.config();

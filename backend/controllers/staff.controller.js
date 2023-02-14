@@ -1,4 +1,4 @@
-const User = require("../models/staff.model");
+const User = require("../models/account.model");
 
 const getStaff = async (_req, res) => {
     //create an array of documents
