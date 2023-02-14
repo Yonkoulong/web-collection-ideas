@@ -1,0 +1,9 @@
+node_modules
+
+# test files
+**/*.test.ts
+**/*.test.js
+**/*.test.tsx
+**/*.test.jsx
+
+./package.json
