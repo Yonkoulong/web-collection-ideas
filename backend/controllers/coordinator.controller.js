@@ -15,7 +15,7 @@ const getCoordinator = async (_req, res) => {
 module.exports = [
   {
     method: "get", //define method http
-    controller: getAdmin, //this is method handle when have request on server
+    controller: getCoordinator, //this is method handle when have request on server
     route: "/coordinator", //define API
   }
  
