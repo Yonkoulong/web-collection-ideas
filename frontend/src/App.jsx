@@ -1,15 +1,14 @@
 import React from 'react';
-import './App.css'
-
-
+import { RouterProvider } from 'react-router-dom';
+import { routes } from '@/app/routes';
 
 function App() {
   
   return (
-    <div className="App">
-      Welcome to my app
-    </div>
+    <>
+      <RouterProvider router={routes} />
+    </>
   )
 }
 
-export default App
+export default App;
