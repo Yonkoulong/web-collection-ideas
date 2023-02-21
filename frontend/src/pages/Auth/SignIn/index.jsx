@@ -7,7 +7,9 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import { TextField, OutlinedInput, InputAdornment } from "@mui/material";
-import LoadingButton from '@mui/lab/LoadingButton';
+import LoadingButton from "@mui/lab/LoadingButton";
+import { IconLightBulb } from "@/assets/icons";
+import ImageSignIn from "@/assets/images/signinImage.png";
 import {
   SignInContainer,
   SignInHead,
@@ -50,7 +52,7 @@ export const SignIn = () => {
   return (
     <SignInContainer>
       <SignInHead>
-        <SignInHeadLogo src="" alt="logo" />
+        <IconLightBulb viewBox="0 0 50 50" sx={{ fontSize: "32px" }} />
       </SignInHead>
       <SignInWrapper>
         <SignInContent>
@@ -74,7 +76,13 @@ export const SignIn = () => {
                   />
                 )}
               />
-              <ErrorMessage errors={errors} name="username" />
+              <ErrorMessage
+                errors={errors}
+                name="username"
+                render={({ message }) => (
+                  <div style={{ color: "red", fontSize: 12 }}>{message}</div>
+                )}
+              />
             </InputStyledWrapper>
 
             <InputStyledWrapper>
@@ -104,8 +112,15 @@ export const SignIn = () => {
                   />
                 )}
               />
-              <ErrorMessage errors={errors} name="password" />
+              <ErrorMessage
+                errors={errors}
+                name="password"
+                render={({ message }) => (
+                  <div style={{ color: "red", fontSize: 12 }}>{message}</div>
+                )}
+              />
             </InputStyledWrapper>
+
             <InputStyledWrapper>
               <LoadingButton
                 loading={loading}
@@ -113,7 +128,6 @@ export const SignIn = () => {
                 size="large"
                 disableElevation
                 variant="contained"
-                fullWidth
               >
                 LOG IN
               </LoadingButton>
@@ -121,7 +135,7 @@ export const SignIn = () => {
           </SignInForm>
         </SignInContent>
         <SignInImageWrapper>
-          <SignInImage src="" alt="" />
+          <SignInImage src={ImageSignIn} alt="signin image" />
         </SignInImageWrapper>
       </SignInWrapper>
     </SignInContainer>
