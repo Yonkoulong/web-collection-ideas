@@ -6,24 +6,19 @@ const ideaSchema  = new Schema({
         required: true,
         unique: true
     },
-    comment:[{
+    author:{
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'comment',
-    }],
-    emotion:[{
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'emotion',      
-        }
-    ],
+        ref: 'account',
+    },
     category: {
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'category',  
     },
-    department:{
+    campaign:{
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'department',  
+        ref: 'campaign',  
     },
-    enonymose: {
+    enonymously: {
         type: Boolean,
         require: true
     },
