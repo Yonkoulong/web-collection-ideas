@@ -1,24 +1,26 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const accountSchema  = new Schema({
-    email:{
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
+const attachmentSchema  = new Schema({
+    filelName: {
         type: String,
         required: true,
     },
-    role:{
+    originalName: {
+        type: String,
+        required: true,
+    },
+    fileSize:{
         type: String,
         required: true    
     },
-    departmentId:{
+    authorId:{
         type:mongoose.Schema.Types.ObjectId, 
-        ref:'department',
-        required: true    
+        ref:'account',
+    },
+    ideaId:{
+        type:mongoose.Schema.Types.ObjectId, 
+        ref:'idea',
     }
 });
 
-module.exports = mongoose.model('account', accountSchema );
+module.exports = mongoose.model('attachment', attachmentSchema );

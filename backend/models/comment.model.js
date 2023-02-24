@@ -1,12 +1,21 @@
-
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const commentSchema = new mongoose.Schema({
-    description: {
+    content: {
         type: String,
         default: emotionType.NONE
+    }, enonymously: {
+        type: Boolean,
+        require: true
     },
-    accountID: {
+    authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'account',
+        require: true
+    },
+    ideaId:{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'idea',
         require: true
     }
 });
