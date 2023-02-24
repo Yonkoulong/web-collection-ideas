@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const adminController = require("../controllers/admin.controller");
+const ideaController = require("../controllers/idea.controller");
 
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
@@ -14,6 +15,11 @@ adminController.forEach((item) => {
     //C2
     // router[item.method](item.routeName, item.controller);
 });
+ideaController.forEach((item) =>{
+   
+    const { method, route, controller } = item;
+    router[method](route, controller);
+})
 router.get('/',(req,res)=>{
     res.json('Hello admin')
 })

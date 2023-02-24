@@ -1,25 +1,45 @@
 //require model
 const User = require("../models/account.model");
 //const Role = require("../Ulti")
+const bcrypt = require("bcrypt");
 
 const postLogin = async (req, res) => {
     //create an array of documents
-    var email = req.body.username
-    var password = req.body.password
-    var role = req.body.role
+    let email = req.body.email
+    let password = req.body.password
+    let role = req.body.role
+    let response
     console.log(email, password, role)
-    const users = await User.findOne({
-        email: email,
-        password: password,
-        
+    const user = await User.findOne({
+        email: email,     
     }).then(data => {
         if (data) {
-             res.json('Login success');
+            const match = bcrypt.compareSync(password, data.password)
+            if(match)
+            {
+                response = {
+                    'status': `user ${data.email} login success!`,
+                    'data': data
+                  }    
+                  console.log(response)       
+                  return res.status(201).json(response);
+            }  
+            else{
+                response = {
+                    'status': 'Password incorrect',
+                    'code':101               
+                  }    
+                return res.status(401).json(response)
+            }
         } else {
-            res.status(300).json('Wrong account')
+            let response = {
+                'status': 'account not found',    
+                'code':102              
+              }    
+            return res.status(401).json(response)
         }
     }).catch(err => {
-         res.status(300).json('login fail');
+        res.status(500).json({'message' : err.message});
     }
     )
 };
