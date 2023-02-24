@@ -1,10 +1,10 @@
 //require model
-const Idea = require("../models/idea.model");
+const IdeaModel = require("../models/idea.model");
 
 const getIdeas = async (_req, res) => {
     //create an array of documents
     try {
-      const ideas = await Idea.find({});
+      const ideas = await IdeaModel.find({});
   
       return res.status(httpCode.ok).json(ideas);
     } catch {

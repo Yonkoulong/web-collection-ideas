@@ -6,7 +6,7 @@ const campaignSchema  = new Schema({
         required: true,
         unique: true
     },
-    closureDate: {
+    firstClosureDate: {
         type:Date,
         required:true,
         default:Date.now
@@ -18,6 +18,8 @@ const campaignSchema  = new Schema({
         type:mongoose.Schema.Types.ObjectId, 
         ref:'department',
     }
+},{
+    timestamps:true
 });
 
 module.exports = mongoose.model('campaign', campaignSchema );

@@ -6,15 +6,15 @@ const ideaSchema  = new Schema({
         required: true,
         unique: true
     },
-    author:{
+    authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
     },
-    category: {
+    categoryId: {
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'category',  
     },
-    campaign:{
+    campaignId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'campaign',  
     },
@@ -22,14 +22,6 @@ const ideaSchema  = new Schema({
         type: Boolean,
         require: true
     },
-    closureDate: {
-       type:Date,
-       required:true,
-       default:Date.now
-    },
-    finalClosureDate: {
-        type: Date
-    }
 
 });
 

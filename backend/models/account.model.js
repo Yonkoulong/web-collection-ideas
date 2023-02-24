@@ -17,7 +17,7 @@ const accountSchema  = new Schema({
     departmentId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'department',
-        required: true    
+           
     }
 });
 
