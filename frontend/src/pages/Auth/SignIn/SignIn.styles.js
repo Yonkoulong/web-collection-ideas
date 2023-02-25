@@ -11,23 +11,36 @@ export const SignInContainer = styled(Box)`
 `
 
 export const SignInHead = styled(Box)`
-    padding: 16px 0px;
+    padding: 48px 0px 16px;
 `
 
 export const SignInHeadLogo = styled('img')``
 
 export const SignInWrapper = styled(Box)`
     display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+
+`
+
+export const SignInBody = styled(Box)`
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    height: calc(100% - 100px);
 `
 
 export const SignInContent = styled(Box)`
-
+    
 `
 
-export const SignInContentIntro = styled(Typography)``
+export const SignInContentIntro = styled(Typography)`
+    ${({ theme: { } }) => css`
+        &&& {
+            font-size: 20px;
+        }
+    `}
+`
 
 export const SignInForm = styled('form')`
     margin-top: 24px;
@@ -40,6 +53,20 @@ export const InputStyledWrapper = styled(Box)`
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+
+    .MuiInputBase-root {
+        border-radius: 10px;
+    }
+
+    .MuiInputBase-input {
+        font-size: 20px;
+    }
+
+    .MuiButtonBase-root {
+        border-radius: 10px;
+        font-size: 20px;
+    }
 `
 
 export const SignInImageWrapper = styled(Box)``

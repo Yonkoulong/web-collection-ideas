@@ -13,7 +13,6 @@ import ImageSignIn from "@/assets/images/signinImage.png";
 import {
   SignInContainer,
   SignInHead,
-  SignInHeadLogo,
   SignInWrapper,
   SignInContent,
   SignInContentIntro,
@@ -21,10 +20,17 @@ import {
   InputStyledWrapper,
   SignInImageWrapper,
   SignInImage,
+  SignInBody,
 } from "./SignIn.styles";
 import { StringRequired } from "@/shared/utils/validation";
+import {  toast } from 'react-toastify';
+import { postLogin } from "@/services/auth.services";
+import { redirectTo } from "@/shared/utils/history";
+import { useAppStore } from "@/stores/useAppStore"; 
 
 export const SignIn = () => {
+  const { setUserInfo } = useAppStore((state) => state);
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -34,13 +40,26 @@ export const SignIn = () => {
     reset,
     formState: { errors },
   } = useForm({
-    username: "",
+    email: "",
     password: "",
   });
 
-  const onSubmit = (data) => {
-    setLoading(!loading);
-    console.log(data);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const response = await postLogin(data);
+      if(response) {
+        localStorage.setItem('userInfo', response?.data?.dât);
+        setUserInfo(response?.data?.data)
+        toast.success("Login in successfully!");
+        setLoading(false);
+        redirectTo('/admin');
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.status;
+      toast.error(errorMessage);
+      setLoading(false);
+    }
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -51,10 +70,11 @@ export const SignIn = () => {
 
   return (
     <SignInContainer>
-      <SignInHead>
-        <IconLightBulb viewBox="0 0 50 50" sx={{ fontSize: "32px" }} />
-      </SignInHead>
       <SignInWrapper>
+        <SignInHead>
+          <IconLightBulb viewBox="0 0 50 50" sx={{ fontSize: "50px" }} />
+        </SignInHead>
+        <SignInBody>
         <SignInContent>
           <SignInContentIntro>
             Web-based role-based system <br />
@@ -64,21 +84,21 @@ export const SignIn = () => {
           <SignInForm onSubmit={handleSubmit(onSubmit)}>
             <InputStyledWrapper>
               <Controller
-                name="username"
+                name="email"
                 control={control}
-                rules={{ validate: (v) => StringRequired(v, "Username") }}
+                rules={{ validate: (v) => StringRequired(v, "Email") }}
                 render={({ field, fieldState: { error } }) => (
                   <TextField
                     {...field}
                     type="text"
-                    placeholder="Enter username"
+                    placeholder="Enter Email"
                     error={error != undefined}
                   />
                 )}
               />
               <ErrorMessage
                 errors={errors}
-                name="username"
+                name="email"
                 render={({ message }) => (
                   <div style={{ color: "red", fontSize: 12 }}>{message}</div>
                 )}
@@ -129,7 +149,7 @@ export const SignIn = () => {
                 disableElevation
                 variant="contained"
               >
-                LOG IN
+                Log In
               </LoadingButton>
             </InputStyledWrapper>
           </SignInForm>
@@ -137,6 +157,7 @@ export const SignIn = () => {
         <SignInImageWrapper>
           <SignInImage src={ImageSignIn} alt="signin image" />
         </SignInImageWrapper>
+        </SignInBody>
       </SignInWrapper>
     </SignInContainer>
   );
