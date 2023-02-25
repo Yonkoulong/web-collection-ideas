@@ -9,7 +9,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { TextField, OutlinedInput, InputAdornment } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { IconLightBulb } from "@/assets/icons";
-import ImageSignIn from "@/assets/images/signinImage.png";
+import  ImageSignIn  from "@/assets/images/signinImage.png";
 import {
   SignInContainer,
   SignInHead,
@@ -22,7 +22,7 @@ import {
   SignInImage,
   SignInBody,
 } from "./SignIn.styles";
-import { StringRequired } from "@/shared/utils/validation";
+import { StringRequired } from "@/shared/utils/validation.utils";
 import {  toast } from 'react-toastify';
 import { postLogin } from "@/services/auth.services";
 import { redirectTo } from "@/shared/utils/history";
@@ -49,7 +49,7 @@ export const SignIn = () => {
     try {
       const response = await postLogin(data);
       if(response) {
-        localStorage.setItem('userInfo', response?.data?.dât);
+        localStorage.setItem('userInfo', response?.data?.data);
         setUserInfo(response?.data?.data)
         toast.success("Login in successfully!");
         setLoading(false);

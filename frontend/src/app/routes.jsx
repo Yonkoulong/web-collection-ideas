@@ -16,5 +16,8 @@ export const routes = [
             }
         ]
 
+    },
+    {
+        path: "/ideas"
     }
 ];
