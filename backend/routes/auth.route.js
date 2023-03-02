@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authController = require("../controllers/authenticate.controller");
-
+const verifyJWT = require("../middleware/verifyJWT.middleware");
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
 authController.forEach((item) => {

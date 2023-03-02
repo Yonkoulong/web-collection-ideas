@@ -12,6 +12,7 @@ const getCoordinator = async (_req, res) => {
     }
 };
 
+
 module.exports = [
   {
     method: "get", //define method http

@@ -3,10 +3,6 @@ const Schema = mongoose.Schema;
 const commentSchema = new mongoose.Schema({
     content: {
         type: String,
-        default: emotionType.NONE
-    }, enonymously: {
-        type: Boolean,
-        require: true
     },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,

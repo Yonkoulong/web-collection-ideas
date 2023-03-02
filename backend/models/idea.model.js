@@ -9,14 +9,17 @@ const ideaSchema  = new Schema({
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
+        require: true
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'category',  
+        ref: 'category', 
+        require: true 
     },
     campaignId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'campaign',  
+        require: true
     },
     enonymously: {
         type: Boolean,

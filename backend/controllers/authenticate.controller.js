@@ -1,7 +1,9 @@
 //require model
-const User = require("../models/account.model");
+const AccountModel = require("../models/account.model");
 //const Role = require("../Ulti")
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 const postLogin = async (req, res) => {
     //create an array of documents
@@ -10,18 +12,35 @@ const postLogin = async (req, res) => {
     let role = req.body.role
     let response
     console.log(email, password, role)
-    const user = await User.findOne({
-        email: email,     
-    }).then(data => {
-        if (data) {
-            const match = bcrypt.compareSync(password, data.password)
+    
+    try {
+        const user = await AccountModel.findOne({
+            email: email,     
+        })
+        if (user) {
+            const match = bcrypt.compareSync(password, user.password)
             if(match)
-            {
+            {   
+                // create JWTs
+                const accesToken = jwt.sign(
+                    {"email": email},
+                    process.env.ACCESS_TOKEN_SECRET,
+                    {expiresIn:'30s'}
+                    );
+                const refreshToken = jwt.sign(
+                    {"email": email},
+                    process.env.REFRESH_TOKEN_SECRET,
+                    {expiresIn:'1d'}
+                    );
+                  await AccountModel.findByIdAndUpdate(
+                    user.id,                   
+                    {refreshToken: refreshToken })
                 response = {
-                    'status': `user ${data.email} login success!`,
-                    'data': data
+                    'status': `user ${user.email} login success!`,
+                    'data': accesToken
                   }    
                   console.log(response)       
+                  res.cookie('jwt',refreshToken,{httpOnly:true,maxAge:24*60*60*1000})
                   return res.status(201).json(response);
             }  
             else{
@@ -38,10 +57,9 @@ const postLogin = async (req, res) => {
               }    
             return res.status(401).json(response)
         }
-    }).catch(err => {
-        res.status(500).json({'message' : err.message});
+    } catch (error) {
+        res.status(500).json({'message' : error.message});
     }
-    )
 };
 
 module.exports = [

@@ -1,11 +1,7 @@
-const reactionType = require('../Ulti')
+const emotionType = require('../Ulti')
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const reactionSchema = new Schema({
-     type:{
-        type:Number,
-        default:reactionType.NONE
-     },
+const viewSchema = new Schema({
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
@@ -18,4 +14,4 @@ const reactionSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('reaction', reactionSchema)
+module.exports = mongoose.model('view', viewSchema)

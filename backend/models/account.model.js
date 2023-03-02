@@ -14,6 +14,10 @@ const accountSchema  = new Schema({
         type: String,
         required: true    
     },
+    refreshToken: {
+        type:String,
+        
+    },
     departmentId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'department',
