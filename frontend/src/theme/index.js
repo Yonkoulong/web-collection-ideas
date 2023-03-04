@@ -1,11 +1,11 @@
 import { createTheme } from '@mui/material/styles';
-import { blackColor, primaryColor } from '@/shared/utils/colors.utils';
+import { blackColor, primaryColor, activeColor } from '@/shared/utils/colors.utils';
 
 export const appTheme = createTheme({
     palette: {
         primary: {
-            main: primaryColor,
-            contrastText: blackColor
+            main: activeColor,
+            contrastText: primaryColor
         },
         success: {
             main: '#4caf50'

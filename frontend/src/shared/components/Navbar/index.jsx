@@ -1,12 +1,12 @@
 import React from "react";
 import PieChartSharpIcon from "@mui/icons-material/PieChartSharp";
 import GroupIcon from "@mui/icons-material/Group";
-import { IconLightBulb, } from "@/assets/icons";
-import LogoutIcon from '@mui/icons-material/Logout';
-import  NavbarBottomImageLink  from "@/assets/images/navbarBottom.png";
+import { IconLightBulb } from "@/assets/icons";
+import LogoutIcon from "@mui/icons-material/Logout";
+import NavbarBottomImageLink from "@/assets/images/navbarBottom.png";
 
 import {
-  NavbarContainer, 
+  NavbarContainer,
   NavbarHead,
   NavbarLogoWrapper,
   NavbarBody,
@@ -23,62 +23,87 @@ import { NavLinkCustomize } from "./NavLink";
 
 const navList = [
   {
-    to: "admin/manages-account",
+    to: "/admin/user-management",
     icon: <PieChartSharpIcon />,
     title: "Manages Account",
+    permission: 'admin',
   },
   {
-    to: "Ideas",
+    to: "/ideas",
     icon: <GroupIcon />,
     title: "Popular Ideas",
+    permission: 'all',
   },
   {
-    to: "/admin/department",
+    to: "/admin/departments",
     icon: <GroupIcon />,
     title: "Department",
+    permission: 'admin',
   },
   {
-    to: "/admin/campain",
+    to: "/admin/campains",
     icon: <GroupIcon />,
     title: "Campaign",
+    permission: 'admin',
   },
+  {
+    to: "/qam/categories",
+    icon: <GroupIcon />,
+    title: "Categories",
+    permission: 'qam',
+  },
+  {
+    to: "/qam/dashboard",
+    icon: <GroupIcon />,
+    title: "Dashboard",
+    permission: 'qam',
+  },
+  {
+    to: "/idea-management",
+    icon: <GroupIcon />,
+    title: "Idea Management",
+    permission: 'staff',
+  }, 
 ];
 
 export const Navbar = () => {
   return (
     <NavbarContainer>
-        <NavbarHead>
-          <NavbarLogoWrapper>
-              <IconLightBulb viewBox="0 0 50 50" sx={{ fontSize: "30px" }} />
-          </NavbarLogoWrapper>
-        </NavbarHead>
-        <NavbarBody>
-          <NavbarStyled>
-            <NavbarListStyled>
-                {navList.length > 0 &&
-                navList.map((item) => {
+      <NavbarHead>
+        <NavbarLogoWrapper>
+          <IconLightBulb viewBox="0 0 50 50" sx={{ fontSize: "30px" }} />
+        </NavbarLogoWrapper>
+      </NavbarHead>
+      <NavbarBody>
+        <NavbarStyled>
+          <NavbarListStyled>
+            {navList.length > 0 &&
+              navList.map((item, index) => {
                 return (
-                    <NavbarItemStyled key={item}>
+                  <NavbarItemStyled key={index}>
                     <NavLinkCustomize
-                        to={item.to}
-                        icon={item.icon}
-                        title={item.title}
+                      to={item.to}
+                      icon={item.icon}
+                      title={item.title}
                     />
-                    </NavbarItemStyled>
-                ) 
-                })}
-            </NavbarListStyled>
-          </NavbarStyled>
-        </NavbarBody>
-        <NavbarBottom>
-          <NavbarBottomWrapperImage>
-            <NavbarBottomImage src={NavbarBottomImageLink} alt="Navbar bottom image"/>
-          </NavbarBottomWrapperImage>
-          <NavbarBottomLogout>
-              <LogoutIcon fontSize="small"/>
-              <NavbarBottomLogoutText>Logout</NavbarBottomLogoutText>
-          </NavbarBottomLogout>
-        </NavbarBottom>
+                  </NavbarItemStyled>
+                );
+              })}
+          </NavbarListStyled>
+        </NavbarStyled>
+      </NavbarBody>
+      <NavbarBottom>
+        <NavbarBottomWrapperImage>
+          <NavbarBottomImage
+            src={NavbarBottomImageLink}
+            alt="Navbar bottom image"
+          />
+        </NavbarBottomWrapperImage>
+        <NavbarBottomLogout>
+          <LogoutIcon fontSize="small" />
+          <NavbarBottomLogoutText>Logout</NavbarBottomLogoutText>
+        </NavbarBottomLogout>
+      </NavbarBottom>
     </NavbarContainer>
   );
 };

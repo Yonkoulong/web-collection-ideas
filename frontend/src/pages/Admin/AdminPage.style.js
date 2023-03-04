@@ -7,6 +7,6 @@ export const AdminPageContainer = styled(Box)`
 `;
 
 export const AdminPageContent = styled(Box)`
-    width: 80%;
+    width: 100%;
     padding-left: 20%;
 `;

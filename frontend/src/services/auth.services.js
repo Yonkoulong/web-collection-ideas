@@ -1,5 +1,5 @@
-import { http } from './http';
+import { http, noTokenHttp } from './http';
 
 export async function postLogin(payload) {
-    return http.post("/login", payload);
+    return noTokenHttp.post("/login", payload);
 }

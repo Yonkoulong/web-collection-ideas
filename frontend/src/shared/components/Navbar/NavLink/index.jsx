@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
 import { NavLinkWrapper, NavLinkTitle } from './NavLink.styles';
-import { inActiveColor, whiteColor, primaryColor } from '@/shared/utils/colors.utils';
+import { inActiveColor, whiteColor, primaryColor, activeColor } from '@/shared/utils/colors.utils';
 
 let commonStyle = {
     display: 'flex',
@@ -11,8 +11,8 @@ let commonStyle = {
 
 let activeStyle = {
     ...commonStyle,
-    backgroundColor: primaryColor,
-    color: whiteColor,
+    backgroundColor: activeColor,
+    color: primaryColor,
 }
 
 let inActiveStyle = {

@@ -15,8 +15,8 @@ adminController.forEach((item) => {
     //C2
     // router[item.method](item.routeName, item.controller);
 });
+
 ideaController.forEach((item) =>{
-   
     const { method, route, controller } = item;
     router[method](route, controller);
 })
