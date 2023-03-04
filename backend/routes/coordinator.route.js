@@ -14,7 +14,7 @@ coordinatorController.forEach((item) => {
     //C2
     // router[item.method](item.routeName, item.controller);
 });
-router.get('/',(req,res)=>{
+router.get('/coordinator',(req,res)=>{
     res.json('Hello coordinator')
 })
 module.exports = router;

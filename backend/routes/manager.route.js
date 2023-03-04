@@ -14,7 +14,7 @@ managerController.forEach((item) => {
     //C2
     // router[item.method](item.routeName, item.controller);
 });
-router.get('/',(req,res)=>{
+router.get('/manager',(req,res)=>{
     res.json('Hello admin')
 })
 module.exports = router;

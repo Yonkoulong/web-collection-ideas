@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const emotionType = require('../Ulti')
 const Schema = mongoose.Schema;
 const categorySchema  = new Schema({
     type:{

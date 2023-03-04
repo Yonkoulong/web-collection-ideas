@@ -4,16 +4,15 @@ const getStaffs = async (req, res) => {
     //create an array of documents
     var email = req.body.username
     var password = req.body.password
-    var role = req.body.role
     try {
       const users = await User.find({
         email: email,
         password: password,
-        role:role
+      
       });
-      return res.status(httpCode.ok).json(users);
+      return res.status(200).json(users);
     } catch {
-      return res.status(httpCode.badRequest).json([]);
+      return res.status(200).json([]);
     }
 };
 
