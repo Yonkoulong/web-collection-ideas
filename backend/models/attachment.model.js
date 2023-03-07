@@ -7,11 +7,10 @@ const attachmentSchema  = new Schema({
     },
     originalName: {
         type: String,
-        required: true,
+        
     },
     fileSize:{
         type: String,
-        required: true    
     },
     authorId:{
         type:mongoose.Schema.Types.ObjectId, 
