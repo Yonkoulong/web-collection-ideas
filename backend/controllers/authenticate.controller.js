@@ -36,7 +36,10 @@ const postLogin = async (req, res) => {
                     { refreshToken: refreshToken })
                 response = {
                     'status': `user ${user.email} login success!`,
-                    'data': accesToken
+                    'data': {
+                        accesToken,
+                        user
+                    }
                 }
                 console.log(response)
                 res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
