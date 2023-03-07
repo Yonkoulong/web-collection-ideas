@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { useAppStore } from '@/stores/AppStore';
+import { useAppStore } from '@/stores/useAppStore';
 import { redirectTo } from "../shared/utils/history";
 import { toast } from "react-toastify";
 
@@ -41,13 +41,13 @@ http.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
 
-  if (error?.response?.status == 401) {
-    redirectTo("/");
-    toast.error(`Authorization Fail!`);
-  }
+  // if (error?.response?.status == 401) {
+  //   redirectTo("/");
+  //   toast.error(`Authorization Fail!`);
+  // }
   // Any status codes that falls outside the range of 2xx cause this function to trigger
   // Do something with response error
   return Promise.reject(error);
 });
 
-export default requestAxios;
+export default http;

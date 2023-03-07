@@ -3,7 +3,7 @@ import { Navigate, redirect } from 'react-router-dom';
 
 import {  toast } from 'react-toastify';
 import { getRefreshToken } from '@/services/auth.services';
-import { useAppStore } from '@/stores/AppStore';
+import { useAppStore } from '@/stores/useAppStore';
 
 const ProtectedRoute = ({ children }) => {
     const [isLogged, setIsLogged] = useState();
@@ -13,11 +13,13 @@ const ProtectedRoute = ({ children }) => {
         (async () => {
             try {
                 const resp = await getRefreshToken();
+                
                 if(resp) {
                     setUserInfo(resp?.data?.content);
                     setIsLogged(!!resp);
                 }
             } catch (error) {
+                console.log(error);
                 const errorMessage = error?.response?.data?.content;
                 setIsLogged(error?.response?.status);
                 toast.error(errorMessage);
