@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
-export const http  = axios.create({
-    baseURL,
+export const http = axios.create({
+  withCredentials: true,
+  baseURL,
 });
 
 export const noTokenHttp = axios.create({
@@ -25,7 +26,8 @@ http.interceptors.request.use(function (config) {
 
   config.headers = {
     ...config.headers,
-    Authorization: `Bearer ${token && token}`
+    Authorization: `Bearer ${token && token}`,
+    // Cookies:`jwt=${token}`,
   }
   return config;
 }, function (error) {
@@ -41,10 +43,10 @@ http.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
 
-  // if (error?.response?.status == 401) {
-  //   redirectTo("/");
-  //   toast.error(`Authorization Fail!`);
-  // }
+  if (error?.response?.status == 401) {
+    redirectTo("/");
+    toast.error(`Authorization Fail!`);
+  }
   // Any status codes that falls outside the range of 2xx cause this function to trigger
   // Do something with response error
   return Promise.reject(error);

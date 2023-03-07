@@ -6,13 +6,25 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const setupRoutes = require("./app-routes");
 
+// const whitelist = ['http://localhost:5173', 'http://localhost:8080']
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (whitelist.indexOf(origin) !== -1) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error())
+//     }
+//   },
+//   credentials: true,
+// }
+
 const app = express();
 // create application/x-www-form-urlencoded parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 app.use(bodyParser.json())
-app.use(cors());
+app.use(cors({credentials: true, origin: "http://localhost:5173"}));
 
 const setupApp = async () => {
    dotenv.config();
