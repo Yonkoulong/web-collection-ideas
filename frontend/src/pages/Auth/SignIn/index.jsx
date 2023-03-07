@@ -49,7 +49,8 @@ export const SignIn = () => {
     try {
       const response = await postLogin(data);
       if(response) {
-        localStorage.setItem('token', response?.data?.data);
+        cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
+        localStorage.setItem('token', response?.data?.data?.user?.refreshToken);
         setUserInfo(response?.data?.data)
         toast.success("Login in successfully!");
         setLoading(false);

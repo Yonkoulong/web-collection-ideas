@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppStore } from '@/stores/AppStore';
+import { useAppStore } from '@/stores/useAppStore';
 import { PageNotPermission } from '@/pages/NotPermission';
 
 const AuthorizationRoute = ({ children, allowRoles = [] }) => {
