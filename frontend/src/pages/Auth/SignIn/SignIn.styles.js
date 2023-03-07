@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@mui/material';
+import { whiteColor } from '@/shared/utils/colors.utils';
 
 export const SignInContainer = styled(Box)`
     width: 100%;
@@ -37,7 +38,7 @@ export const SignInContent = styled(Box)`
 export const SignInContentIntro = styled(Typography)`
     ${({ theme: { } }) => css`
         &&& {
-            font-size: 20px;
+            font-size: 18px;
         }
     `}
 `
@@ -60,12 +61,13 @@ export const InputStyledWrapper = styled(Box)`
     }
 
     .MuiInputBase-input {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .MuiButtonBase-root {
         border-radius: 10px;
-        font-size: 20px;
+        font-size: 18px;
+        color: ${whiteColor};
     }
 `
 

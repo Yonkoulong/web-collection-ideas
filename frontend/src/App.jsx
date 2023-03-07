@@ -2,6 +2,8 @@ import React, { useState, useLayoutEffect } from "react";
 import { Routes, Route, Router } from "react-router-dom";
 import { routes } from "@/app/routes";
 import history from "@/shared/utils/history";
+import { ThemeProvider } from "@mui/material/styles";
+import { appTheme } from "@/theme";
 
 const CustomRouter = ({ basename, children, history }) => {
   const [state, setState] = useState({
@@ -11,13 +13,15 @@ const CustomRouter = ({ basename, children, history }) => {
 
   useLayoutEffect(() => history.listen(setState), [history]);
   return (
-    <Router
-      basename={basename}
-      children={children}
-      location={state.location}
-      navigationType={state.action}
-      navigator={history}
-    />
+    <ThemeProvider theme={appTheme}>
+      <Router
+        basename={basename}
+        children={children}
+        location={state.location}
+        navigationType={state.action}
+        navigator={history}
+      />
+    </ThemeProvider>
   );
 };
 
