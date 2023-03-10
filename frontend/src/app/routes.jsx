@@ -1,6 +1,6 @@
 import { SignIn } from "@/pages/Auth/SignIn";
 import { AdminPage } from "@/pages/Admin";
-import { UserManagement } from "@/pages/Admin/User-management";
+import { UserManagement } from "@/pages/Admin/User-Management";
 import { CreateAndEditUser } from "@/pages/Admin/CreateAndEditUser";
 import { Department } from "@/pages/Admin/Department";
 import { Campaign } from "@/pages/Admin/Campaign";

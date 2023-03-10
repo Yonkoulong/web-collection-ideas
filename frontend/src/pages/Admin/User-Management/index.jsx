@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+
 import { SearchCustomize } from "@/shared/components/Search";
 import {
-  Button,
   Box,
   Table,
   TableHead,
@@ -10,6 +10,9 @@ import {
   TableCell,
   TablePagination,
 } from "@/shared/components";
+import Button from '@mui/material/Button';
+
+import { redirectTo } from "@/shared/utils/history";
 
 export const UserManagement = () => {
   const [passengersList, setPassengersList] = useState([]);
@@ -34,6 +37,7 @@ export const UserManagement = () => {
     });
   };
 
+
   return (
     <Box
       sx={{
@@ -51,7 +55,12 @@ export const UserManagement = () => {
           <Box sx={{ mr: 2 }}>
             <SearchCustomize />
           </Box>
-          <Button variant="contained">Create Acount</Button>
+          <Button
+            variant="contained"
+            onClick={() => redirectTo("/admin/create-user")}
+          >
+            Create Acount
+          </Button>
         </Box>
 
         <Box sx={{ mt: 4 }}>
