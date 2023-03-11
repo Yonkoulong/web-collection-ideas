@@ -15,6 +15,7 @@ const getAdmin = async (_req, res) => {
     return res.status(500).json([]);
   }
 };
+
 const postRegisterAccount = async (req, res) => {
   let email = req.body.email
   let password = req.body.password
@@ -66,6 +67,7 @@ const postRegisterAccount = async (req, res) => {
     })
 
 }
+
 const postCreateDepartment = async (req, res) => {
   let name = req.body.name
   let description = req.body.description
@@ -85,6 +87,7 @@ const postCreateDepartment = async (req, res) => {
       res.status(500).json(err.message)
     })
 }
+
 const postCreateCampaign= async (req, res) => {
    let name = req.body.name
    let departmentId = req.body.departmentId
@@ -107,6 +110,7 @@ const postCreateCampaign= async (req, res) => {
     res.status(500).json(err.message)
   })
 }
+
 // TODO :update campaign
 const patchClosureDateCampaign = async(req,res )=>{
 // TODO: delete campaign
