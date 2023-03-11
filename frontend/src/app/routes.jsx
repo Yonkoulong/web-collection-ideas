@@ -6,7 +6,9 @@ import { Department } from "@/pages/Admin/Department";
 import { Campaign } from "@/pages/Admin/Campaign";
 import { Ideas } from "@/shared/components/Ideas";
 import { QAMPage } from "@/pages/QAM";
-import  ProtectedRoute  from "@/shared/HOC/AuthenticationRoute";
+import { enumRoles } from "@/shared/utils/constant.utils";
+import ProtectedRoute from "@/shared/HOC/AuthenticationRoute";
+import AuthorizationRoute from "@/shared/HOC/AuthorizationRoute";
 
 export const routes = [
   {
@@ -17,7 +19,9 @@ export const routes = [
     path: "/admin",
     element: (
       <ProtectedRoute>
-        <AdminPage />
+        <AuthorizationRoute allowRoles={[enumRoles.ADMIN]}>
+          <AdminPage />
+        </AuthorizationRoute>
       </ProtectedRoute>
     ),
     children: [
@@ -45,7 +49,11 @@ export const routes = [
   },
   {
     path: "/qam",
-    element: <QAMPage />,
+    element: (
+      <ProtectedRoute>
+        <QAMPage />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/qam/categories",

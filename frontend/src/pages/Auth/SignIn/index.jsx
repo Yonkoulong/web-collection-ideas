@@ -26,7 +26,7 @@ import { StringRequired } from "@/shared/utils/validation.utils";
 import {  toast } from 'react-toastify';
 import { postLogin } from "@/services/auth.services";
 import { redirectTo } from "@/shared/utils/history";
-import { useAppStore } from "@/stores/useAppStore"; 
+import { useAppStore } from "@/stores/AppStore"; 
 
 export const SignIn = () => {
   const { setUserInfo } = useAppStore((state) => state);
@@ -77,8 +77,8 @@ export const SignIn = () => {
         <SignInBody>
         <SignInContent>
           <SignInContentIntro>
-            Web-based role-based system <br />
-            to collect ideas for improvement from staff in large university
+            Web internal where is share ideas <br /> 
+            between staff in university        
           </SignInContentIntro>
 
           <SignInForm onSubmit={handleSubmit(onSubmit)}>

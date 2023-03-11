@@ -19,8 +19,8 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { postCreateCampaign } from "@/services/admin.services";
-import { useAppStore } from "@/stores/useAppStore";
+import { postCampaign } from "@/services/admin.services";
+import { useAppStore } from "@/stores/AppStore";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import {
   CreateCampaignFormWrapper,

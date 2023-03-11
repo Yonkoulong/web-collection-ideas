@@ -358,7 +358,7 @@ module.exports = [
   {
     method: "put", //define method http
     controller: putDepartment, //this is method handle when have request on server
-    route: "/admin/department", //define API
+    route: "/admin/department/:id", //define API
   },
   {
     method: "delete", //define method http

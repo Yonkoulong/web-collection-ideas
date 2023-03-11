@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, Badge, Paper, IconButton } from "@/shared/components";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { HeaderImage } from "./HeaderComponent.styles";
+import { useAppStore } from "@/stores/AppStore";
 
 const flexCenter = {
   display: "flex",
@@ -9,6 +10,8 @@ const flexCenter = {
 };
 
 export const HeaderComponent = () => {
+  const userInfo = useAppStore((state) => state.userInfo);
+
   return (
     <Box sx={{}}>
       <Paper
@@ -22,7 +25,7 @@ export const HeaderComponent = () => {
         }}
       >
         <Box>
-          <Typography>Welcome {}</Typography>
+          <Typography>Welcome {userInfo?.role}</Typography>
         </Box>
         <Box sx={flexCenter}>
           <Box sx={{...flexCenter, mr: "20px"}}>

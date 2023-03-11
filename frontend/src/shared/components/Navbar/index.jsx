@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PieChartSharpIcon from "@mui/icons-material/PieChartSharp";
 import GroupIcon from "@mui/icons-material/Group";
 import { IconLightBulb } from "@/assets/icons";
@@ -20,53 +20,73 @@ import {
   NavbarBottomLogoutText,
 } from "./NavBar.styles";
 import { NavLinkCustomize } from "./NavLink";
+import { useAppStore } from "@/stores/AppStore";
+import { isObjectEmpty } from "@/shared/utils/constant.utils";
 
 const navList = [
   {
     to: "/admin/user-management",
     icon: <PieChartSharpIcon />,
     title: "Manages Account",
-    permission: 'admin',
+    permission: "admin",
   },
   {
     to: "/ideas",
     icon: <GroupIcon />,
     title: "Popular Ideas",
-    permission: 'all',
+    permission: "all",
   },
   {
     to: "/admin/departments",
     icon: <GroupIcon />,
     title: "Department",
-    permission: 'admin',
+    permission: "admin",
   },
   {
     to: "/admin/campains",
     icon: <GroupIcon />,
     title: "Campaign",
-    permission: 'admin',
+    permission: "admin",
   },
   {
     to: "/qam/categories",
     icon: <GroupIcon />,
     title: "Categories",
-    permission: 'qam',
+    permission: "qam",
   },
   {
     to: "/qam/dashboard",
     icon: <GroupIcon />,
     title: "Dashboard",
-    permission: 'qam',
+    permission: "qam",
   },
   {
     to: "/idea-management",
     icon: <GroupIcon />,
     title: "Idea Management",
-    permission: 'staff',
-  }, 
+    permission: "staff",
+  },
 ];
 
 export const Navbar = () => {
+  const userInfo = useAppStore((state) => state.userInfo);
+  const [navListPermission, setNavListPermission] = useState([]);
+
+  const handleShowNavLinkByRole = () => {
+    if (userInfo && !isObjectEmpty(userInfo)) {
+      const newNavList = navList.filter(
+        (nav) => nav?.permission === userInfo?.role || nav?.permission === "all"
+      );
+      setNavListPermission(newNavList);
+
+      return newNavList;
+    }
+  };
+
+  useEffect(() => {
+    handleShowNavLinkByRole();
+  }, [userInfo]);
+
   return (
     <NavbarContainer>
       <NavbarHead>
@@ -77,8 +97,8 @@ export const Navbar = () => {
       <NavbarBody>
         <NavbarStyled>
           <NavbarListStyled>
-            {navList.length > 0 &&
-              navList.map((item, index) => {
+            {navListPermission.length > 0 &&
+              navListPermission.map((item, index) => {
                 return (
                   <NavbarItemStyled key={index}>
                     <NavLinkCustomize

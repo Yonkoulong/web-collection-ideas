@@ -6,6 +6,7 @@ import {
   TextPopUpConfirm,
   DialogHeader,
 } from "./PopUp.styles";
+import { primaryColor } from '@/shared/utils/colors.utils';
 
 export const PopUpConfirm = ({ open, onConfirm, onCancel, content }) => {
   const handleConFirm = () => {
@@ -33,7 +34,7 @@ export const PopUpConfirm = ({ open, onConfirm, onCancel, content }) => {
         <TextPopUpConfirm>{content}</TextPopUpConfirm>
       </DialogContent>
       <DialogActions sx={{ padding: "20px 40px" }}>
-        <ButtonActionCanCel onClick={handleClose} variant="outlined">
+        <ButtonActionCanCel onClick={handleClose} variant="outlined" sx={{ color: primaryColor }}>
           CANCEL
         </ButtonActionCanCel>
         <ButtonActionConfirm onClick={handleConFirm} variant="contained">
