@@ -68,6 +68,8 @@ const getRefreshToken = async (req, res) => {
     const cookies = req?.cookies;
     console.log(cookies);
     if (!cookies?.jwt) return res.sendStatus(401);
+    const token = req?.headers?.cookies||req?.headers?.Cookies
+    console.log("alo" +token)
     const refreshToken = cookies.jwt;
     try {
         const foundAccount = await AccountModel.findOne({ refreshToken: refreshToken })
@@ -82,7 +84,7 @@ const getRefreshToken = async (req, res) => {
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: '30s' }
                 );
-                return res.status(201).json(accesToken);
+                return res.status(201).json({accesToken,foundAccount});
             }
         )
 
