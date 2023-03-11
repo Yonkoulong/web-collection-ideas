@@ -6,6 +6,8 @@ const ideaController = require("../controllers/idea.controller");
 const commentController = require("../controllers/comment.controller");
 const reactionController = require("../controllers/reaction.controller");
 const verifyJWT = require("../middleware/verifyJWT.middleware");
+const uploadCloud = require("../middleware/uploadCloud.middleware");
+const fileController = require("../controllers/file.controller");
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
 staffController.forEach((item) => {
@@ -22,8 +24,18 @@ ideaController.forEach((item) =>{
     const { method, route, controller } = item;
     router[method](route,verifyJWT, controller);
 })
-commentController.forEach((item) =>{
+fileController.forEach((item) =>{
+    const { method, route, controller } = item;
+    if(item.method =="post" && item.route=="/file" ){
+        router[method](route,uploadCloud.single('file'), controller);
+    }
+    else{
+        router[method](route, controller);
+    }
    
+})
+commentController.forEach((item) =>{
+    
     const { method, route, controller } = item;
     router[method](route, controller);
 })

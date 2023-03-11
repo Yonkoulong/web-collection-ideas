@@ -3,6 +3,7 @@ const UserModel = require("../models/account.model");
 const DepartmentModel = require("../models/department.model");
 const campaignModel = require('../models/campaign.model')
 const bcrypt = require("bcrypt");
+const AccountModel = require("../models/account.model");
 //const Role = require("../Ulti")
 
 const getAdmin = async (_req, res) => {
@@ -15,7 +16,7 @@ const getAdmin = async (_req, res) => {
     return res.status(500).json([]);
   }
 };
-const postRegisterAccount = async (req, res) => {
+const postAccount = async (req, res) => {
   let email = req.body.email
   let password = req.body.password
   let role = req.body.role
@@ -65,8 +66,69 @@ const postRegisterAccount = async (req, res) => {
       res.status(500).json({ 'message': err.message })
     })
 
-}
-const postCreateDepartment = async (req, res) => {
+};
+const getAccount = async(req, res) =>{
+  try {
+    let accounts = await AccountModel.find({});
+    if(accounts){
+      response = {
+        'status': 'Get all accounts success',
+        'data': accounts
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const getAccountById = async(req, res) =>{
+  try {
+    let id = req.params.id
+    let account = await AccountModel.find({id});
+    if(account){
+      response = {
+        'status': 'Get account success',
+        'data': account
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+ 
+};
+const getAccountByDepartment = async(req, res) =>{
+  try {
+    let departmentId = req.params.id
+    let accounts = await AccountModel.find({departmentId:departmentId});
+    if(accounts){
+      response = {
+        'status': 'Get account by department success',
+        'data': accounts
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+ 
+};
+const deleteAccount = async(req, res) =>{
+  try {
+    let id = req.params.id
+    let account = await AccountModel.findByIdAndDelete({id});
+    if(account){
+      response = {
+        'status': 'Delete account success',
+        'data': account
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const postDepartment = async (req, res) => {
   let name = req.body.name
   let description = req.body.description
   let response
@@ -85,7 +147,71 @@ const postCreateDepartment = async (req, res) => {
       res.status(500).json(err.message)
     })
 }
-const postCreateCampaign= async (req, res) => {
+const getDepartment = async(req, res) =>{
+  try {
+    let departments = await DepartmentModel.find({});
+    if(departments){
+      response = {
+        'status': 'Get all department success',
+        'data': departments
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const getDepartmentById = async(req, res) =>{
+  try {
+    let id = req.params.id
+    let department = await DepartmentModel.find({id});
+    if(department){
+      response = {
+        'status': 'Get department success',
+        'data': department
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const putDepartment = async (req, res)=>{
+  try {
+    let id = req.params.id
+    let name = req.body.name
+    let description = req.body.description
+    let response
+    let newDepartment= await DepartmentModel.findByIdAndUpdate(id,{
+      name: name,
+      description: description
+    })
+    if(newDepartment){
+      response = {
+        'status': 'Update department success',
+        'data': newDepartment
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+}
+const deleteDepartment = async (req, res)=>{
+  try {
+    let id = req.params.id
+    let response
+    await DepartmentModel.findByIdAndDelete(id)
+      response = {
+        'status': 'Delete department success',
+      }      
+      res.status(200).json(response)
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+}
+
+const postCampaign= async (req, res) => {
    let name = req.body.name
    let departmentId = req.body.departmentId
    let finalClosureDate = req.body?.finalClosureDate
@@ -120,17 +246,57 @@ module.exports = [
   },
   {
     method: "post", //define method http
-    controller: postRegisterAccount, //this is method handle when have request on server
-    route: "/admin/register", //define API
+    controller: postAccount, //this is method handle when have request on server
+    route: "/admin/account", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getAccount, //this is method handle when have request on server
+    route: "/admin/account", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getAccountById, //this is method handle when have request on server
+    route: "/admin/account/:id", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getAccountByDepartment, //this is method handle when have request on server
+    route: "/admin/department/:id/account", //define API
+  },
+  {
+    method: "put", //define method http
+    controller: deleteAccount, //this is method handle when have request on server
+    route: "/admin/account/:id", //define API
   },
   {
     method: "post", //define method http
-    controller: postCreateDepartment, //this is method handle when have request on server
-    route: "/admin/createDepartment", //define API
+    controller: postDepartment, //this is method handle when have request on server
+    route: "/admin/department", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getDepartment, //this is method handle when have request on server
+    route: "/admin/department", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getDepartmentById, //this is method handle when have request on server
+    route: "/admin/department/:id", //define API
+  },
+  {
+    method: "put", //define method http
+    controller: putDepartment, //this is method handle when have request on server
+    route: "/admin/department", //define API
+  },
+  {
+    method: "delete", //define method http
+    controller: deleteDepartment, //this is method handle when have request on server
+    route: "/admin/department/:id", //define API
   },
   {
     method: "post", //define method http
-    controller: postCreateCampaign, //this is method handle when have request on server
-    route: "/admin/createCampaign", //define API
+    controller: postCampaign, //this is method handle when have request on server
+    route: "/admin/campaign", //define API
   },
 ]
