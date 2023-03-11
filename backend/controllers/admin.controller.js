@@ -251,6 +251,7 @@ const getCampaign = async(req, res) =>{
     res.status(500).json(error.message)
   }
 };
+
 const getCampaignById = async(req, res) =>{
   try {
     let id = req.params.id
