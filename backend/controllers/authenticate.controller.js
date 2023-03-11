@@ -42,7 +42,7 @@ const postLogin = async (req, res) => {
                     }
                 }
                 console.log(response)
-                res.cookie('jwt', refreshToken, { httpOnly: false, maxAge: 24 * 60 * 60 * 1000 })
+                res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: "None", secure: true, maxAge: 24 * 60 * 60 * 1000 })
                 return res.status(201).json(response);
             }
             else {
@@ -64,7 +64,8 @@ const postLogin = async (req, res) => {
     }
 };
 const getRefreshToken = async (req, res) => {
-    const cookies = req.cookies
+    const cookies = req?.cookies;
+    console.log(cookies);
     if (!cookies?.jwt) return res.sendStatus(401);
     const token = req?.headers?.cookies||req?.headers?.Cookies
     console.log("alo" +token)
