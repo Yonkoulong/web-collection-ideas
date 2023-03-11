@@ -4,6 +4,7 @@ const DepartmentModel = require("../models/department.model");
 const campaignModel = require('../models/campaign.model')
 const bcrypt = require("bcrypt");
 const AccountModel = require("../models/account.model");
+const ideaController = require("./idea.controller");
 //const Role = require("../Ulti")
 
 const getAdmin = async (_req, res) => {
@@ -84,7 +85,7 @@ const getAccount = async(req, res) =>{
 const getAccountById = async(req, res) =>{
   try {
     let id = req.params.id
-    let account = await AccountModel.find({id});
+    let account = await AccountModel.findOne({_id:id});
     if(account){
       response = {
         'status': 'Get account success',
@@ -164,7 +165,9 @@ const getDepartment = async(req, res) =>{
 const getDepartmentById = async(req, res) =>{
   try {
     let id = req.params.id
-    let department = await DepartmentModel.find({id});
+    let department = await DepartmentModel.findById({
+      _id:id
+    });
     if(department){
       response = {
         'status': 'Get department success',
@@ -233,6 +236,74 @@ const postCampaign= async (req, res) => {
     res.status(500).json(err.message)
   })
 }
+const getCampaign = async(req, res) =>{
+  try {
+    let campaigns = await campaignModel.find({});
+    let response
+    if(campaigns){
+      response = {
+        'status': 'Get all campaigns success',
+        'data': campaigns
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const getCampaignById = async(req, res) =>{
+  try {
+    let id = req.params.id
+    let campaign = await campaignModel.findById({_id:id});
+    if(campaign){
+      response = {
+        'status': 'Get campaign success',
+        'data': campaign
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const putCampaign = async (req, res)=>{
+  try {
+    let id = req.params.id
+    let name = req.body.name
+    let firstClosureDate = req.body?.firstClosureDate
+    let finalClosureDate = req.body?.finalClosureDate
+    let response
+    let newCampaign= await DepartmentModel.findByIdAndUpdate(id,{
+      name: name,
+      firstClosureDate:firstClosureDate,
+      finalClosureDate: finalClosureDate
+    })
+    if(newCampaign){
+      response = {
+        'status': 'Update campaign success',
+        'data': newCampaign
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const deleteCampaign = async(req, res) =>{
+  try {
+    let id = req.params.id
+    let campaign = await campaignModel.findByIdAndDelete({_id:id});
+    if(campaign){
+      response = {
+        'status': 'Delete campaign success',
+        'data': campaign
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
 // TODO :update campaign
 const patchClosureDateCampaign = async(req,res )=>{
 // TODO: delete campaign
@@ -298,5 +369,25 @@ module.exports = [
     method: "post", //define method http
     controller: postCampaign, //this is method handle when have request on server
     route: "/admin/campaign", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getCampaign, //this is method handle when have request on server
+    route: "/admin/campaign", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getCampaignById, //this is method handle when have request on server
+    route: "/admin/campaign/:id", //define API
+  },
+  {
+    method: "put", //define method http
+    controller: putCampaign, //this is method handle when have request on server
+    route: "/admin/campaign/:id", //define API
+  },
+  {
+    method: "delete", //define method http
+    controller: deleteCampaign, //this is method handle when have request on server
+    route: "/admin/campaign/:id", //define API
   },
 ]
