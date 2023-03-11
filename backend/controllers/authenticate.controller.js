@@ -63,6 +63,7 @@ const postLogin = async (req, res) => {
         res.status(500).json({ 'message': error.message });
     }
 };
+
 const getRefreshToken = async (req, res) => {
     const cookies = req?.cookies;
     console.log(cookies);
@@ -91,6 +92,7 @@ const getRefreshToken = async (req, res) => {
         return res.status(500).json(error.message);
     }
 };
+
 const getLogout = async (req, res) => {
     const cookies = req.cookies
     if (!cookies?.jwt) return res.sendStatus(204);
