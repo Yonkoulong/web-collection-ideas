@@ -114,7 +114,7 @@ export const Department = () => {
       }
     })();
   }, []);
-
+ console.log("quang reponsive");
   return (
     <Box
       sx={{
