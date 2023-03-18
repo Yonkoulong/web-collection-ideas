@@ -118,6 +118,7 @@ const getLogout = async (req, res) => {
         return res.status(500).json(error.message);
     }
 }
+
 module.exports = [
     {
         method: "post", //define method http
