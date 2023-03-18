@@ -1,27 +1,24 @@
-exports.isAdmin = function(req, res, next) {
-    if (req.session && req.session.admin)
-      return next();
-    else
-      return res.sendStatus(401);
+const isAdmin = function(req, res, next) {
+    if (!req.role) return res.sendStatus(401);
+    if(req.role == 'admin')
+      next();
 };
 
-exports.isStaff = function(req, res, next) {
-    if (req.session && req.session.staff)
-      return next();
-    else
-      return res.sendStatus(401);
+const isStaff = function(req, res, next) {
+    if (!req.role) return res.sendStatus(401);
+    if(req.role == 'staff')
+    next();
 };
 
-exports.isQAM = function(req, res, next) {
-    if (req.session && req.session.qam)
-      return next();
-    else
-      return res.sendStatus(401);
+const isQAM = function(req, res, next) {
+  if (!req.role) return res.sendStatus(401);
+  if(req.role == 'manager')
+    next();
 };
 
-exports.isQAC = function(req, res, next) {
-  if (req.session && req.session.qac)
-    return next();
-  else
-    return res.sendStatus(401);
+const isQAC = function(req, res, next) {
+  if (!req.role) return res.sendStatus(401);
+   if(req.role == 'coordinator')
+    next();
 };
+module.exports = {isAdmin,isStaff,isQAM,isQAC};

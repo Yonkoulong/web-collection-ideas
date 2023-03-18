@@ -10,7 +10,7 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  allowedFormats: ['jpg', 'png'],
+  allowedFormats: ['jpg', 'png','doc','txt'],
   params:{
     folder:'web_collection_ideas'
   },
@@ -21,4 +21,4 @@ const storage = new CloudinaryStorage({
 
 const uploadCloud = multer({ storage });
 
-module.exports = uploadCloud;
+module.exports = cloudinary;

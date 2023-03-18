@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const setupRoutes = require("./app-routes");
+const fileUpload = require("express-fileupload");
 
 // const whitelist = ['http://localhost:5173', 'http://localhost:8080']
 // const corsOptions = {
@@ -19,6 +20,10 @@ const setupRoutes = require("./app-routes");
 // }
 
 const app = express();
+app.use(fileUpload({
+   useTempFiles:true,
+   limits:{fileSize:50*2024*1024}
+}))
 // create application/x-www-form-urlencoded parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())

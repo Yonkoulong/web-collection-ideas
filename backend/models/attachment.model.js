@@ -3,11 +3,9 @@ const Schema = mongoose.Schema;
 const attachmentSchema  = new Schema({
     filelName: {
         type: String,
-        required: true,
     },
     originalName: {
         type: String,
-        
     },
     fileSize:{
         type: String,
