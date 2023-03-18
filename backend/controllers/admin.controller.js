@@ -66,8 +66,8 @@ const postAccount = async (req, res) => {
     .catch(err => {
       res.status(500).json({ 'message': err.message })
     })
-
 };
+
 const getAccount = async(req, res) =>{
   try {
     let accounts = await AccountModel.find({});
@@ -336,7 +336,7 @@ module.exports = [
     route: "/admin/department/:id/account", //define API
   },
   {
-    method: "put", //define method http
+    method: "delete", //define method http
     controller: deleteAccount, //this is method handle when have request on server
     route: "/admin/account/:id", //define API
   },

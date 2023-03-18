@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
 import { useParams } from "react-router-dom";
@@ -8,7 +8,7 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { postRegisterAccount } from '@/services/admin.services'
+import { postRegisterAccount, getAccountDetail, putAccount } from "@/services/admin.services";
 
 import {
   TextField,
@@ -33,6 +33,8 @@ import {
 
 import { primaryColor, blackColor } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { useDepartmentStore } from "@/stores/DepartmentStore";
+import { useAccountStore } from "@/stores/AccountStore";
 
 const roles = [
   {
@@ -40,8 +42,12 @@ const roles = [
     value: enumRoles.STAFF,
   },
   {
-    label: "Project Manager",
-    value: enumRoles.PROJECT_MANAGER,
+    label: "QAM",
+    value: enumRoles.QAM,
+  },
+  {
+    label: "QAC",
+    value: enumRoles.QAC,
   },
 ];
 
@@ -50,18 +56,56 @@ const flexCenter = {
   alignItems: "center",
 };
 
+const defaultValue = {
+  role: "",
+  department: "",
+  dob: "",
+  email: "",
+  password: "",
+  image: "",
+};
+
 export const CreateAndEditUser = () => {
+  const { departments, fetchDepartments } = useDepartmentStore(
+    (state) => state
+  );
+  const fetchAccounts = useAccountStore((state) => state.fetchAccounts);
+  const { id } = useParams();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm();
+  } = useForm(defaultValue);
 
   const onSubmit = async (data) => {
     try {
+      const payload = {
+        ...data,
+        dob: formatDate(data?.dob?.$d),
+      };
+
+      if(id) {
+        const resp = await putAccount({id}, payload);
+        
+        if (resp) {
+          toast.success("Update account successfully!");
+          await fetchAccounts();
+          redirectTo("/admin/user-management");
+        }
+      } else {
+        const resp = await postRegisterAccount(payload);
+        
+        if (resp) {
+          toast.success("Create account successfully!");
+          await fetchAccounts();
+          redirectTo("/admin/user-management");
+        }
+      }
+
     } catch (error) {
-      const errorMessage = error?.response?.data?.content;
+      const errorMessage = error?.response?.data?.status;
       toast.error(errorMessage);
     }
   };
@@ -70,7 +114,13 @@ export const CreateAndEditUser = () => {
     let isEnable = false;
     const field = useWatch({ control });
 
-    if (field?.role) {
+    if (
+      field?.role &&
+      field?.department &&
+      field?.name &&
+      field?.email &&
+      field?.password
+    ) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -78,6 +128,30 @@ export const CreateAndEditUser = () => {
     return isEnable;
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        //fetch department
+        await fetchDepartments();
+
+        if(id) {
+          const resp = await getAccountDetail({ id });
+          if(resp) {
+            setValue('role', resp?.data?.data?.role);
+            setValue('department', resp?.data?.data?.department);
+            setValue('name', resp?.data?.data?.name);
+            setValue('email', resp?.data?.data?.email);
+            setValue('password', resp?.data?.data?.password);
+            setValue('dob', resp?.data?.data?.dob);
+            setValue('image', resp?.data?.data?.image);
+          } 
+        }
+      } catch (error) {
+        const errorMessage = error?.response?.data?.status;
+        toast.error(errorMessage);
+      }
+    })();
+  }, []);
   return (
     <Box sx={{ m: "24px 16px" }}>
       <Box>
@@ -93,7 +167,7 @@ export const CreateAndEditUser = () => {
             onClick={() => redirectTo("/admin/user-management")}
           />
           <Typography variant="h4" component="h3" sx={{ ml: 1 }}>
-            Create Member
+            {id ? "Edit" : "Create"} Member
           </Typography>
         </Box>
         <Box></Box>
@@ -119,9 +193,14 @@ export const CreateAndEditUser = () => {
                       fullWidth
                       size="small"
                       value={field?.value || ""}
+                      sx={{ fontSize: "15px" }}
                     >
                       {roles.map((option) => (
-                        <MenuItem key={option.value} value={option.value || ""}>
+                        <MenuItem
+                          sx={{ fontSize: "15px" }}
+                          key={option.value}
+                          value={option.value || ""}
+                        >
                           {option.label}
                         </MenuItem>
                       ))}
@@ -138,8 +217,8 @@ export const CreateAndEditUser = () => {
                 <ControllerInput
                   control={control}
                   errors={errors}
-                  fieldNameErrorMessage="Role"
-                  fieldName="role"
+                  fieldNameErrorMessage="Department"
+                  fieldName="department"
                   required={true}
                 >
                   {(field) => (
@@ -148,10 +227,15 @@ export const CreateAndEditUser = () => {
                       fullWidth
                       size="small"
                       value={field?.value || ""}
+                      sx={{ fontSize: "15px" }}
                     >
-                      {roles.map((option) => (
-                        <MenuItem key={option.value} value={option.value || ""}>
-                          {option.label}
+                      {departments.map((option) => (
+                        <MenuItem
+                          sx={{ fontSize: "15px" }}
+                          key={option._id}
+                          value={option.name || ""}
+                        >
+                          {option.name}
                         </MenuItem>
                       ))}
                     </Select>
@@ -221,6 +305,7 @@ export const CreateAndEditUser = () => {
                     size="small"
                     type="password"
                     placeholder="Enter password"
+                    disabled={id ? true : false}
                   />
                 )}
               </ControllerInput>
@@ -242,7 +327,9 @@ export const CreateAndEditUser = () => {
                       {...field}
                       sx={{
                         width: "100%",
-                        ".MuiInputBase-root": {},
+                        ".MuiInputBase-root": {
+                          fontSize: "15px",
+                        },
                       }}
                     />
                   </LocalizationProvider>
@@ -250,8 +337,13 @@ export const CreateAndEditUser = () => {
               </ControllerInput>
             </Box>
             <Box sx={{ mt: 4 }}>
-              <Button variant="contained" type="submit" disabled={watchFieldsInModalCreateMember} fullWidth>
-                Create
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={watchFieldsInModalCreateMember()}
+                fullWidth
+              >
+                {id ? "Edit" : "Update"}
               </Button>
             </Box>
           </Box>
@@ -271,7 +363,7 @@ export const CreateAndEditUser = () => {
                       aria-label="upload picture"
                       component="label"
                     >
-                      <input hidden accept="image/*" type="file" />
+                      <input {...field} hidden accept="image/*" type="file" />
                       <PhotoCamera />
                     </IconButton>
                   </CameraWrapper>

@@ -23,7 +23,16 @@ export {
     DialogActions,
     DialogContent,
     Badge,
+    Tab,
+    Popover,
+    
 } from "@mui/material";
+
+export {
+    TabContext,
+    TabList,
+    TabPanel,
+} from '@mui/lab';
 
 export { ControllerInput } from "./ControllerInput";
 export { StyledTextField } from "./TextField";

@@ -242,7 +242,7 @@ export const Department = () => {
         open={openPopupConfirm}
         onCancel={handleClosePopupDeleteDepartment}
         onConfirm={() => handleDeleteDepartment()}
-        content="Are you sure to delete this account!"
+        content="Are you sure to delete this department!"
       />
 
       {/* modal create member */}

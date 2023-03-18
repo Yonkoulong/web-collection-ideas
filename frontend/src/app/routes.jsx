@@ -67,7 +67,11 @@ export const routes = [
   },
   {
     path: "/ideas",
-    element: <Ideas />,
+    element: (
+      <ProtectedRoute>
+        <Ideas />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/management-ideas",

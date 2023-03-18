@@ -2,7 +2,7 @@ import { http } from './http';
 
 //Account
 export async function postRegisterAccount(payload) {
-    return http.post("/admin/register", payload);
+    return http.post("/admin/account", payload);
 }
 
 export async function getAccount() {
@@ -18,6 +18,7 @@ export async function putAccount(accountId, payload) {
 }
 
 export async function deleteAccount(payload) {
+    console.log(payload);
     return http.delete(`/admin/account/${payload?.id}`);
 }
 

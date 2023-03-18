@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import { toast } from "react-toastify";
 import { SearchCustomize } from "@/shared/components/Search";
 import {
   Box,
@@ -22,6 +22,7 @@ import { useAccountStore } from "@/stores/AccountStore";
 import { PopUpConfirm } from "@/shared/components/Popup";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { redirectTo } from "@/shared/utils/history";
+import { deleteAccount } from "@/services/admin.services";
 
 const maxHeight = 700;
 
@@ -55,6 +56,23 @@ export const UserManagement = () => {
     setIdSelected(id);
     setOpenPopupConfirm(true);
   };
+
+  const handleClosePopupDeleteAccount = () => {
+    setOpenPopupConfirm(false);
+  }
+
+  const handleDeleteAccount = async () => {
+    try {
+      const resp = await deleteAccount( { id: idSelected } );
+      if(resp) {
+        toast.success("Delete this account successfully!");
+        await fetchAccounts();
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.status;
+      toast.error(errorMessage);
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -145,7 +163,7 @@ export const UserManagement = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log("")}
+                          onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
                           {accounts?.name}
                         </TableCell>
@@ -156,7 +174,7 @@ export const UserManagement = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log("")}
+                          onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
                           {account?.email}
                         </TableCell>
@@ -167,7 +185,7 @@ export const UserManagement = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log("")}
+                          onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
                           {account?.department?.name || '-'}
                         </TableCell>
@@ -178,7 +196,7 @@ export const UserManagement = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log("")}
+                          onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
                           {account?.role || '-'}
                         </TableCell>
@@ -189,7 +207,7 @@ export const UserManagement = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log("")}
+                          onClick={() => redirectTo("admin/user/:id")}
                         >
                           {account?.dob || '-'}
                         </TableCell>
@@ -224,6 +242,14 @@ export const UserManagement = () => {
           />
         </Box>
       </Box>
+
+      {/* popup confirm */}
+      <PopUpConfirm
+        open={openPopupConfirm}
+        onCancel={handleClosePopupDeleteAccount}
+        onConfirm={handleDeleteAccount}
+        content="Are you sure to delete this account!"
+      />
     </Box>
   );
 };
