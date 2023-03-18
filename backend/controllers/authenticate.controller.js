@@ -87,8 +87,8 @@ const getRefreshToken = async (req, res) => {
                 if (err) return res.sendStatus(403)
                 const accesToken = jwt.sign(
                     { 
-                        "id": user._id,
-                        "role": user.role 
+                        "id": foundAccount._id,
+                        "role": foundAccount.role 
                     },
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: '30s' }

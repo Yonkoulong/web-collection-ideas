@@ -4,8 +4,13 @@ const attachmentSchema  = new Schema({
     filelName: {
         type: String,
     },
-    originalName: {
+    publishId: {
         type: String,
+        require:true
+    },
+    url: {
+        type: String,
+        require:true
     },
     fileSize:{
         type: String,
@@ -13,10 +18,12 @@ const attachmentSchema  = new Schema({
     authorId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'account',
+        require:true
     },
     ideaId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'idea',
+        require:true
     }
 });
 
