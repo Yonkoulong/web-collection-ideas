@@ -6,6 +6,10 @@ const accountSchema  = new Schema({
         required: true,
         unique: true
     },
+    name:{
+        type: String,
+        require: true,
+    },
     password: {
         type: String,
         required: true,
@@ -21,7 +25,10 @@ const accountSchema  = new Schema({
     departmentId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'department',
-           
+        require:true
+    },
+    dob:{
+        type: Date
     }
 });
 

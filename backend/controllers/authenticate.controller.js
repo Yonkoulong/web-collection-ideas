@@ -22,12 +22,18 @@ const postLogin = async (req, res) => {
             if (match) {
                 // create JWTs
                 const accesToken = jwt.sign(
-                    { "email": email },
+                    { 
+                        "id": user._id,
+                        "role": user.role 
+                    },
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: '30s' }
                 );
                 const refreshToken = jwt.sign(
-                    { "email": email },
+                    { 
+                        "id": user._id,
+                        "role": user.role 
+                    },
                     process.env.REFRESH_TOKEN_SECRET,
                     { expiresIn: '1d' }
                 );
@@ -80,7 +86,10 @@ const getRefreshToken = async (req, res) => {
             (err, decoded) => {
                 if (err) return res.sendStatus(403)
                 const accesToken = jwt.sign(
-                    { "email": decoded.email },
+                    { 
+                        "id": user._id,
+                        "role": user.role 
+                    },
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: '30s' }
                 );

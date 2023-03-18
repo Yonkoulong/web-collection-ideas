@@ -6,13 +6,18 @@ const campaignSchema  = new Schema({
         required: true,
         unique: true
     },
-    firstClosureDate: {
+    startTime: {
         type:Date,
         required:true,
         default:Date.now
      },
+    firstClosureDate: {
+        type:Date,
+        required:true,
+     },
      finalClosureDate: {
-         type: Date
+         type: Date,
+         required:true
      },
      departmentId:{
         type:mongoose.Schema.Types.ObjectId, 
