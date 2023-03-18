@@ -18,6 +18,13 @@ const accountSchema  = new Schema({
         type: String,
         required: true    
     },
+    avartarUrl:{
+        type: String,
+          
+    },
+    publishId:{
+        type: String,
+    },
     refreshToken: {
         type:String,
         

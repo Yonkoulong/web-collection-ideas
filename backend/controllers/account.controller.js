@@ -1,4 +1,5 @@
 const AccountModel = require("../models/account.model");
+const cloudinary = require("../middleware/cloudinary.middleware")
 const bcrypt = require("bcrypt");
 const postAccount = async (req, res) => {
     let email = req.body.email

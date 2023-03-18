@@ -3,11 +3,11 @@ const router = express.Router();
 
 const staffController = require("../controllers/staff.controller");
 const ideaController = require("../controllers/idea.controller");
+const attachmentController = require("../controllers/attachment.controller");
 const commentController = require("../controllers/comment.controller");
 const reactionController = require("../controllers/reaction.controller");
 const verifyJWT = require("../middleware/verifyJWT.middleware");
-const uploadCloud = require("../middleware/uploadCloud.middleware");
-const fileController = require("../controllers/attachment.controller");
+const uploadCloud = require("../middleware/cloudinary.middleware");
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
 staffController.forEach((item) => {
@@ -24,9 +24,9 @@ ideaController.forEach((item) =>{
     const { method, route, controller } = item;
     router[method](route,verifyJWT, controller);
 })
-fileController.forEach((item) =>{
+attachmentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,verifyJWT, controller);
     // if(item.method =="post" && item.route=="/file" ){
     //     router[method](route,uploadCloud.single('file'), controller);
     // }

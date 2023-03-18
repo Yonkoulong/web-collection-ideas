@@ -18,7 +18,7 @@ const verifyJWT = async (req, res, next) => {
             process.env.ACCESS_TOKEN_SECRET, 
             (err, decoded) => {
                 if (err) return res.sendStatus(403)
-                req.email = decoded.id
+                req.id = decoded.id
                 req.role = decoded.role
                 next()
             }
