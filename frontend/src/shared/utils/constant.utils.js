@@ -9,8 +9,15 @@ export const formatDate = (date) => {
 };
 
 export const enumRoles = {
-    STAFF: "STAFF",
-    QAM: "QAM",
-    QAC: "QAM",
-    ADMIN: "ADMIN"
+    STAFF: "staff",
+    QAM: "qam",
+    QAC: "qac",
+    ADMIN: "admin"
 }
+
+export function isObjectEmpty(value) {
+    return (
+      Object.prototype.toString.call(value) === '[object Object]' &&
+      JSON.stringify(value) === '{}'
+    );
+  }

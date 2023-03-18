@@ -23,5 +23,4 @@ module.exports = [
     controller: getAdmin, //this is method handle when have request on server
     route: "/admin", //define API
   }
- 
 ]

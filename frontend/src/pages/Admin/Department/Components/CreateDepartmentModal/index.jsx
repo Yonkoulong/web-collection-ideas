@@ -18,10 +18,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-
-import { postCreateDepartment } from "@/services/admin.services";
-import { useAppStore } from "@/stores/useAppStore";
-import { enumRoles } from "@/shared/utils/constant.utils";
+import { primaryColor } from "@/shared/utils/colors.utils";
+import { postDepartment, putDepartment } from "@/services/admin.services";
+import { useDepartmentStore } from "@/stores/DepartmentStore";
 import {
   CreateDepartmentFormWrapper,
   CreateDepartmentForm,
@@ -66,38 +65,29 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const roles = [
-  {
-    label: "Staff",
-    value: enumRoles.STAFF,
-  },
-  {
-    label: "Project Manager",
-    value: enumRoles.PROJECT_MANAGER,
-  },
-];
-
 const defaultValues = {
-  email: "",
-  password: "",
-  role: "",
+  name: "",
+  description: "",
 };
 
-export const ModalCreateDepartment = ({ open, onClose }) => {
-  const { userInfo } = useAppStore((state) => state);
+export const ModalCreateDepartment = ({ open, onClose, editDepartment }) => {
+  const { fetchDepartments } = useDepartmentStore((state) => state);
 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
-  } = useForm({ defaultValues });
+  } = useForm({
+    defaultValues: editDepartment ? editDepartment : defaultValues,
+  });
 
   const watchFieldsInModalCreateDepartment = () => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (field?.email && field?.password && field?.role) {
+    if (field?.name && field?.description) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -107,33 +97,45 @@ export const ModalCreateDepartment = ({ open, onClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const respData = await postCreateDepartment(data);
+      if (editDepartment) {
+        
+        const respData = await putDepartment({ id: editDepartment?._id }, data);
 
-      if (respData) {
-        setLoading(true);
-        fetchDepartments({
-          organizeId: userInfo?.organizeId,
-          id: "",
-          email: "",
-          paging: { page: 1, size: 10 },
-        });
-        toast.success("Create Department successfully.");
-        handleClose();
+        if (respData) {
+          toast.success("Update Department successfully.");
+          await fetchDepartments();
+          handleClose();
+        }
+      } else {
+        const respData = await postDepartment(data);
+
+        if (respData) {
+          toast.success("Create Department successfully.");
+          await fetchDepartments();
+          handleClose();
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
       toast.error(errorMessage);
+      handleClose();
     }
   };
 
   const handleClose = () => {
     reset({
-      email: "",
-      password: "",
-      role: "",
+      name: "",
+      description: "",
     });
     onClose(false);
   };
+
+  useEffect(() => {
+    if (editDepartment) {
+      setValue("name", editDepartment?.name);
+      setValue("description", editDepartment?.description);
+    }
+  }, [editDepartment]);
 
   return (
     <BootstrapDialog
@@ -143,20 +145,20 @@ export const ModalCreateDepartment = ({ open, onClose }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create Department
+        {editDepartment ? "Update" : "Create"} Department
       </BootstrapDialogTitle>
       <CreateDepartmentFormWrapper>
         <CreateDepartmentForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <CreateDepartmentInputContainer>
               <Typography>
-                Email <span style={{ color: "red" }}>*</span>
+                Department name <span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Email"
-                fieldName="email"
+                fieldNameErrorMessage="Department name"
+                fieldName="name"
                 required={true}
               >
                 {(field) => (
@@ -164,69 +166,48 @@ export const ModalCreateDepartment = ({ open, onClose }) => {
                     {...field}
                     fullWidth
                     size="small"
-                    type="email"
-                    placeholder="Enter email"
+                    type="text"
+                    placeholder="Enter department name"
                   />
                 )}
               </ControllerInput>
             </CreateDepartmentInputContainer>
 
-            <CreateDepartmentInputContainer>
+            <CreateDepartmentInputContainer mt={2}>
               <Typography>
-                Password <span style={{ color: "red" }}>*</span>
+                Description <span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Password"
-                fieldName="password"
+                fieldNameErrorMessage="Description"
+                fieldName="description"
                 required={true}
               >
                 {(field) => (
                   <StyledTextField
                     {...field}
                     fullWidth
-                    size="small"
-                    type="password"
-                    placeholder="Enter password"
+                    type="text"
+                    placeholder="Enter description"
+                    multiline
+                    rows={4}
                   />
-                )}
-              </ControllerInput>
-            </CreateDepartmentInputContainer>
-
-            <CreateDepartmentInputContainer>
-              <Typography>
-                Role<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Role"
-                fieldName="role"
-                required={true}
-              >
-                {(field) => (
-                  <Select {...field} fullWidth size="small">
-                    {roles.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <b>{option.label}</b>
-                      </MenuItem>
-                    ))}
-                  </Select>
                 )}
               </ControllerInput>
             </CreateDepartmentInputContainer>
           </DialogContent>
           <DialogActions>
-            <Button variant="outlined" autoFocus onClick={() => handleClose()}>
+            <Button
+              variant="outlined"
+              sx={{ color: primaryColor }}
+              autoFocus
+              onClick={() => handleClose()}
+            >
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={watchFieldsInModalCreateDepartment()}
-            >
-              Create
+            <Button variant="contained" type="submit">
+              {editDepartment ? "Update" : "Create"}
             </Button>
           </DialogActions>
         </CreateDepartmentForm>

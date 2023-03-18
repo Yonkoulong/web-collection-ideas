@@ -27,3 +27,5 @@ export {
 
 export { ControllerInput } from "./ControllerInput";
 export { StyledTextField } from "./TextField";
+export { NoDataAvailable } from "./NoDataAvailable";
+export { StyledTableRow } from "./Table/TableRow";

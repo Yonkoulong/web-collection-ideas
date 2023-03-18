@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { useAppStore } from '@/stores/useAppStore';
+import { useAppStore } from '@/stores/AppStore';
 import { redirectTo } from "../shared/utils/history";
 import { toast } from "react-toastify";
 
@@ -27,7 +27,6 @@ http.interceptors.request.use(function (config) {
   config.headers = {
     ...config.headers,
     Authorization: `Bearer ${token && token}`,
-    // Cookies:`jwt=${token}`,
   }
   return config;
 }, function (error) {

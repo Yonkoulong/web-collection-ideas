@@ -4,7 +4,6 @@ import {  backgroundColor, primaryColor, activeColor } from '@/shared/utils/colo
 
 export const FormCreateAccount = styled('form')`
     display: flex;
-    align-items: center;
 `
 
 export const ImageUserWrapper = styled(Box)`
