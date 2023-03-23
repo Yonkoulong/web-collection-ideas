@@ -87,26 +87,26 @@ module.exports = [
     {
       method: "post", //define method http
       controller: postDepartment, //this is method handle when have request on server
-      route: "/admin/department", //define API
+      route: "/department", //define API
     },
     {
       method: "get", //define method http
       controller: getDepartment, //this is method handle when have request on server
-      route: "/admin/department", //define API
+      route: "/department", //define API
     },
     {
       method: "get", //define method http
       controller: getDepartmentById, //this is method handle when have request on server
-      route: "/admin/department/:id", //define API
+      route: "/department/:id", //define API
     },
     {
       method: "put", //define method http
       controller: putDepartment, //this is method handle when have request on server
-      route: "/admin/department", //define API
+      route: "/department", //define API
     },
     {
       method: "delete", //define method http
       controller: deleteDepartment, //this is method handle when have request on server
-      route: "/admin/department/:id", //define API
+      route: "/department/:id", //define API
     },
 ]

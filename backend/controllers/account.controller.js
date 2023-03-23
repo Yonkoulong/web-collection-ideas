@@ -2,65 +2,60 @@ const AccountModel = require("../models/account.model");
 const cloudinary = require("../middleware/cloudinary.middleware")
 const bcrypt = require("bcrypt");
 const postAccount = async (req, res) => {
-    let email = req.body.email
-    let password = req.body.password
-    let name = req.body.name
-    let dob = req.body?.dob
-    let role = req.body.role
-    let departmentId = req.params.departmentId
-    let response
-    if (!email || !password) return res.status(400).json({ 'message': 'Email and Password are required. ' })
-    console.log(email, password, role)
-    //check duplicate
-    const duplicate = UserModel.findOne({
-        email: email
-    })
-        .then(data => {
-            if (data) {
-                response = {
-                    'status': 'duplicate email',
-                    'code': 103
-                }
-                return res.status(409).json(response);
-            }
-            else {
-                // hash pasword
-                let hashedPwd = '';
-                bcrypt.hash(password, 10, function (err, hash) {
-                    console.log('hash ', hash);
-                    hashedPwd = hash;
-                    //create account
-                    UserModel.create({
-                        email: email,
-                        password: hashedPwd,
-                        name: name,
-                        dob: dob,
-                        departmentId: departmentId,
-                        role: role
-                    })
-                        .then(data => {
-                            response = {
-                                'status': 'Register account success',
-                                'data': data
-                            }
-                            console.log(response)
-                            res.status(201).json(response);
-                        })
-                        .catch(err => {
-                            res.status(500).json({ 'message': err.message })
-                        })
-                })
-
-            }
-        })
-        .catch(err => {
-            res.status(500).json({ 'message': err.message })
-        })
-};
-const getCurrentAccount = async(req, res) =>{
     try {
-        let email = req.email
-        let account = await AccountModel.findOne({ email: email });
+        let email = req.body.email
+        let password = req.body.password
+        let name = req.body.name
+        let dob = req.body?.dob
+        let role = req.body.role
+        let departmentId = req.params.departmentId
+        const fileData = req.files.file
+        let response
+        if (!email || !password) return res.status(400).json({ 'message': 'Email and Password are required. ' })
+        console.log(email, password, role)
+        //check duplicate
+        const duplicate = await AccountModel.findOne({
+            email: email
+        })
+        if (duplicate) {
+            response = {
+                'status': 'duplicate email',
+                'code': 103
+            }
+            return res.sendStatus(409).json(response);
+        }
+        // hash pasword
+        let hashedPwd = await bcrypt.hash(password, 10,)
+        console.log('hash ', hash);
+        //upload image
+
+        //create account
+        let newAccount = await AccountModel.create({
+            email: email,
+            password: hashedPwd,
+            name: name,
+            dob: dob,
+            departmentId: departmentId,
+            role: role,
+
+        })
+        if (newAccount) {
+            response = {
+                'status': 'Register account success',
+                'data': data
+            }
+            console.log(response)
+            res.status(201).json(response);
+        }
+
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+};
+const getCurrentAccount = async (req, res) => {
+    try {
+        let id = req.id
+        let account = await AccountModel.findOne({ _id: id });
         if (account) {
             response = {
                 'status': 'Get account success',
@@ -120,24 +115,59 @@ const getAccountByDepartment = async (req, res) => {
 };
 const putAccount = async (req, res) => {
     try {
-        let id= req.params.id
-        let name= req.body.name
+        let id = req.id
+        let name = req.body?.name
         let dob = req.body.dob
-        let accounts = await AccountModel.findByIdAndUpdate(id,{ 
-            name: name,
-            dob:dob
-         });
-        if (accounts) {
-            response = {
-                'status': 'Update account success',
-                'data': accounts
+        const result = await cloudinary.uploader.upload(fileData.tempFilePath, {
+            resource_type: "auto",
+            folder: "web_collection_ideas",
+        })
+        let foundAccount = await AccountModel.findOne({ _id: id })
+        if (foundAccount) {
+            let updateAccount = await AccountModel.findByIdAndUpdate(id, {
+                name: name == null ? foundAccount.name : name,
+                dob: dob == null ? foundAccount.dob : dob,
+                publishId: result.public_id,
+                avartarUrl: result.secure_url == null ? foundAccount.avartarUrl : result.secure_url,
+            });
+            if (updateAccount) {
+                response = {
+                    'status': 'Update account success',
+                    'data': updateAccount
+                }
+                res.status(200).json(response)
             }
-            res.status(200).json(response)
         }
+
     } catch (error) {
         res.status(500).json(error.message)
     }
 };
+const putPasswordForAccount = async (req, res)=>{
+    try {
+        let id = req.params?.id
+        let oldPassWord = req.body.oldPassword
+        let newPassword = req.body?.newPassword
+        let foundAccount = await AccountModel.findOne({ _id: id })
+        if (foundAccount) {
+            let match = await bcrypt.compareSync(oldPassWord, foundAccount.password)
+            if (match) {
+                let updateAccount = await AccountModel.findByIdAndUpdate(id, {
+                    password: newPassword,
+                });
+                if (updateAccount) {
+                    response = {
+                        'status': 'Update password for account success',
+                        'data': updateAccount
+                    }
+                    res.status(200).json(response)
+                }
+            }
+        }
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
 const deleteAccount = async (req, res) => {
     try {
         let id = req.params.id
@@ -178,6 +208,11 @@ module.exports = [
     {
         method: "put", //define method http
         controller: putAccount, //this is method handle when have request on server
+        route: "/account", //define API
+    },
+    {
+        method: "put", //define method http
+        controller: putPasswordForAccount, //this is method handle when have request on server
         route: "/account/:id", //define API
     },
     {

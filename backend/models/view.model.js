@@ -2,6 +2,9 @@ const emotionType = require('../Ulti')
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const viewSchema = new Schema({
+    count:{
+        type:number
+    },
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
