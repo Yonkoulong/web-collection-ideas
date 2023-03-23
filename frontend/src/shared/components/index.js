@@ -25,7 +25,10 @@ export {
     Badge,
     Tab,
     Popover,
-    
+    Pagination,
+    Stack,
+    FormControl,
+    InputLabel
 } from "@mui/material";
 
 export {
