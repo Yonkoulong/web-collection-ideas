@@ -59,12 +59,12 @@ module.exports = [
   {
     method: "post", //define method http
     controller: postCategory, //this is method handle when have request on server
-    route: "/manager/category", //define API
+    route: "/category", //define API
   },
   {
     method: "put", //define method http
     controller: putCategory, //this is method handle when have request on server
-    route: "/manager/category", //define API
+    route: "/category/:id", //define API
   }
  
 ]

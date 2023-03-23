@@ -1,17 +1,17 @@
 const CampaignModel = require('../models/campaign.model')
 const postCampaign= async (req, res) => {
     let name = req.body.name
-    let departmentId = req.params.departmentId
-    let startTime = req.body?.startTime
-    let firstClosureDate = req.body?.firstClosureDate
-    let finalClosureDate = req.body?.finalClosureDate
+    let departmentId = req.body.departmentId
+    let startTime = req.body.startTime
+    let firstClosureDate = req.body.firstClosureDate
+    let finalClosureDate = req.body.finalClosureDate
     let date1 = new Date(finalClosureDate)
     console.log(date1.getDate())
     CampaignModel.create({
        name:name,
-       startTime: startTime== null? new Date(): startTime,
-       firstClosureDate:firstClosureDate == null? new Date():firstClosureDate,
-       finalClosureDate: finalClosureDate == null? new Date():finalClosureDate,
+       startTime: startTime,
+       firstClosureDate:firstClosureDate,
+       finalClosureDate: finalClosureDate,
        departmentId:departmentId
     }).then(data => {
     let response = {
@@ -56,7 +56,7 @@ const postCampaign= async (req, res) => {
  };
  const getCampaignsByDepartment = async(req,res)=>{
     try {
-        let departmentId = req.params.departmentId
+        let departmentId = req.body.departmentId
         let campaignByDepartment = await CampaignModel.find({
             departmentId :departmentId
         })
@@ -75,15 +75,15 @@ const postCampaign= async (req, res) => {
    try {
      let id = req.params.id
      let name = req.body.name
-     let startTime = req.body?.startTime
-     let firstClosureDate = req.body?.firstClosureDate
-     let finalClosureDate = req.body?.finalClosureDate
+     let startTime = req.body.startTime
+     let firstClosureDate = req.body.firstClosureDate
+     let finalClosureDate = req.body.finalClosureDate
      let response
-     let newCampaign= await DepartmentModel.findByIdAndUpdate(id,{
+     let newCampaign= await CampaignModel.findByIdAndUpdate(id,{
         name:name,
-        startTime: startTime== null? new Date(): startTime,
-        firstClosureDate:firstClosureDate == null? new Date():firstClosureDate,
-        finalClosureDate: finalClosureDate == null? new Date():finalClosureDate,
+        startTime: startTime,
+        firstClosureDate:firstClosureDate,
+        finalClosureDate: finalClosureDate,
      })
      if(newCampaign){
        response = {
@@ -115,7 +115,7 @@ const postCampaign= async (req, res) => {
     {
       method: "post", //define method http
       controller: postCampaign, //this is method handle when have request on server
-      route: "/department/:id/campaign", //define API
+      route: "/campaign", //define API
     },
     {
       method: "get", //define method http
@@ -130,7 +130,7 @@ const postCampaign= async (req, res) => {
     {
         method: "get", //define method http
         controller: getCampaignsByDepartment, //this is method handle when have request on server
-        route: "/department/:departmentId/campaign/:id", //define API
+        route: "/campaign/:id", //define API
       },
     {
       method: "put", //define method http
