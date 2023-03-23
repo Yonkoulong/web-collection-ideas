@@ -7,6 +7,7 @@ const verifyJWT = require("../middleware/verifyJWT.middleware");
 const auth = require("../middleware/auth.middleware");
 const accountController = require("../controllers/account.controller");
 const departmentController = require("../controllers/department.controller");
+const campaignController = require("../controllers/campaign.controller");
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
 adminController.forEach((item) => {
@@ -18,7 +19,12 @@ adminController.forEach((item) => {
     //C2
     // router[item.method](item.routeName, item.controller);
 });
+
 departmentController.forEach((item) =>{
+    const { method, route, controller } = item;
+    router[method](route, controller);
+})
+campaignController.forEach((item) =>{
     const { method, route, controller } = item;
     router[method](route, controller);
 })
