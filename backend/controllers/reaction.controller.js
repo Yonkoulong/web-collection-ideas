@@ -25,21 +25,36 @@ const getReactionByIdea = async(req, res)=>{
 }
 const postReaction = async (req, res) =>{
     let type = req.body.type
-    let authorId = req.body.authorId
+    let authorId = req.id
     let ideaId = req.params.ideaId
     let response
     console.log(type, authorId, ideaId);
     try {
+        if(type ==0){
+            response = {
+                'status': 'user has not reacted!',
+                'code':103
+            }   
+            return res.json(response)
+        }
         //let author = await AccountModel.findOne({_id:authorId})
         let authorReaction = await ReactionModel.findOne({
             authorId:authorId,
             ideaId:ideaId})
         if(authorReaction) {
-            response = {
-                'status': 'user has already reacted',
-                'code':103
-            }   
-            return res.json(response)
+            if(authorReaction.type!=0 && authorReaction.type== type){
+                response = {
+                    'status': 'user has already reacted',
+                    'code':103
+                }   
+                return res.json(response)
+            }    
+            else if(authorReaction.type==0){
+                await ReactionModel.findOneAndDelete({
+                    authorId:authorId,
+                    ideaId:ideaId
+                })
+            }        
         }
         else{
             let idea =await IdeaModel.findOne({_id:ideaId})
@@ -61,10 +76,9 @@ const postReaction = async (req, res) =>{
     } catch (error) {
         res.status(500).json(error.message)
     }
-   
 };
 const deleteReactionByIdea = async(req, res) =>{
-    let authorId = req.body.authorId
+    let authorId = req.id
     let ideaId = req.params.ideaId
     try {
         let authorReaction = await ReactionModel.findOne({

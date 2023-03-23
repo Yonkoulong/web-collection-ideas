@@ -1,12 +1,12 @@
-//const cloudinary = require('cloudinary').v2;
-const cloudinary = require("../middleware/cloudinary.middleware")
+const cloudinary = require('cloudinary').v2;
+//const cloudinary = require("../middleware/cloudinary.middleware")
 const AttachmentModel = require("../models/attachment.model")
 const AccountModel = require("../models/account.model");
-// cloudinary.config({
-//   cloud_name: process.env.CLOUDINARY_NAME,
-//   api_key: process.env.CLOUDINARY_KEY,
-//   api_secret: process.env.CLOUDINARY_SECRET
-// });
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET
+});
 const postAttachment = async(req, res) =>{
      try {
         let response
@@ -20,7 +20,7 @@ const postAttachment = async(req, res) =>{
           publishId:result.public_id,
           url:result.secure_url,
           authorId:req.id,
-          ideaId:req.params.ideaId
+          ideaId:ideaId
         })
         if(newAttachment){
           response = {
@@ -28,6 +28,7 @@ const postAttachment = async(req, res) =>{
             'data': newAttachment
           }   
         }
+        console.log(fileData.tempFilePath);
         res.status(200).json(response)
      } catch (error) {
       res.status(500).json(error.message)

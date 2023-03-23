@@ -20,7 +20,7 @@ const accountSchema  = new Schema({
     },
     avartarUrl:{
         type: String,
-          
+        default:"https://res.cloudinary.com/drt4qtuwv/image/upload/v1679112944/web_collection_ideas/download_pvmgpw.jpg" 
     },
     publishId:{
         type: String,
