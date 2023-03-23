@@ -41,11 +41,12 @@ const postCampaign= async (req, res) => {
      let campaigns = await CampaignModel.find({});
      let newCampaign =[]
      if(campaigns){
-    campaigns.forEach(async(campaign) => {
+       campaigns.map(async(campaign) => {
           let department = await DepartmentModel.findOne({_id:campaign.departmentId})
-         
+             
              campaign['departmentName'] =department.name
              console.log(campaign['departmentName'])
+             
       });
      }
      
