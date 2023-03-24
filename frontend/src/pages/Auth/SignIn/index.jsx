@@ -53,7 +53,7 @@ export const SignIn = () => {
         setUserInfo(response?.data?.data?.user);
         toast.success("Login in successfully!");
         setLoading(false);
-        redirectTo('/admin');
+        redirectTo('/ideas');
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.status;

@@ -5,7 +5,9 @@ import { CreateAndEditUser } from "@/pages/Admin/CreateAndEditUser";
 import { Department } from "@/pages/Admin/Department";
 import { Campaign } from "@/pages/Admin/Campaign";
 import { Ideas } from "@/shared/components/Ideas";
+import { IdeaDetail } from "@/shared/components/Ideas/components/IdeaDetail";
 import { QAMPage } from "@/pages/QAM";
+import { Category } from "@/pages/QAM/Categories";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import ProtectedRoute from "@/shared/HOC/AuthenticationRoute";
 import AuthorizationRoute from "@/shared/HOC/AuthorizationRoute";
@@ -57,7 +59,7 @@ export const routes = [
     children: [
       {
         path: "/qam/categories",
-        element: <>categories</>,
+        element: <Category />,
       },
       {
         path: "/qam/dashboard",
@@ -74,7 +76,11 @@ export const routes = [
     ),
   },
   {
-    path: "/management-ideas",
-    element: <></>,
+    path: "/ideas/:id",
+    element: (
+      <ProtectedRoute>
+        <IdeaDetail />
+      </ProtectedRoute>
+    ),
   },
 ];

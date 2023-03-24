@@ -4,9 +4,10 @@ import { Box, Tab, TabContext, TabList, TabPanel } from "@/shared/components";
 import { HeaderComponent } from "@/shared/components/Header";
 import { primaryColor } from "@/shared/utils/colors.utils";
 import { IdeasFiltered } from "./components/IdeasFiltered";
+import { ideaFilter } from "@/shared/utils/constant.utils";
 
 export const Ideas = () => {
-  const [value, setValue] = useState("1");
+  const [value, setValue] = useState(ideaFilter.ALL);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -37,8 +38,16 @@ export const Ideas = () => {
                 }}
               >
                 <Tab
+                  label="ideas"
+                  value={ideaFilter.ALL}
+                  sx={{
+                    fontSize: "small",
+                    "&.Mui-selected": { color: primaryColor },
+                  }}
+                />
+                <Tab
                   label="Most popular ideas"
-                  value="1"
+                  value={ideaFilter.MOST_POPULAR}
                   sx={{
                     fontSize: "small",
                     "&.Mui-selected": { color: primaryColor },
@@ -46,7 +55,7 @@ export const Ideas = () => {
                 />
                 <Tab
                   label="Most Viewed ideas"
-                  value="2"
+                  value={ideaFilter.MOST_VIEWED}
                   sx={{
                     fontSize: "small",
                     "&.Mui-selected": { color: primaryColor },
@@ -54,15 +63,15 @@ export const Ideas = () => {
                 />
                 <Tab
                   label="Lastest Ideas"
-                  value="3"
+                  value={ideaFilter.LASTEST_IDEAS}
                   sx={{
                     fontSize: "small",
                     "&.Mui-selected": { color: primaryColor },
                   }}
                 />
-                <Tab
+                 <Tab
                   label="Lastest Comments"
-                  value="4"
+                  value={ideaFilter.LASTEST_COMMENTS}
                   sx={{
                     fontSize: "small",
                     "&.Mui-selected": { color: primaryColor },
@@ -70,17 +79,20 @@ export const Ideas = () => {
                 />
               </TabList>
             </Box>
-            <TabPanel value="1">
-              <IdeasFiltered />
+            <TabPanel value={ideaFilter.ALL}>
+              <IdeasFiltered filter={value}/>
             </TabPanel>
-            <TabPanel value="2">
-              <IdeasFiltered />
+            <TabPanel value={ideaFilter.MOST_POPULAR}>
+              <IdeasFiltered filter={value}/>
             </TabPanel>
-            <TabPanel value="3">
-              <IdeasFiltered />
+            <TabPanel value={ideaFilter.MOST_VIEWED}>
+              <IdeasFiltered filter={value}/>
             </TabPanel>
-            <TabPanel value="4">
-              <IdeasFiltered />
+            <TabPanel value={ideaFilter.LASTEST_IDEAS}>
+              <IdeasFiltered filter={value}/>
+            </TabPanel>
+            <TabPanel value={ideaFilter.LASTEST_COMMENTS}>
+              <IdeasFiltered filter={value}/>
             </TabPanel>
           </TabContext>
         </Box>

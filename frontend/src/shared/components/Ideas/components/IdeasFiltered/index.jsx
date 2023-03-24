@@ -1,20 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+
+import { ModalCreateIdea } from "../CreateIdeaModal";
 
 import {
   Box,
   Button,
   Popover,
   Typography,
-  IconButton,
   Pagination,
   Stack,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  IconButton,
+  BootstrapTooltip,
+  Badge,
 } from "@/shared/components";
 import { SearchCustomize } from "@/shared/components/Search";
-import Badge from "@mui/material/Badge";
 
 import { styled } from "@mui/material/styles";
 
@@ -25,13 +29,17 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import CommentIcon from "@mui/icons-material/Comment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import LoupeIcon from "@mui/icons-material/Loupe";
 
 import {
   primaryColor,
   backgroundColor,
+  whiteColor,
   activeColor,
 } from "@/shared/utils/colors.utils";
+import { redirectTo } from "@/shared/utils/history";
 import { enumRoles } from "@/shared/utils/constant.utils";
+import { ideaFilter } from "@/shared/utils/constant.utils";
 
 import {
   IdeasWrapper,
@@ -47,7 +55,11 @@ import {
   IdeaItemBottom,
 } from "./IdeasFiltered.styles";
 
+//services
+import { getIdeas } from "@/services/idea.services";
+
 import { useAppStore } from "@/stores/AppStore";
+import { useIdeaStore } from "@/stores/IdeaStore";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -63,12 +75,16 @@ const flexCenter = {
   alignItems: "center",
 };
 
-export const IdeasFiltered = () => {
-  const [age, setAge] = React.useState("");
+export const IdeasFiltered = ({ filter }) => {
   const userInfo = useAppStore((state) => state.userInfo);
+  const { ideas, loading, setLoading, setIdeas } = useIdeaStore(
+    (state) => state
+  );
 
+  const [age, setAge] = React.useState("");
   const [anchorSortEl, setAnchorSortEl] = useState(null);
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
+  const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
 
   //sort
   const handleClickSortAnchor = (event) => {
@@ -93,11 +109,37 @@ export const IdeasFiltered = () => {
     setAge(e.target.value);
   };
 
+  const handleOpenCreateIdeaModal = () => {
+    setOpenCreateIdeaModal(true);
+  };
+
   const openSortAnchor = Boolean(anchorSortEl);
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
   const idSortAnchor = openSortAnchor ? "sort-popover" : undefined;
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
+
+  useEffect(() => {
+    (async () => {
+      try {
+        switch (filter) {
+          case ideaFilter.ALL: {
+            setLoading(true);
+            const resp = await getIdeas();
+            if (resp) {
+              console.log(resp);
+              setIdeas(resp?.data?.content);
+            }
+          }
+        }
+      } catch (error) {
+        const errorMessage = error?.data?.status;
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [filter]);
 
   return (
     <Box>
@@ -111,7 +153,7 @@ export const IdeasFiltered = () => {
               : "flex-end",
         }}
       >
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px'}}>
           {userInfo.role == enumRoles.QAM ? (
             <Box>
               <Button
@@ -168,30 +210,33 @@ export const IdeasFiltered = () => {
               </Popover>
             </Box>
           ) : null}
-
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel
-              id="select-helper-label"
-              sx={{ fontSize: "15px", top: "-8px" }}
-            >
-              Department
-            </InputLabel>
-            <Select
-              labelId="select-helper-label"
-              id="select-helper"
-              label="Department"
-              value={age}
-              onChange={handleChangeDepartment}
-              sx={{
-                fontSize: "15px",
-                ".MuiSelect-select": { padding: "8.5px 14px" },
-              }}
-            >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-          </FormControl>
+          {userInfo.role == enumRoles.ADMIN ||
+        
+        userInfo.role == enumRoles.QAM ? (
+            <FormControl sx={{ minWidth: 150 }}>
+              <InputLabel
+                id="select-helper-label"
+                sx={{ fontSize: "15px", top: "-8px" }}
+              >
+                Department
+              </InputLabel>
+              <Select
+                labelId="select-helper-label"
+                id="select-helper"
+                label="Department"
+                value={age}
+                onChange={handleChangeDepartment}
+                sx={{
+                  fontSize: "15px",
+                  ".MuiSelect-select": { padding: "8.5px 14px" },
+                }}
+              >
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+              </Select>
+            </FormControl>
+          ) : null}
         </Box>
 
         <Box
@@ -266,7 +311,7 @@ export const IdeasFiltered = () => {
       <Box>
         <Box mt={2} mb={3}>
           <IdeasWrapper>
-            <IdeaItem elevation={3}>
+            <IdeaItem elevation={3} onClick={() => redirectTo("/ideas/123")}>
               <IdeaItemHead>
                 <Box
                   width="50px"
@@ -332,6 +377,25 @@ export const IdeasFiltered = () => {
           <Pagination count={10} color="secondary" />
         </Stack>
       </Box>
+      <Box
+        sx={{ position: "fixed", right: "50px", bottom: "100px", zIndex: 99 }}
+      >
+        <BootstrapTooltip
+          title="Add Idea"
+          backgroundColor="primary"
+          onClick={handleOpenCreateIdeaModal}
+        >
+          <IconButton>
+            <LoupeIcon fontSize="large" color="secondary" />
+          </IconButton>
+        </BootstrapTooltip>
+      </Box>
+
+      {/* Modal */}
+      <ModalCreateIdea
+        open={openCreateIdeaModal}
+        onClose={setOpenCreateIdeaModal}
+      />
     </Box>
   );
 };

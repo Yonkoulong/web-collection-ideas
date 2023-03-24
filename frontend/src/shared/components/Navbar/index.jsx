@@ -33,7 +33,7 @@ const navList = [
   {
     to: "/ideas",
     icon: <GroupIcon />,
-    title: "Popular Ideas",
+    title: "Ideas",
     permission: "all",
   },
   {
@@ -59,12 +59,6 @@ const navList = [
     icon: <GroupIcon />,
     title: "Dashboard",
     permission: "qam",
-  },
-  {
-    to: "/idea-management",
-    icon: <GroupIcon />,
-    title: "Idea Management",
-    permission: "staff",
   },
 ];
 

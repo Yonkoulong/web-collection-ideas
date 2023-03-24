@@ -12,10 +12,12 @@ export const IdeasWrapper = styled(Box)`
 
 export const IdeaItem = styled(Paper)`
     padding: 16px;
-    
+    border-radius: 10px;
+
     &:hover {
         background-color: ${activeColor};
         border-radius: 10px;
+        cursor: pointer;
     }
 `
 
