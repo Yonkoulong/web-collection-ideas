@@ -50,10 +50,10 @@ export const SignIn = () => {
       const response = await postLogin(data);
       if(response) {
         localStorage.setItem('token', response?.data?.data?.user?.refreshToken);
-        setUserInfo(response?.data?.data)
+        setUserInfo(response?.data?.data?.user);
         toast.success("Login in successfully!");
         setLoading(false);
-        redirectTo('/admin');
+        redirectTo('/ideas');
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.status;

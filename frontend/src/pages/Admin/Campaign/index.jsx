@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 import { SearchCustomize } from "@/shared/components/Search";
 import {
@@ -217,7 +218,7 @@ export const Campaign = () => {
                           }}
                           onClick={() => console.log()}
                         >
-                          {campaign?.departmentName}
+                          {campaign?.departmentName || '-'}
                         </TableCell>
                         
                         <TableCell>

@@ -25,7 +25,13 @@ export {
     Badge,
     Tab,
     Popover,
-    
+    Pagination,
+    Stack,
+    FormControl,
+    InputLabel,
+    Tooltip,
+    FormGroup,
+    FormControlLabel   
 } from "@mui/material";
 
 export {
@@ -38,3 +44,4 @@ export { ControllerInput } from "./ControllerInput";
 export { StyledTextField } from "./TextField";
 export { NoDataAvailable } from "./NoDataAvailable";
 export { StyledTableRow } from "./Table/TableRow";
+export { BootstrapTooltip } from "./Tooltip";

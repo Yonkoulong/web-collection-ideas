@@ -13,6 +13,9 @@ import {
   Select,
   MenuItem,
   Button,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
 } from "@/shared/components";
 import PropTypes from "prop-types";
 import { styled } from "@mui/material/styles";
@@ -32,7 +35,7 @@ import {
   CreateCampaignFormWrapper,
   CreateCampaignForm,
   CreateCampaignInputContainer,
-} from "./CreateCampaignModal.styles";
+} from "./CreateIdeaModal.styles";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -72,16 +75,14 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-
 const defaultValues = {
   name: "",
-  startTime: "",
-  firstClosureDate: "",
-  finalClosureDate: "",
-  department: ""
+  campaignId: 0,
+  categoryId: 0,
+  enonymous: false,
 };
 
-export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
+export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
   const { userInfo } = useAppStore((state) => state);
   const { departments, fetchDepartments } = useDepartmentStore(
     (state) => state
@@ -98,7 +99,12 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (field?.name && field?.startTime && field?.firstClosureDate && field?.department) {
+    if (
+      field?.name &&
+      field?.startTime &&
+      field?.firstClosureDate &&
+      field?.department
+    ) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -142,16 +148,14 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
         //fetch department
         await fetchDepartments();
 
-        if(editCampaign) {
-          
-            setValue('role', resp?.data?.data?.role);
-            setValue('department', resp?.data?.data?.department);
-            setValue('name', resp?.data?.data?.name);
-            setValue('email', resp?.data?.data?.email);
-            setValue('password', resp?.data?.data?.password);
-            setValue('dob', resp?.data?.data?.dob);
-            setValue('image', resp?.data?.data?.image);
-          
+        if (editCampaign) {
+          setValue("role", resp?.data?.data?.role);
+          setValue("department", resp?.data?.data?.department);
+          setValue("name", resp?.data?.data?.name);
+          setValue("email", resp?.data?.data?.email);
+          setValue("password", resp?.data?.data?.password);
+          setValue("dob", resp?.data?.data?.dob);
+          setValue("image", resp?.data?.data?.image);
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
@@ -168,19 +172,19 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create Campaign
+        Create Idea
       </BootstrapDialogTitle>
       <CreateCampaignFormWrapper>
         <CreateCampaignForm onSubmit={handleSubmit(onSubmit)}>
           <DialogContent dividers>
             <CreateCampaignInputContainer>
               <Typography fontSize="medium">
-                Campain Name <span style={{ color: "red" }}>*</span>
+                Idea Name <span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Campaign Name"
+                fieldNameErrorMessage="Idea Name"
                 fieldName="name"
                 required={true}
               >
@@ -190,92 +194,13 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
                     fullWidth
                     size="small"
                     type="text"
-                    placeholder="Enter campaign name"
+                    placeholder="Enter idea name"
                   />
                 )}
               </ControllerInput>
             </CreateCampaignInputContainer>
 
-            <CreateCampaignInputContainer>
-              <Typography fontSize="medium">
-                Start time<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Start Time"
-                fieldName="startTime"
-                required={true}
-              >
-                {(field) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                      {...field}
-                      sx={{
-                        width: "100%",
-                        ".MuiInputBase-root": {
-                          fontSize: "15px",
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                )}
-              </ControllerInput>
-            </CreateCampaignInputContainer>
-
-            <CreateCampaignInputContainer>
-              <Typography fontSize="medium">
-                First Closure Date<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="First Closure Date"
-                fieldName="firstClosureDate"
-                required={true}
-              >
-                {(field) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                      {...field}
-                      sx={{
-                        width: "100%",
-                        ".MuiInputBase-root": {
-                          fontSize: "15px",
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                )}
-              </ControllerInput>
-            </CreateCampaignInputContainer>
-
-            <CreateCampaignInputContainer>
-              <Typography fontSize="medium">Final Closure Date</Typography>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Final Closure Date"
-                fieldName="finalClosureDate"
-                required={false}
-              >
-                {(field) => (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                      {...field}
-                      sx={{
-                        width: "100%",
-                        ".MuiInputBase-root": {
-                          fontSize: "15px",
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                )}
-              </ControllerInput>
-            </CreateCampaignInputContainer>
-
-            {/* //department */}
+            {/* //Campain */}
             <CreateCampaignInputContainer>
               <Typography fontSize="medium">
                 Department<span style={{ color: "red" }}>*</span>
@@ -308,9 +233,81 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
                 )}
               </ControllerInput>
             </CreateCampaignInputContainer>
+
+            {/* //Category */}
+            <CreateCampaignInputContainer>
+              <Typography fontSize="medium">
+                Category<span style={{ color: "red" }}>*</span>
+              </Typography>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="Category"
+                fieldName="category"
+                required={true}
+              >
+                {(field) => (
+                  <Select
+                    {...field}
+                    fullWidth
+                    size="small"
+                    value={field?.value || ""}
+                    sx={{ fontSize: "15px" }}
+                  >
+                    {departments.map((option) => (
+                      <MenuItem
+                        sx={{ fontSize: "15px" }}
+                        key={option._id}
+                        value={option._id || ""}
+                      >
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              </ControllerInput>
+            </CreateCampaignInputContainer>
+
+            <CreateCampaignInputContainer>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="Anonymous"
+                fieldName="anonymous"
+                required={false}
+              >
+                {(field) => (
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox {...field} color="secondary" />}
+                      label="Anonymous"
+                      sx={{
+                        '.MuiTypography-root': {
+                          fontSize: "15px"
+                        }
+                      }}
+                    />
+                  </FormGroup>
+                )}
+              </ControllerInput>
+            </CreateCampaignInputContainer>
+
+            <CreateCampaignInputContainer>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage=""
+                fieldName=""
+                required={false}
+              >
+                {(field) => (
+                  <input type="file" multiple  {...field}/>
+                )}
+              </ControllerInput>
+            </CreateCampaignInputContainer>
           </DialogContent>
           <DialogActions>
-            <Button variant="outlined" autoFocus onClick={() => handleClose()}>
+            <Button variant="outlined" color="secondary" autoFocus onClick={() => handleClose()}>
               Cancel
             </Button>
             <Button

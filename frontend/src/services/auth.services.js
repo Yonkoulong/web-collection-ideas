@@ -9,3 +9,7 @@ export async function postLogin(payload) {
 export async function getRefreshToken() {
     return http.get("/refresh");
 }
+
+export async function getLogout() {
+    return http.get("/logout");
+}

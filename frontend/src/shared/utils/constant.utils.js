@@ -20,4 +20,12 @@ export function isObjectEmpty(value) {
       Object.prototype.toString.call(value) === '[object Object]' &&
       JSON.stringify(value) === '{}'
     );
-  }
+}
+
+export const ideaFilter = {
+    ALL: 'all',
+    MOST_POPULAR: 'most-popular',
+    MOST_VIEWED: 'most-viewed',
+    LASTEST_IDEAS: 'lastest-ideas',
+    LASTEST_COMMENTS: 'lastest-comments'
+}
