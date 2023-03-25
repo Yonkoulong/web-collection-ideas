@@ -31,8 +31,7 @@ const accountSchema  = new Schema({
     },
     departmentId:{
         type:mongoose.Schema.Types.ObjectId, 
-        ref:'department',
-        require:true
+        ref:'department'
     },
     dob:{
         type: Date
