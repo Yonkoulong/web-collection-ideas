@@ -13,7 +13,7 @@ const postAccount = async (req, res) => {
         let name = req.body.name
         let dob = req.body?.dob
         let role = req.body.role
-        let departmentId = req.params.departmentId
+        let departmentId = req.body.departmentId
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
@@ -109,7 +109,7 @@ const getAccountById = async (req, res) => {
 };
 const getAccountByDepartment = async (req, res) => {
     try {
-        let departmentId = req.params.departmentId
+        let departmentId = req.body.departmentId
         let accounts = await AccountModel.find({ departmentId: departmentId });
         if (accounts) {
             response = {
@@ -198,7 +198,7 @@ module.exports = [
     {
         method: "post", //define method http
         controller: postAccount, //this is method handle when have request on server
-        route: "/department/:departmentId/account", //define API
+        route: "/account", //define API
     },
     {
         method: "get", //define method http
@@ -213,7 +213,7 @@ module.exports = [
     {
         method: "get", //define method http
         controller: getAccountByDepartment, //this is method handle when have request on server
-        route: "/department/:departmentId/account", //define API
+        route: "/account", //define API
     },
     {
         method: "put", //define method http

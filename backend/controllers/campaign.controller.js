@@ -38,8 +38,15 @@ const postCampaign= async (req, res) => {
  }
  const getCampaign = async(req, res) =>{
    try {
-     let campaigns = await CampaignModel.find({});
-     let coppyCampaigns=[]
+    let campaigns 
+    let coppyCampaigns=[]
+    let departmentId = req.body?.departmentId
+     if(departmentId){
+       campaigns = await CampaignModel.find({departmentId:departmentId});
+     }
+     else{
+      campaigns = await CampaignModel.find({});
+     }
      if(campaigns){
       for (let campaign of campaigns) {
         let department = await DepartmentModel.findOne({_id:campaign.departmentId})
@@ -73,24 +80,6 @@ const postCampaign= async (req, res) => {
      res.status(500).json(error.message)
    }
  };
- const getCampaignsByDepartment = async(req,res)=>{
-    try {
-        let departmentId = req.body.departmentId
-        let department = await DepartmentModel.findOne({_id:departmentId})
-        let campaignByDepartment = await CampaignModel.find({
-            departmentId :departmentId
-        })
-        if(campaignByDepartment){
-          let response = {
-                'status': 'Get campaign success',
-                'data': {...campaignByDepartment._doc,departmentName:department.name}
-              }      
-              res.status(200).json(response)
-        }
-    } catch (error) {
-        res.status(500).json(error.message)
-    }
- }
  const putCampaign = async (req, res)=>{
    try {
      let id = req.params.id
@@ -148,11 +137,7 @@ const postCampaign= async (req, res) => {
       controller: getCampaignById, //this is method handle when have request on server
       route: "/campaign/:id", //define API
     },
-    {
-        method: "get", //define method http
-        controller: getCampaignsByDepartment, //this is method handle when have request on server
-        route: "/campaignByDepartment", //define API
-      },
+   
     {
       method: "put", //define method http
       controller: putCampaign, //this is method handle when have request on server
