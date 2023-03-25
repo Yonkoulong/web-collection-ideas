@@ -1,6 +1,11 @@
 const AccountModel = require("../models/account.model");
 const cloudinary = require("../middleware/cloudinary.middleware")
 const bcrypt = require("bcrypt");
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+  });
 const postAccount = async (req, res) => {
     try {
         let email = req.body.email
@@ -10,6 +15,10 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.params.departmentId
         const fileData = req.files.file
+        const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
+            resource_type:"auto",
+            folder:"web_collection_ideas",
+          })
         let response
         if (!email || !password) return res.status(400).json({ 'message': 'Email and Password are required. ' })
         console.log(email, password, role)
@@ -28,7 +37,7 @@ const postAccount = async (req, res) => {
         let hashedPwd = await bcrypt.hash(password, 10,)
         console.log('hash ', hash);
         //upload image
-
+        
         //create account
         let newAccount = await AccountModel.create({
             email: email,
@@ -37,7 +46,8 @@ const postAccount = async (req, res) => {
             dob: dob,
             departmentId: departmentId,
             role: role,
-
+            publishId:result.public_id,
+            avartarUrl:result.secure_url,
         })
         if (newAccount) {
             response = {

@@ -6,6 +6,12 @@ const ideaSchema  = new Schema({
         required: true,
         unique: true
     },
+    viewer:[
+        {   type: mongoose.Schema.Types.ObjectId, 
+            ref: 'account',
+            unique: true 
+        }
+    ],
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',

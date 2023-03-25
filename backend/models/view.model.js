@@ -5,7 +5,7 @@ const viewSchema = new Schema({
     count:{
         type:number
     },
-    authorId:{
+    viewer:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
         require : true

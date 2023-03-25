@@ -39,25 +39,21 @@ const postCampaign= async (req, res) => {
  const getCampaign = async(req, res) =>{
    try {
      let campaigns = await CampaignModel.find({});
-     let newCampaign =[]
+     let coppyCampaigns=[]
      if(campaigns){
-       campaigns.map(async(campaign) => {
-          let department = await DepartmentModel.findOne({_id:campaign.departmentId})
-             
-             campaign['departmentName'] =department.name
-             console.log(campaign['departmentName'])
-             
-      });
+      for (let campaign of campaigns) {
+        let department = await DepartmentModel.findOne({_id:campaign.departmentId})
+        coppyCampaigns.push({...campaign._doc, departmentName: department.name})
+        console.log(campaign)
+      }
      }
+      let response = {
+        'status': 'Get all campaigns success',
+        'data': coppyCampaigns
+      }
+      console.log(coppyCampaigns)
+      res.status(200).json(response)
      
-     let response
-     if(campaigns){
-       response = {
-         'status': 'Get all campaigns success',
-         'data': campaigns
-       }      
-       res.status(200).json(response)
-     }
    } catch (error) {
      res.status(500).json(error.message)
    }
