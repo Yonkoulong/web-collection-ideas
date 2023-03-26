@@ -4,12 +4,10 @@ const ideaSchema  = new Schema({
     content:{
         type: String,
         required: true,
-        unique: true
     },
     viewer:[
         {   type: mongoose.Schema.Types.ObjectId, 
             ref: 'account',
-            unique: true 
         }
     ],
     authorId:{

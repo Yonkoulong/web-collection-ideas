@@ -15,6 +15,7 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body.departmentId
         const fileData = req.files.file
+        console.log(fileData)
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
             folder:"web_collection_ideas",
@@ -35,7 +36,7 @@ const postAccount = async (req, res) => {
         }
         // hash pasword
         let hashedPwd = await bcrypt.hash(password, 10,)
-        console.log('hash ', hash);
+        //console.log('hash ', hash);
         //upload image
         
         //create account
@@ -52,7 +53,7 @@ const postAccount = async (req, res) => {
         if (newAccount) {
             response = {
                 'status': 'Register account success',
-                'data': data
+                'data': newAccount
             }
             console.log(response)
             res.status(201).json(response);
@@ -125,9 +126,10 @@ const getAccountByDepartment = async (req, res) => {
 };
 const putAccount = async (req, res) => {
     try {
-        let id = req.id
+        let id = req.params.id==null?req.id:req.params.id
         let name = req.body?.name
         let dob = req.body.dob
+        let departmentId = req.body.departmentId
         const result = await cloudinary.uploader.upload(fileData.tempFilePath, {
             resource_type: "auto",
             folder: "web_collection_ideas",
@@ -137,6 +139,7 @@ const putAccount = async (req, res) => {
             let updateAccount = await AccountModel.findByIdAndUpdate(id, {
                 name: name == null ? foundAccount.name : name,
                 dob: dob == null ? foundAccount.dob : dob,
+                departmentId:departmentId,
                 publishId: result.public_id,
                 avartarUrl: result.secure_url == null ? foundAccount.avartarUrl : result.secure_url,
             });
