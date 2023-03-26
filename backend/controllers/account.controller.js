@@ -6,7 +6,10 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_KEY,
     api_secret: process.env.CLOUDINARY_SECRET
   });
+
 const postAccount = async (req, res) => {
+    //long code
+
     try {
         let email = req.body.email
         let password = req.body.password
@@ -15,11 +18,11 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body.departmentId
         const fileData = req.files.file
-        console.log(fileData)
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
             folder:"web_collection_ideas",
           })
+        
         let response
         if (!email || !password) return res.status(400).json({ 'message': 'Email and Password are required. ' })
         console.log(email, password, role)
@@ -36,7 +39,6 @@ const postAccount = async (req, res) => {
         }
         // hash pasword
         let hashedPwd = await bcrypt.hash(password, 10,)
-        //console.log('hash ', hash);
         //upload image
         
         //create account
@@ -60,9 +62,12 @@ const postAccount = async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).json(error.message)
+        if(error) {
+            res.status(500).json(error)
+        }
     }
 };
+
 const getCurrentAccount = async (req, res) => {
     try {
         let id = req.id
@@ -78,9 +83,10 @@ const getCurrentAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 }
+
 const getAccount = async (req, res) => {
     try {
-        let accounts = await AccountModel.find({});
+        let accounts = await AccountModel.find({}).populate('departmentId');
         if (accounts) {
             response = {
                 'status': 'Get all accounts success',
@@ -92,6 +98,7 @@ const getAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 };
+
 const getAccountById = async (req, res) => {
     try {
         let id = req.params.id
@@ -108,6 +115,7 @@ const getAccountById = async (req, res) => {
     }
 
 };
+
 const getAccountByDepartment = async (req, res) => {
     try {
         let departmentId = req.body.departmentId
@@ -124,6 +132,7 @@ const getAccountByDepartment = async (req, res) => {
     }
 
 };
+
 const putAccount = async (req, res) => {
     try {
         let id = req.params.id==null?req.id:req.params.id
@@ -156,6 +165,7 @@ const putAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 };
+
 const putPasswordForAccount = async (req, res)=>{
     try {
         let id = req.params?.id
@@ -181,6 +191,7 @@ const putPasswordForAccount = async (req, res)=>{
         res.status(500).json(error.message)
     }
 }
+
 const deleteAccount = async (req, res) => {
     try {
         let id = req.params.id
