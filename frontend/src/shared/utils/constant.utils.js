@@ -5,7 +5,7 @@ export const formatDate = (date) => {
         return "_";
     }
 
-    return moment(date).format("DD-MM-YYYY");
+    return moment(date).format("MM-DD-YYYY");
 };
 
 export const enumRoles = {

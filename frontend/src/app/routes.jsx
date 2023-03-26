@@ -9,6 +9,7 @@ import { IdeaDetail } from "@/shared/components/Ideas/components/IdeaDetail";
 import { QAMPage } from "@/pages/QAM";
 import { Category } from "@/pages/QAM/Categories";
 import { enumRoles } from "@/shared/utils/constant.utils";
+import { PageNotFound } from "@/pages/404";
 import ProtectedRoute from "@/shared/HOC/AuthenticationRoute";
 import AuthorizationRoute from "@/shared/HOC/AuthorizationRoute";
 
@@ -84,5 +85,9 @@ export const routes = [
         <IdeaDetail />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "*",
+    element: <PageNotFound />,
   },
 ];
