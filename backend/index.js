@@ -25,7 +25,7 @@ app.use(fileUpload({
    limits:{fileSize:50*2024*1024}
 }))
 // create application/x-www-form-urlencoded parser
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 app.use(bodyParser.json())

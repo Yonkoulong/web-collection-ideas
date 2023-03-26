@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
 import { useParams } from "react-router-dom";
@@ -8,7 +9,11 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { postRegisterAccount, getAccountDetail, putAccount } from "@/services/admin.services";
+import {
+  postRegisterAccount,
+  getAccountDetail,
+  putAccount,
+} from "@/services/admin.services";
 
 import {
   TextField,
@@ -58,11 +63,12 @@ const flexCenter = {
 
 const defaultValue = {
   role: "",
-  department: "",
+  departmentId: "",
+  name: "",
   dob: "",
   email: "",
   password: "",
-  image: "",
+  file: "",
 };
 
 export const CreateAndEditUser = () => {
@@ -71,6 +77,8 @@ export const CreateAndEditUser = () => {
   );
   const fetchAccounts = useAccountStore((state) => state.fetchAccounts);
   const { id } = useParams();
+
+  const fileRef = useRef(null);
 
   const {
     control,
@@ -81,33 +89,65 @@ export const CreateAndEditUser = () => {
 
   const onSubmit = async (data) => {
     try {
+      
+      const [file] = fileRef.current.files;
+      const formData = new FormData();
+
+      formData.append("file", file);
+
       const payload = {
         ...data,
-        dob: formatDate(data?.dob?.$d),
+        dob: data?.dob?.$d.toISOString(),
       };
 
-      if(id) {
-        const resp = await putAccount({id}, payload);
-        
+      Object.entries(payload).forEach((pair) => {
+        const [k, v] = pair;
+        if(k != 'file') {
+          formData.append(k, v);
+        };
+      })
+
+      if (id) {
+        const resp = await putAccount({ id }, payload);
+
         if (resp) {
           toast.success("Update account successfully!");
           await fetchAccounts();
           redirectTo("/admin/user-management");
         }
       } else {
-        const resp = await postRegisterAccount(payload);
-        
-        if (resp) {
-          toast.success("Create account successfully!");
-          await fetchAccounts();
-          redirectTo("/admin/user-management");
-        }
-      }
+        axios({
+          method: "post",
+          url: "http://localhost:8080/account",
+          data: formData,
+          headers: {
+            "withCredentials": "true",
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error){
+          console.log(error);
+        })
 
+        // const resp = await postRegisterAccount(payload);
+
+        // if (resp) {
+        //   toast.success("Create account successfully!");
+        //   await fetchAccounts();
+        //   redirectTo("/admin/user-management");
+        // }
+      }
     } catch (error) {
       const errorMessage = error?.response?.data?.status;
       toast.error(errorMessage);
     }
+  };
+
+  const handleChangeFile = () => {
+    //
   };
 
   const watchFieldsInModalCreateMember = () => {
@@ -116,10 +156,11 @@ export const CreateAndEditUser = () => {
 
     if (
       field?.role &&
-      field?.department &&
+      field?.departmentId &&
       field?.name &&
       field?.email &&
-      field?.password
+      field?.password &&
+      field?.file
     ) {
       isEnable = false;
     } else {
@@ -134,17 +175,17 @@ export const CreateAndEditUser = () => {
         //fetch department
         await fetchDepartments();
 
-        if(id) {
+        if (id) {
           const resp = await getAccountDetail({ id });
-          if(resp) {
-            setValue('role', resp?.data?.data?.role);
-            setValue('department', resp?.data?.data?.department);
-            setValue('name', resp?.data?.data?.name);
-            setValue('email', resp?.data?.data?.email);
-            setValue('password', resp?.data?.data?.password);
-            setValue('dob', resp?.data?.data?.dob);
-            setValue('image', resp?.data?.data?.image);
-          } 
+          if (resp) {
+            setValue("role", resp?.data?.data?.role);
+            setValue("department", resp?.data?.data?.department);
+            setValue("name", resp?.data?.data?.name);
+            setValue("email", resp?.data?.data?.email);
+            setValue("password", resp?.data?.data?.password);
+            setValue("dob", resp?.data?.data?.dob);
+            setValue("image", resp?.data?.data?.image);
+          }
         }
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
@@ -152,6 +193,7 @@ export const CreateAndEditUser = () => {
       }
     })();
   }, []);
+
   return (
     <Box sx={{ m: "24px 16px" }}>
       <Box>
@@ -218,7 +260,7 @@ export const CreateAndEditUser = () => {
                   control={control}
                   errors={errors}
                   fieldNameErrorMessage="Department"
-                  fieldName="department"
+                  fieldName="departmentId"
                   required={true}
                 >
                   {(field) => (
@@ -233,7 +275,7 @@ export const CreateAndEditUser = () => {
                         <MenuItem
                           sx={{ fontSize: "15px" }}
                           key={option._id}
-                          value={option.name || ""}
+                          value={option._id || ""}
                         >
                           {option.name}
                         </MenuItem>
@@ -343,7 +385,7 @@ export const CreateAndEditUser = () => {
                 disabled={watchFieldsInModalCreateMember()}
                 fullWidth
               >
-                {id ? "Edit" : "Update"}
+                {id ? "Update" : "Create"}
               </Button>
             </Box>
           </Box>
@@ -351,7 +393,7 @@ export const CreateAndEditUser = () => {
             <ControllerInput
               control={control}
               errors={errors}
-              fieldName="image"
+              fieldName="file"
               required={false}
             >
               {(field) => (
@@ -363,7 +405,13 @@ export const CreateAndEditUser = () => {
                       aria-label="upload picture"
                       component="label"
                     >
-                      <input {...field} hidden accept="image/*" type="file" />
+                      <input
+                        {...field}
+                        ref={fileRef}
+                        hidden
+                        accept="image/*"
+                        type="file"
+                      />
                       <PhotoCamera />
                     </IconButton>
                   </CameraWrapper>

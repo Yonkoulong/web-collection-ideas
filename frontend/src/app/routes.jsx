@@ -53,7 +53,9 @@ export const routes = [
     path: "/qam",
     element: (
       <ProtectedRoute>
-        <QAMPage />
+        <AuthorizationRoute allowRoles={[enumRoles.QAM]}>
+          <QAMPage />
+        </AuthorizationRoute>
       </ProtectedRoute>
     ),
     children: [
