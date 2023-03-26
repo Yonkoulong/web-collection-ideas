@@ -99,11 +99,6 @@ export const IdeaDetail = () => {
                     <ImageIcon />
                   </InputAdornment>
                 ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <ImageIcon />
-                  </InputAdornment>
-                ),
               }}
               variant="outlined"
               fullWidth

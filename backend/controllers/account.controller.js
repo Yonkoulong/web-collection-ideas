@@ -6,19 +6,25 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_KEY,
     api_secret: process.env.CLOUDINARY_SECRET
   });
+
 const postAccount = async (req, res) => {
+    console.log(req);
     try {
-        let email = req.body.email
-        let password = req.body.password
-        let name = req.body.name
-        let dob = req.body?.dob
-        let role = req.body.role
-        let departmentId = req.params.departmentId
-        const fileData = req.files.file
+        let newReqBody = JSON.parse(JSON.stringify(req.body)); 
+        let newReqFile = JSON.parse(JSON.stringify(req.files)); 
+        let email = newReqBody.email
+        let password = newReqBody.password
+        let name = newReqBody.name
+        let dob = newReqBody?.dob
+        let role = newReqBody.role
+        let departmentId = req.params.departmentId;
+        const fileData = newReqFile?.file
+        
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
             folder:"web_collection_ideas",
           })
+        
         let response
         if (!email || !password) return res.status(400).json({ 'message': 'Email and Password are required. ' })
         console.log(email, password, role)
@@ -198,7 +204,7 @@ module.exports = [
     {
         method: "post", //define method http
         controller: postAccount, //this is method handle when have request on server
-        route: "/department/:departmentId/account", //define API
+        route: "/account", //define API
     },
     {
         method: "get", //define method http
