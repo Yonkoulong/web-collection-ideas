@@ -10,16 +10,13 @@ cloudinary.config({
 const postAccount = async (req, res) => {
     console.log(req);
     try {
-        let newReqBody = JSON.parse(JSON.stringify(req.body)); 
-        let newReqFile = JSON.parse(JSON.stringify(req.files)); 
-        let email = newReqBody.email
-        let password = newReqBody.password
-        let name = newReqBody.name
-        let dob = newReqBody?.dob
-        let role = newReqBody.role
-        let departmentId = req.params.departmentId;
-        const fileData = newReqFile?.file
-        
+        let email = req.body.email
+        let password = req.body.password
+        let name = req.body.name
+        let dob = req.body?.dob
+        let role = req.body.role
+        let departmentId = req.body.departmentId
+        const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
             folder:"web_collection_ideas",
@@ -115,7 +112,7 @@ const getAccountById = async (req, res) => {
 };
 const getAccountByDepartment = async (req, res) => {
     try {
-        let departmentId = req.params.departmentId
+        let departmentId = req.body.departmentId
         let accounts = await AccountModel.find({ departmentId: departmentId });
         if (accounts) {
             response = {
@@ -219,7 +216,7 @@ module.exports = [
     {
         method: "get", //define method http
         controller: getAccountByDepartment, //this is method handle when have request on server
-        route: "/department/:departmentId/account", //define API
+        route: "/account", //define API
     },
     {
         method: "put", //define method http
