@@ -97,7 +97,7 @@ export const CreateAndEditUser = () => {
 
       const payload = {
         ...data,
-        dob: formatDate(data?.dob?.$d),
+        dob: data?.dob?.$d.toISOString(),
       };
 
       Object.entries(payload).forEach((pair) => {
@@ -106,7 +106,7 @@ export const CreateAndEditUser = () => {
           formData.append(k, v);
         };
       })
-      // console.log(formData.getAll('file'));
+
       if (id) {
         const resp = await putAccount({ id }, payload);
 

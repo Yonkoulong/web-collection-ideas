@@ -8,15 +8,18 @@ cloudinary.config({
   });
 
 const postAccount = async (req, res) => {
-    console.log(req);
+    //long code
+    let newReqBody = JSON.parse(JSON.stringify(req.body));
+    let newReqFile = JSON.parse(JSON.stringify(req.files));
+
     try {
-        let email = req.body.email
-        let password = req.body.password
-        let name = req.body.name
-        let dob = req.body?.dob
-        let role = req.body.role
-        let departmentId = req.body.departmentId
-        const fileData = req.files.file
+        let email = newReqBody.email
+        let password = newReqBody.password
+        let name = newReqBody.name
+        let dob = newReqBody?.dob
+        let role = newReqBody.role
+        let departmentId = newReqBody.departmentId
+        const fileData = newReqFile.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
             folder:"web_collection_ideas",
@@ -38,7 +41,7 @@ const postAccount = async (req, res) => {
         }
         // hash pasword
         let hashedPwd = await bcrypt.hash(password, 10,)
-        console.log('hash ', hash);
+        console.log(hashedPwd);
         //upload image
         
         //create account
@@ -55,16 +58,19 @@ const postAccount = async (req, res) => {
         if (newAccount) {
             response = {
                 'status': 'Register account success',
-                'data': data
+                'data': newAccount
             }
             console.log(response)
             res.status(201).json(response);
         }
 
     } catch (error) {
-        res.status(500).json(error.message)
+        if(error) {
+            res.status(500).json(error)
+        }
     }
 };
+
 const getCurrentAccount = async (req, res) => {
     try {
         let id = req.id
@@ -80,6 +86,7 @@ const getCurrentAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 }
+
 const getAccount = async (req, res) => {
     try {
         let accounts = await AccountModel.find({});
@@ -94,6 +101,7 @@ const getAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 };
+
 const getAccountById = async (req, res) => {
     try {
         let id = req.params.id
@@ -110,6 +118,7 @@ const getAccountById = async (req, res) => {
     }
 
 };
+
 const getAccountByDepartment = async (req, res) => {
     try {
         let departmentId = req.body.departmentId
@@ -126,6 +135,7 @@ const getAccountByDepartment = async (req, res) => {
     }
 
 };
+
 const putAccount = async (req, res) => {
     try {
         let id = req.id
@@ -156,6 +166,7 @@ const putAccount = async (req, res) => {
         res.status(500).json(error.message)
     }
 };
+
 const putPasswordForAccount = async (req, res)=>{
     try {
         let id = req.params?.id
@@ -181,6 +192,7 @@ const putPasswordForAccount = async (req, res)=>{
         res.status(500).json(error.message)
     }
 }
+
 const deleteAccount = async (req, res) => {
     try {
         let id = req.params.id
