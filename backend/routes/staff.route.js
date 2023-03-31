@@ -26,7 +26,7 @@ ideaController.forEach((item) =>{
 })
 attachmentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route,verifyJWT, controller);
+    router[method](route, controller);
     // if(item.method =="post" && item.route=="/file" ){
     //     router[method](route,uploadCloud.single('file'), controller);
     // }

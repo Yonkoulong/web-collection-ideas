@@ -3,6 +3,8 @@ const IdeaModel = require("../models/idea.model");
 const ReactionModel = require("../models/reaction.model")
 const DepartmentModel = require("../models/department.model");
 const campaignModel = require("../models/campaign.model");
+const mailer = require("../Utils/mailer");
+const nodemailer = require("nodemailer");
 // select idea có reation nhiều nhất
 const getIdeaPopular = async (req, res) => {
   try {
@@ -50,29 +52,25 @@ const getIdeaPopular = async (req, res) => {
 }
 const getIdeas = async (req, res) => {
   try {
-    let campaignId = req.body?.departmentId
-    if (campaignId == null) {
-      let ideas = await IdeaModel.find({})
-      response = {
-        'status': 'Get idea by campaign success',
-        'data': ideas
-      }
-      res.status(200).json(response)
+    let campaignId = req.body?.campaignId
+    let categoryId = req.body?.categoryId
+    let ideas
+    if (campaignId == null && categoryId== null) {
+       ideas = await IdeaModel.find({})
     }
-    else {
-      let ideas = await IdeaModel.find({ campaignId: campaignId })
-      if (ideas) {
-        response = {
-          'status': 'Get idea by campaign success',
-          'data': ideas
-        }
-        res.status(200).json(response)
-      }
+    else if(categoryId== null ) {
+      ideas = await IdeaModel.find({ campaignId: campaignId })
+    } else{
+      ideas = await IdeaModel.find({ categoryId: categoryId })
     }
+    response = {
+      'status': 'Get idea success',
+      'data': ideas
+    }
+    res.status(200).json(response)
   } catch (error) {
     res.status(500).json(err.message)
   }
-
 }
 const getIdeaFilter = async (req, res) => {
   try {
@@ -87,6 +85,22 @@ const getIdeaFilter = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json(err.message)
+  }
+}
+const sendMail = async(req, res) =>{
+  try {
+    // có thể truyển mail list trong to
+    let infor= await mailer.sendMail("hieuhcgch190473@fpt.edu.vn","New idea posted",`<a href="${process.env.APP_URL}/idea/: </a>`)
+    if(infor){
+      let response = {
+        'status': 'send email success',
+        'data':infor
+      }
+      res.status(200).json(response)
+    }
+   
+  } catch (error) {
+    res.status(500).json(error.message)
   }
 }
 const postIdea = async (req, res) => {
@@ -107,6 +121,7 @@ const postIdea = async (req, res) => {
       'status': 'Upload new idea success',
       'data': data
     }
+  
     res.status(200).json(response)
   })
     .catch(err => {
@@ -191,5 +206,9 @@ module.exports = [
     controller: postView, //this is method handle when have request on server
     route: "/view", //define API
   },
-
+  {
+    method: "post", //define method http
+    controller: sendMail, //this is method handle when have request on server
+    route: "/email", //define API
+  },
 ]

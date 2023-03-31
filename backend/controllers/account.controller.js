@@ -9,14 +9,14 @@ cloudinary.config({
 
 const postAccount = async (req, res) => {
     //long code
-
+    
     try {
         let email = req.body.email
         let password = req.body.password
         let name = req.body.name
         let dob = req.body?.dob
         let role = req.body.role
-        let departmentId = req.body.departmentId
+        let departmentId = req.body?.departmentId
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
@@ -195,7 +195,7 @@ const putPasswordForAccount = async (req, res)=>{
 const deleteAccount = async (req, res) => {
     try {
         let id = req.params.id
-        let account = await AccountModel.findByIdAndDelete({ id });
+        let account = await AccountModel.findOneAndDelete({ _id:id });
         if (account) {
             response = {
                 'status': 'Delete account success',

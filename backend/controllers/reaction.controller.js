@@ -32,7 +32,7 @@ const postReaction = async (req, res) =>{
     try {
         let authorReaction = await ReactionModel.findOne({
             authorId:authorId,
-            ideaId:ideaId})
+            ideaId:ideaId}).populate('authorId')
         if(authorReaction) {
             if( authorReaction.type== type){
               let deleteReaction=  await ReactionModel.findOneAndDelete({
@@ -49,7 +49,7 @@ const postReaction = async (req, res) =>{
                let updateReaction= await ReactionModel.findOneAndUpdate({
                     authorId:authorId,
                     ideaId:ideaId
-                },{type:type})
+                },{type:type}).populate('authorId')
                 if(updateReaction){
                      response = {
                     'status': 'Delete reaction success',
