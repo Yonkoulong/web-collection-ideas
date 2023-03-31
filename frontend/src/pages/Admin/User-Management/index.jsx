@@ -23,6 +23,7 @@ import { PopUpConfirm } from "@/shared/components/Popup";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { redirectTo } from "@/shared/utils/history";
 import { deleteAccount } from "@/services/admin.services";
+import { formatDate } from '@/shared/utils/constant.utils';
 
 const maxHeight = 700;
 
@@ -63,6 +64,7 @@ export const UserManagement = () => {
 
   const handleDeleteAccount = async () => {
     try {
+      console.log({id: idSelected});
       const resp = await deleteAccount( { id: idSelected } );
       if(resp) {
         toast.success("Delete this account successfully!");
@@ -142,7 +144,6 @@ export const UserManagement = () => {
                   <TableCell width="15%">Department</TableCell>
                   <TableCell width="15%">Role</TableCell>
                   <TableCell width="20%">DoB</TableCell>
-
                   <TableCell width="10%">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -209,7 +210,7 @@ export const UserManagement = () => {
                           }}
                           onClick={() => redirectTo("admin/user/:id")}
                         >
-                          {account?.dob || '-'}
+                          {formatDate(account?.dob) || '-'}
                         </TableCell>
                         <TableCell>
                           <IconButton
