@@ -5,6 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
 
 import {
   StyledTextField,
@@ -23,7 +24,7 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { postCampaign } from "@/services/admin.services";
+import { postCampaign, putCampaign } from "@/services/admin.services";
 
 import { useDepartmentStore } from "@/stores/DepartmentStore";
 import { useAppStore } from "@/stores/AppStore";
@@ -72,13 +73,12 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-
 const defaultValues = {
   name: "",
   startTime: "",
   firstClosureDate: "",
   finalClosureDate: "",
-  department: ""
+  departmentId: "",
 };
 
 export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
@@ -90,6 +90,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
@@ -98,7 +99,12 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (field?.name && field?.startTime && field?.firstClosureDate && field?.department) {
+    if (
+      field?.name &&
+      field?.startTime &&
+      field?.firstClosureDate &&
+      field?.departmentId
+    ) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -108,18 +114,49 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
 
   const onSubmit = async (data) => {
     try {
-      const respData = await postCampaign(data);
+      let payload = {};
 
-      if (respData) {
-        setLoading(true);
-        fetchCampaigns({
-          organizeId: userInfo?.organizeId,
-          id: "",
-          email: "",
-          paging: { page: 1, size: 10 },
-        });
-        toast.success("Create Campaign successfully.");
-        handleClose();
+      //check final clouse date
+      if (!data?.finalClosureDate) {
+        let newFinalClousureDate = new Date(data?.firstClosureDate).setDate(
+          new Date(data?.firstClosureDate).getDate() + 7
+        );
+        payload = { ...data, finalClosureDate: newFinalClousureDate };
+      } else {
+        payload = { ...data };
+      }
+
+      if (payload == "{}") {
+        return;
+      }
+
+      if (
+        handleCheckDateBeforeCreateCapaign(
+          payload?.startTime,
+          payload?.firstClosureDate,
+          payload?.finalClosureDate
+        )
+      ) {
+        if (editCampaign) {
+          console.log(editCampaign?._id);
+          const respData = await putCampaign({ id: editCampaign?._id }, data);
+
+          if (respData) {
+            setLoading(true);
+            fetchCampaigns();
+            toast.success("Update Campaign successfully.");
+            handleClose();
+          }
+        } else {
+          const respData = await postCampaign(data);
+
+          if (respData) {
+            setLoading(true);
+            fetchCampaigns();
+            toast.success("Create Campaign successfully.");
+            handleClose();
+          }
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.content;
@@ -127,11 +164,43 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
     }
   };
 
+  const handleCheckDateBeforeCreateCapaign = (
+    startDate,
+    firstClouseDate,
+    finalClosureDate
+  ) => {
+    const now = new Date();
+
+    if (!startDate || !firstClouseDate || !finalClosureDate) {
+      return;
+    }
+
+    if (new Date(startDate).getTime() < now.getTime()) {
+      toast.error("Start date must greater than current date");
+      return false;
+    } else if (
+      new Date(startDate).getTime() > new Date(firstClouseDate).getTime() ||
+      new Date(startDate).getTime() > new Date(finalClosureDate).getTime()
+    ) {
+      toast.error("Start date must less than Closure date");
+      return false;
+    } else if (
+      new Date(firstClouseDate).getTime() > new Date(finalClosureDate).getTime()
+    ) {
+      toast.error("First closure date must less than Final closure date");
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   const handleClose = () => {
     reset({
-      email: "",
-      password: "",
-      role: "",
+      name: "",
+      startTime: "",
+      firstClosureDate: "",
+      finalClosureDate: "",
+      departmentId: "",
     });
     onClose(false);
   };
@@ -141,24 +210,22 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
       try {
         //fetch department
         await fetchDepartments();
-
-        if(editCampaign) {
-          
-            setValue('role', resp?.data?.data?.role);
-            setValue('department', resp?.data?.data?.department);
-            setValue('name', resp?.data?.data?.name);
-            setValue('email', resp?.data?.data?.email);
-            setValue('password', resp?.data?.data?.password);
-            setValue('dob', resp?.data?.data?.dob);
-            setValue('image', resp?.data?.data?.image);
-          
-        }
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
         toast.error(errorMessage);
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (editCampaign) {
+      setValue("name", editCampaign?.name);
+      setValue("startTime", dayjs(editCampaign?.startTime));
+      setValue("firstClosureDate", dayjs(editCampaign?.firstClosureDate));
+      setValue("finalClosureDate", dayjs(editCampaign?.finalClosureDate));
+      setValue("departmentId", editCampaign?.departmentId);
+    }
+  }, [editCampaign]);
 
   return (
     <BootstrapDialog
@@ -198,12 +265,12 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
 
             <CreateCampaignInputContainer>
               <Typography fontSize="medium">
-                Start time<span style={{ color: "red" }}>*</span>
+                Start date<span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Start Time"
+                fieldNameErrorMessage="Start Date"
                 fieldName="startTime"
                 required={true}
               >
@@ -284,7 +351,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Department"
-                fieldName="department"
+                fieldName="departmentId"
                 required={true}
               >
                 {(field) => (

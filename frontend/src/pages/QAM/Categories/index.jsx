@@ -31,7 +31,7 @@ import {
 
 const maxHeight = 700;
 
-export const Category = () => {
+export const CategoryManagement = () => {
   const [openCreateCategoryModal, setOpenCreateCategoryModal] =
     useState(false);
 

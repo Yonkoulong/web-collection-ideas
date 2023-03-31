@@ -5,3 +5,4 @@ import { http } from './http';
 export async function getIdeas() {
     return await http.get('/idea');
 }
+

@@ -414,7 +414,6 @@ export const CreateAndEditUser = () => {
               >
                 {(field) => (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    {console.log(field.value)}
                     <DatePicker
                       {...field}
                       value={dayjs(field.value)}

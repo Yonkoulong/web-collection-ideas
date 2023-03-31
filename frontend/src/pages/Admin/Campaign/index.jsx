@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 import { SearchCustomize } from "@/shared/components/Search";
 import {
@@ -24,15 +25,16 @@ import { ModalCreateCampaign } from "./Components/CreateCampaignModal";
 import { PopUpConfirm } from "@/shared/components/Popup";
 import { useCampaignStore } from "@/stores/CampaignStore";
 import { redirectTo } from "@/shared/utils/history";
-import { deleteCampaign } from '@/services/admin.services'
+import { deleteCampaign, getCampaignDetail } from '@/services/admin.services'
 
 const maxHeight = 700;
 
-export const Campaign = () => {
+export const CampaignManagement = () => {
   const { campaigns, fetchCampaigns, loading, setLoading, totalRecord } =
     useCampaignStore((state) => state);
 
   const [idSelected, setIdSelected] = useState(0);
+  const [editCampaign, setEditCampaign] = useState(null);
   const [openCreateCampaignModal, setOpenCreateCampaignModal] = useState(false);
   const [openPopupConfirm, setOpenPopupConfirm] = useState(false);
   const [controller, setController] = useState({
@@ -55,7 +57,12 @@ export const Campaign = () => {
     });
   };
 
-  const handleClickOpenModalCreateCampaign = () => {
+  const handleClickOpenModalCreateCampaign = (id) => {
+    if(id) {
+      handleGetCampaignDetail(id);
+    } else {
+      setEditCampaign(null)
+    }
     setOpenCreateCampaignModal(true);
   };
 
@@ -80,6 +87,19 @@ export const Campaign = () => {
   const handleClosePopupDeleteCampaign = () => {
     setOpenPopupConfirm(false);
   };
+
+  const handleGetCampaignDetail = async (id) => {
+    try {
+      const resp = await getCampaignDetail({ id });
+      if (resp) {
+        console.log(resp?.data?.data);
+        setEditCampaign(resp?.data?.data)
+      }
+    } catch (error) {
+      const errorMessage = error?.response?.data?.content || error;
+      toast.error(errorMessage);
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -148,7 +168,7 @@ export const Campaign = () => {
                 <TableRow>
                   <TableCell width="15%">Name</TableCell>
                   {/* <TableCell width="20%">Description</TableCell> */}
-                  <TableCell width="15%">Start Time</TableCell>
+                  <TableCell width="15%">Start Date</TableCell>
                   <TableCell width="15%">Closure Date</TableCell>
                   <TableCell width="15%">Final Closure Date</TableCell>
                   <TableCell width="10%">Department</TableCell>
@@ -172,7 +192,7 @@ export const Campaign = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log()}
+                          onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
                           {campaign?.name}
                         </TableCell>
@@ -183,9 +203,9 @@ export const Campaign = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log()}
+                          onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
-                          {campaign?.startTime}
+                          {dayjs(campaign?.startTime).format('MM/DD/YYYY HH:mm A')}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -194,9 +214,9 @@ export const Campaign = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log()}
+                          onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
-                          {campaign?.firstClosureDate}
+                          {dayjs(campaign?.firstClosureDate).format('MM/DD/YYYY HH:mm A')}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -205,9 +225,9 @@ export const Campaign = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log()}
+                          onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
-                          {campaign?.finalClosureDate}
+                          {dayjs(campaign?.finalClosureDate).format('MM/DD/YYYY HH:mm A')}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -216,7 +236,7 @@ export const Campaign = () => {
                               opacity: 0.8,
                             },
                           }}
-                          onClick={() => console.log()}
+                          onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
                           {campaign?.departmentName || '-'}
                         </TableCell>
@@ -267,6 +287,7 @@ export const Campaign = () => {
       <ModalCreateCampaign
         open={openCreateCampaignModal}
         onClose={setOpenCreateCampaignModal}
+        editCampaign={editCampaign}
       />
     </Box>
   );
