@@ -31,7 +31,7 @@ import {
 
 const maxHeight = 700;
 
-export const Department = () => {
+export const DepartmentManagement = () => {
   const [openCreateDepartmentModal, setOpenCreateDepartmentModal] =
     useState(false);
 
@@ -98,7 +98,7 @@ export const Department = () => {
         setEditDepartment(resp?.data?.data);
       }
     } catch (error) {
-      const errorMessage = error?.response?.data?.content;
+      const errorMessage = error?.response?.data?.content || error;
       toast.error(errorMessage);
     }
   };
