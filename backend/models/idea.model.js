@@ -29,7 +29,8 @@ const ideaSchema  = new Schema({
         type: Boolean,
         require: true
     },
-
+},{
+    timestamps:true
 });
 
 module.exports = mongoose.model('idea', ideaSchema );

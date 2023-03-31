@@ -1,6 +1,8 @@
 //require model
 const CommentModel = require("../models/comment.model");
-
+const IdeaModel = require("../models/idea.model");
+const AccountModel = require("../models/account.model")
+const mailer = require("../Utils/mailer");
 const getComment = async (_req, res) => {
     //create an array of documents
     try {
@@ -36,24 +38,30 @@ const getCommentById = async (req, res) =>{
 }
 
 const postComment = async (req, res) =>{
+  try {
     let content = req.body.content
-    let authorId = req.id
+    let authorId = req.body.authorId
+    console.log(authorId)
     let ideaId = req.body.ideaId
     let response
-    CommentModel.create({
+    let newComment= CommentModel.create({
       content: content,
       authorId: authorId,
       ideaId: ideaId,
-    }).then(data=>{
+    })
+    if(newComment){
+      let idea= await IdeaModel.findOne({_id:ideaId}).populate('authorId')
+      let poster = await AccountModel.findOne({_id:authorId})
+      let infor= await mailer.sendMail(idea.authorId.email,`${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,`${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
       response = {
         'status': 'Comment success',
-        'data': data
+        'data': infor
       }      
       res.status(200).json(response)
-    })
-    .catch(err=>{
-      res.status(500).json(err.message)
-    })
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
 }
 const putComment = async (req, res) =>{
   try {

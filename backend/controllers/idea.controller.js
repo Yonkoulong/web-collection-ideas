@@ -5,6 +5,7 @@ const DepartmentModel = require("../models/department.model");
 const campaignModel = require("../models/campaign.model");
 const mailer = require("../Utils/mailer");
 const nodemailer = require("nodemailer");
+const accountModel = require("../models/account.model");
 // select idea có reation nhiều nhất
 const getIdeaPopular = async (req, res) => {
   try {
@@ -59,9 +60,9 @@ const getIdeas = async (req, res) => {
        ideas = await IdeaModel.find({})
     }
     else if(categoryId== null ) {
-      ideas = await IdeaModel.find({ campaignId: campaignId })
+       ideas = await IdeaModel.find({ campaignId: campaignId })
     } else{
-      ideas = await IdeaModel.find({ categoryId: categoryId })
+       ideas = await IdeaModel.find({ categoryId: categoryId })
     }
     response = {
       'status': 'Get idea success',
@@ -87,46 +88,54 @@ const getIdeaFilter = async (req, res) => {
     res.status(500).json(err.message)
   }
 }
-const sendMail = async(req, res) =>{
+
+const postIdea = async (req, res) => {
   try {
-    // có thể truyển mail list trong to
-    let infor= await mailer.sendMail("hieuhcgch190473@fpt.edu.vn","New idea posted",`<a href="${process.env.APP_URL}/idea/: </a>`)
-    if(infor){
-      let response = {
-        'status': 'send email success',
-        'data':infor
+    let content = req.body.content
+    let authorId = req.body.authorId
+    let campaignId = req.body.campaignId
+    let categoryId = req.body.categoryId
+    let enonymously = (req.body.enonymously === 'true') ? true : false
+    let response
+    let campaign = await campaignModel.findOne({_id:campaignId})
+    let currentAccount = await accountModel.findOne({_id:authorId})
+    let newIdea= IdeaModel.create({
+      content: content,
+      authorId: authorId,
+      campaignId: campaignId,
+      categoryId: categoryId,
+      enonymously: enonymously
+    })
+    if(newIdea){
+      let qac= await accountModel.find({role:"qac",departmentId:campaign.departmentId})
+     
+      let qacArr = []
+      qac.forEach(element => {
+        qacArr.push(element.email)
+      });
+      console.log(qacArr)
+      if(qac){
+        let infor= await mailer.sendMail(qacArr,`${currentAccount.name} has post new idea at${(await newIdea).createdAt} .Content: ${(await newIdea).content}`,`${process.env.APP_URL}/campaigns/${campaignId}/ideas/${(await newIdea)._id}`)
+        // sau này tính làm sau
+        // if(infor){
+        //   let response = {
+        //     'status': 'send email success',
+        //     'data':infor
+        //   }
+        //   res.status(200).json(response)
+        // }    
+      }
+      response = {
+        'status': 'Upload new idea success',
+        'data': newIdea
       }
       res.status(200).json(response)
     }
-   
   } catch (error) {
     res.status(500).json(error.message)
   }
-}
-const postIdea = async (req, res) => {
-  let content = req.body.content
-  let authorId = req.id
-  let campaignId = req.body.campaignId
-  let categoryId = req.body.categoryId
-  let enonymously = (req.body.enonymously === 'true') ? true : false
-  let response
-  IdeaModel.create({
-    content: content,
-    authorId: authorId,
-    campaignId: campaignId,
-    categoryId: categoryId,
-    enonymously: enonymously
-  }).then(data => {
-    response = {
-      'status': 'Upload new idea success',
-      'data': data
-    }
+ 
   
-    res.status(200).json(response)
-  })
-    .catch(err => {
-      res.status(500).json(err.message)
-    })
 }
 const putIdea = async (req, res) => {
   let id = req.params.id
@@ -205,10 +214,5 @@ module.exports = [
     method: "post", //define method http
     controller: postView, //this is method handle when have request on server
     route: "/view", //define API
-  },
-  {
-    method: "post", //define method http
-    controller: sendMail, //this is method handle when have request on server
-    route: "/email", //define API
   },
 ]

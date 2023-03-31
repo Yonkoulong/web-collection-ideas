@@ -22,7 +22,7 @@ staffController.forEach((item) => {
 ideaController.forEach((item) =>{
    
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,controller);
 })
 attachmentController.forEach((item) =>{
     const { method, route, controller } = item;
