@@ -41,6 +41,7 @@ const postCampaign= async (req, res) => {
     let campaigns 
     let coppyCampaigns=[]
     let departmentId = req.body?.departmentId
+    console.log(departmentId);
      if(departmentId){
        campaigns = await CampaignModel.find({departmentId:departmentId});
      }

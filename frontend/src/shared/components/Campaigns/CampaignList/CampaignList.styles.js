@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { Box, Typography, Paper } from '@/shared/components';
-import { activeColor, blackColor, backgroundColor, inActiveColor, primaryColor } from '@/shared/utils/colors.utils';
+import { activeColor, blackColor, backgroundColor, inActiveColor, primaryColor, whiteColor } from '@/shared/utils/colors.utils';
 
 export const CampaignsWrapper = styled(Box)`
     display: flex;
@@ -64,9 +64,9 @@ export const CampaignItemBottom = styled(Box)`
 
 export const CampaignItemBottomTag = styled(Box)`
     padding: 8px;
-    background-color: ${activeColor};
     width: fit-content;
     border-radius: 10px;
+    color: ${whiteColor};
 `
 export const CampaignItemBottomClosureTime = styled(Typography)`
     ${({ theme: { } }) => css`
