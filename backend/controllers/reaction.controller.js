@@ -11,8 +11,7 @@ const getReactionByIdea = async(req, res)=>{
             'status': ' success',
             'data': {                          
                 reaction
-            }
-            
+            }           
         }      
         console.log(reaction.length)
         res.status(200).json(response)
@@ -25,7 +24,7 @@ const getReactionByIdea = async(req, res)=>{
 }
 const postReaction = async (req, res) =>{
     let type = req.body.type
-    let authorId = req.id
+    let authorId = req.body.authorId
     let ideaId = req.body.ideaId
     let response
     console.log(type, authorId, ideaId);
@@ -39,11 +38,18 @@ const postReaction = async (req, res) =>{
                     authorId:authorId,
                     ideaId:ideaId
                 })
-                response = {
-                    'status': 'Delete reaction success',
-                    'data':deleteReaction
-                }   
-                return res.json(response)
+                let updateIdea = await IdeaModel.updateOne(
+                    { _id: ideaId },
+                    { $unset: { reaction: newReaction._id } },false,true
+                  )
+                  if(updateIdea){
+                    response = {
+                        'status': 'Delete reaction success',
+                        'data':deleteReaction
+                    }   
+                    return res.json(response)
+                  }
+                
             }    
             else {
                let updateReaction= await ReactionModel.findOneAndUpdate({
@@ -61,16 +67,22 @@ const postReaction = async (req, res) =>{
         else{
             let idea =await IdeaModel.findOne({_id:ideaId})
             if(idea){
-                let data = await ReactionModel.create({
+                let newReaction = await ReactionModel.create({
                     type: type,
                     authorId: authorId,
                     ideaId: ideaId,
                   })
-                if(data){
-                    response = {
-                        'status': ' Reaction on idea success',
-                        'data': data         
-                    }      
+                if(newReaction){
+                    let updateIdea = await IdeaModel.updateOne(
+                        { _id: ideaId },
+                        { $push: { reaction: newReaction._id } }
+                      )
+                      if(updateIdea){
+                        response = {
+                            'status': ' Reaction on idea success',
+                            'data': newReaction         
+                        }      
+                      }
                     res.status(200).json(response)
                 }
             }

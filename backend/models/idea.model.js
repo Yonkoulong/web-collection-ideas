@@ -10,6 +10,16 @@ const ideaSchema  = new Schema({
             ref: 'account',
         }
     ],
+    reaction:[
+        {   type: mongoose.Schema.Types.ObjectId, 
+            ref: 'reaction',
+        }
+    ],
+    comment:[
+        {   type: mongoose.Schema.Types.ObjectId, 
+            ref: 'comment',
+        }
+    ],
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',

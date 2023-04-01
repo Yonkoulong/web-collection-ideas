@@ -7,7 +7,7 @@ const mailer = require("../Utils/mailer");
 const nodemailer = require("nodemailer");
 const accountModel = require("../models/account.model");
 // select idea có reation nhiều nhất
-const getIdeaPopular = async (req, res) => {
+const getIdeaMostLike = async (req, res) => {
   try {
     let departmentId = req.body?.departmentId
     let campaign = await campaignModel.find({ departmentId: departmentId })
@@ -49,7 +49,13 @@ const getIdeaPopular = async (req, res) => {
   } catch (error) {
     res.status(500).json(error.message)
   }
-
+}
+const getIdeasMostView = async(req, res)=>{
+   try {
+      
+   } catch (error) {
+      
+   }
 }
 const getIdeas = async (req, res) => {
   try {
@@ -57,20 +63,35 @@ const getIdeas = async (req, res) => {
     let categoryId = req.body?.categoryId
     let ideas
     if (campaignId == null && categoryId== null) {
-       ideas = await IdeaModel.find({})
+       ideas = await IdeaModel.find({}).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
     else if(categoryId== null ) {
-       ideas = await IdeaModel.find({ campaignId: campaignId })
+       ideas = await IdeaModel.find({ campaignId: campaignId }).populate(['authorId','campaignId','viewer','reaction','comment'])
     } else{
-       ideas = await IdeaModel.find({ categoryId: categoryId })
+       ideas = await IdeaModel.find({ categoryId: categoryId }).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
-    response = {
+    let response = {
       'status': 'Get idea success',
       'data': ideas
     }
     res.status(200).json(response)
   } catch (error) {
-    res.status(500).json(err.message)
+    res.status(500).json(error.message)
+  }
+}
+const getIdeaById = async (req, res) => {
+  try {
+    let id = req.params.id
+    let detailIdea = await IdeaModel.findOne({_id:id}).populate(['authorId','campaignId','viewer','reaction','comment'])
+    if(detailIdea){
+      let response = {
+        'status': 'Get idea success',
+        'data': detailIdea
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
   }
 }
 const getIdeaFilter = async (req, res) => {
@@ -184,6 +205,60 @@ const postView = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
+const postReaction = async (req, res) =>{
+  let type = req.body.type
+  let authorId = req.id
+  let ideaId = req.body.ideaId
+  let response
+  try {
+      let IdeaModel = await IdeaModel.findOne({
+          ideaId:ideaId}).populate('reaction')
+      if(IdeaModel) {
+          if( IdeaModel.reaction.type== type){
+            let deleteReaction=  await ReactionModel.findOneAndDelete({
+                  authorId:authorId,
+                  ideaId:ideaId
+              })
+              response = {
+                  'status': 'Delete reaction success',
+                  'data':deleteReaction
+              }   
+              return res.json(response)
+          }    
+          else {
+             let updateReaction= await ReactionModel.findOneAndUpdate({
+                  authorId:authorId,
+                  ideaId:ideaId
+              },{type:type}).populate('authorId')
+              if(updateReaction){
+                   response = {
+                  'status': 'Delete reaction success',
+                  'code':updateReaction
+              }   
+              return res.json(response)}
+          }        
+      }
+      else{
+          let idea =await IdeaModel.findOne({_id:ideaId})
+          if(idea){
+              let data = await ReactionModel.create({
+                  type: type,
+                  authorId: authorId,
+                  ideaId: ideaId,
+                })
+              if(data){
+                  response = {
+                      'status': ' Reaction on idea success',
+                      'data': data         
+                  }      
+                  res.status(200).json(response)
+              }
+          }
+      }   
+  } catch (error) {
+      res.status(500).json(error.message)
+  }
+};
 module.exports = [
   {
     method: "get", //define method http
@@ -197,7 +272,12 @@ module.exports = [
   },
   {
     method: "get", //define method http
-    controller: getIdeaPopular, //this is method handle when have request on server
+    controller: getIdeaById, //this is method handle when have request on server
+    route: "/idea/:id", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getIdeaMostLike, //this is method handle when have request on server
     route: "/idea/MostReaction", //define API
   },
   {
