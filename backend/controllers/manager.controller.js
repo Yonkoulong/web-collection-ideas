@@ -12,6 +12,20 @@ const getManager = async (_req, res) => {
       return res.status(httpCode.badRequest).json([]);
     }
 };
+const getCategories = async(req, res) =>{
+  try {
+    let categories = await CategoryModel.find({});
+    if(categories){
+      response = {
+        'status': 'Get all categories success',
+        'data': categories
+      }      
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
 const postCategory = async(req, res)=>{
     let type = req.body.type
     let description = req.body.description
@@ -55,6 +69,11 @@ module.exports = [
     method: "get", //define method http
     controller: getManager, //this is method handle when have request on server
     route: "/manager", //define API
+  },
+  {
+    method: "get",
+    controller: getCategories,
+    route: "/categories"
   },
   {
     method: "post", //define method http

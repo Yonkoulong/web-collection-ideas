@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-
+import { useParams } from "react-router-dom";
 import { ModalCreateIdea } from "../CreateIdeaModal";
+import dayjs from "dayjs";
 
 import {
   Box,
@@ -58,6 +59,7 @@ import {
 
 import { useAppStore } from "@/stores/AppStore";
 import { useIdeaStore } from "@/stores/IdeaStore";
+import { getCampaignDetail } from "@/services/admin.services";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -74,11 +76,14 @@ const flexCenter = {
 };
 
 export const IdeasFiltered = ({ filter }) => {
+  const { idCampaign } = useParams();
+
   const userInfo = useAppStore((state) => state.userInfo);
   const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
     (state) => state
   );
 
+  const [campaignDetail, setCampaignDetail] = useState(null);
   const [anchorSortEl, setAnchorSortEl] = useState(null);
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
   const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
@@ -110,6 +115,36 @@ export const IdeasFiltered = ({ filter }) => {
     setOpenCreateIdeaModal(true);
   };
 
+  const handleRenderCreateIconForIdea = () => {
+    let now = new Date();
+    if (!campaignDetail) {
+      return;
+    }
+  
+    if (
+      now.getTime() >= new Date(campaignDetail?.startTime).getTime() &&
+      now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime()
+    ) {
+      return (
+        <Box
+          sx={{ position: "fixed", right: "50px", bottom: "100px", zIndex: 99 }}
+        >
+          <BootstrapTooltip
+            title="Add Idea"
+            backgroundColor="primary"
+            onClick={handleOpenCreateIdeaModal}
+          >
+            <IconButton>
+              <LoupeIcon fontSize="large" color="secondary" />
+            </IconButton>
+          </BootstrapTooltip>
+        </Box>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   const openSortAnchor = Boolean(anchorSortEl);
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
@@ -128,6 +163,23 @@ export const IdeasFiltered = ({ filter }) => {
       }
     })();
   }, [filter]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (idCampaign) {
+          const resp = await getCampaignDetail({ id: idCampaign });
+
+          if (resp) {
+            setCampaignDetail(resp?.data?.data);
+          }
+        }
+      } catch (error) {
+        const errorMessage = error?.data?.status || error;
+        toast.error(errorMessage);
+      }
+    })();
+  }, []);
 
   return (
     <Box>
@@ -284,7 +336,9 @@ export const IdeasFiltered = ({ filter }) => {
                   <IdeaItem
                     elevation={3}
                     onClick={() =>
-                      redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`)
+                      redirectTo(
+                        `/campaigns/${idea?.campaignId}/ideas/${idea?._id}`
+                      )
                     }
                   >
                     <IdeaItemHead>
@@ -297,9 +351,7 @@ export const IdeasFiltered = ({ filter }) => {
                         <IdeaItemHeadImage />
                       </Box>
                       <Box ml={2}>
-                        <IdeaItemHeadTitle>
-                          {idea?.content}
-                        </IdeaItemHeadTitle>
+                        <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
                         <IdeaItemHeadNameWrapper>
                           <IdeaItemHeadNameText>
                             Long Yonkou
@@ -311,8 +363,7 @@ export const IdeasFiltered = ({ filter }) => {
                         </IdeaItemHeadNameWrapper>
                       </Box>
                     </IdeaItemHead>
-                    <IdeaItemBody>
-                    </IdeaItemBody>
+                    <IdeaItemBody></IdeaItemBody>
                     <IdeaItemBottom>
                       <Box sx={{ display: "flex", gap: "8px" }}>
                         <IconButton aria-label="thumb-up">
@@ -333,7 +384,10 @@ export const IdeasFiltered = ({ filter }) => {
                       </Box>
                       <Box>
                         <IconButton aria-label="eye">
-                          <StyledBadge badgeContent={idea?.viewer?.length} color="secondary">
+                          <StyledBadge
+                            badgeContent={idea?.viewer?.length}
+                            color="secondary"
+                          >
                             <VisibilityIcon fontSize="small" />
                           </StyledBadge>
                         </IconButton>
@@ -356,20 +410,7 @@ export const IdeasFiltered = ({ filter }) => {
           <Pagination count={10} color="secondary" />
         </Stack>
       </Box>
-      <Box
-        sx={{ position: "fixed", right: "50px", bottom: "100px", zIndex: 99 }}
-      >
-        <BootstrapTooltip
-          title="Add Idea"
-          backgroundColor="primary"
-          onClick={handleOpenCreateIdeaModal}
-        >
-          <IconButton>
-            <LoupeIcon fontSize="large" color="secondary" />
-          </IconButton>
-        </BootstrapTooltip>
-      </Box>
-
+      {handleRenderCreateIconForIdea()}
       {/* Modal */}
       <ModalCreateIdea
         open={openCreateIdeaModal}

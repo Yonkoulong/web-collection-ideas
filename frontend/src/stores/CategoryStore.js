@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { getCategory } from '@/services/qam.services';
 
 export const useCategoryStore = create((set) => ({
-    categorys: [],
+    categories: [],
     loading: false,
     totalRecord: 0,
     setLoading: () => set((payload) => ({ loading: payload})),
@@ -10,7 +10,7 @@ export const useCategoryStore = create((set) => ({
     fetchCategorys: async () => {
         const response = await getCategory();
         if(response) {
-            set({ Categorys: response?.data?.data })
+            set({ categories: response?.data?.data })
             set({ loading: false })
             set({ totalRecord: response?.data?.data?.length })
         }
