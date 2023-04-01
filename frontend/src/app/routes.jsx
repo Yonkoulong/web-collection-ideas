@@ -2,12 +2,14 @@ import { SignIn } from "@/pages/Auth/SignIn";
 import { AdminPage } from "@/pages/Admin";
 import { UserManagement } from "@/pages/Admin/User-Management";
 import { CreateAndEditUser } from "@/pages/Admin/CreateAndEditUser";
-import { Department } from "@/pages/Admin/Department";
-import { Campaign } from "@/pages/Admin/Campaign";
+import { DepartmentManagement } from "@/pages/Admin/Department";
+import { CampaignManagement } from "@/pages/Admin/Campaign";
+import { Campaigns } from "@/shared/components/Campaigns"
+import { CampaignList } from "@/shared/components/Campaigns/CampaignList"
 import { Ideas } from "@/shared/components/Ideas";
 import { IdeaDetail } from "@/shared/components/Ideas/components/IdeaDetail";
 import { QAMPage } from "@/pages/QAM";
-import { Category } from "@/pages/QAM/Categories";
+import { CategoryManagement } from "@/pages/QAM/Categories";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import { PageNotFound } from "@/pages/404";
 import ProtectedRoute from "@/shared/HOC/AuthenticationRoute";
@@ -41,12 +43,12 @@ export const routes = [
         element: <CreateAndEditUser />,
       },
       {
-        path: "/admin/departments",
-        element: <Department />,
+        path: "/admin/departments-management",
+        element: <DepartmentManagement />,
       },
       {
-        path: "/admin/campains",
-        element: <Campaign />,
+        path: "/admin/campains-management",
+        element: <CampaignManagement />,
       },
     ],
   },
@@ -61,8 +63,8 @@ export const routes = [
     ),
     children: [
       {
-        path: "/qam/categories",
-        element: <Category />,
+        path: "/qam/categories-management",
+        element: <CategoryManagement />,
       },
       {
         path: "/qam/dashboard",
@@ -71,20 +73,32 @@ export const routes = [
     ],
   },
   {
-    path: "/ideas",
+    path: "/campaigns",
     element: (
       <ProtectedRoute>
-        <Ideas />
+        <Campaigns />
       </ProtectedRoute>
     ),
-  },
-  {
-    path: "/ideas/:id",
-    element: (
-      <ProtectedRoute>
-        <IdeaDetail />
-      </ProtectedRoute>
-    ),
+    children: [
+      {
+        path: "/campaigns",
+        element: (
+          <CampaignList />
+        )
+      },
+      {
+        path: "/campaigns/:idCampaign/ideas",
+        element: (
+          <Ideas />
+        )
+      },
+      {
+        path: "/campaigns/:idCampaign/ideas/:idIdea",
+        element: (
+          <IdeaDetail />
+        )
+      },
+    ]
   },
   {
     path: "*",

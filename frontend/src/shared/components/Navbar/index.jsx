@@ -31,27 +31,21 @@ const navList = [
     permission: "admin",
   },
   {
-    to: "/ideas",
+    to: "/admin/departments-management",
     icon: <GroupIcon />,
-    title: "Ideas",
-    permission: "all",
-  },
-  {
-    to: "/admin/departments",
-    icon: <GroupIcon />,
-    title: "Department",
+    title: "Manages Department",
     permission: "admin",
   },
   {
-    to: "/admin/campains",
+    to: "/admin/campains-management",
     icon: <GroupIcon />,
-    title: "Campaign",
+    title: "Manages Campaign",
     permission: "admin",
   },
   {
-    to: "/qam/categories",
+    to: "/qam/categories-management",
     icon: <GroupIcon />,
-    title: "Categories",
+    title: "Manages Categorie",
     permission: "qam",
   },
   {
@@ -59,6 +53,12 @@ const navList = [
     icon: <GroupIcon />,
     title: "Dashboard",
     permission: "qam",
+  },
+  {
+    to: "/campaigns",
+    icon: <GroupIcon />,
+    title: "Campaigns",
+    permission: "all",
   },
 ];
 

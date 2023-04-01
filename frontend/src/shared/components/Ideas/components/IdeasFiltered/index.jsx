@@ -17,6 +17,7 @@ import {
   IconButton,
   BootstrapTooltip,
   Badge,
+  CircularProgress,
 } from "@/shared/components";
 import { SearchCustomize } from "@/shared/components/Search";
 
@@ -55,9 +56,6 @@ import {
   IdeaItemBottom,
 } from "./IdeasFiltered.styles";
 
-//services
-import { getIdeas } from "@/services/idea.services";
-
 import { useAppStore } from "@/stores/AppStore";
 import { useIdeaStore } from "@/stores/IdeaStore";
 
@@ -77,11 +75,10 @@ const flexCenter = {
 
 export const IdeasFiltered = ({ filter }) => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const { ideas, loading, setLoading, setIdeas } = useIdeaStore(
+  const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
     (state) => state
   );
 
-  const [age, setAge] = React.useState("");
   const [anchorSortEl, setAnchorSortEl] = useState(null);
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
   const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
@@ -120,23 +117,14 @@ export const IdeasFiltered = ({ filter }) => {
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
 
   useEffect(() => {
+    setLoading(true);
+
     (async () => {
       try {
-        switch (filter) {
-          case ideaFilter.ALL: {
-            setLoading(true);
-            const resp = await getIdeas();
-            if (resp) {
-              console.log(resp);
-              setIdeas(resp?.data?.content);
-            }
-          }
-        }
+        await fetchIdeas();
       } catch (error) {
-        const errorMessage = error?.data?.status;
+        const errorMessage = error?.data?.status || error;
         toast.error(errorMessage);
-      } finally {
-        setLoading(false);
       }
     })();
   }, [filter]);
@@ -153,7 +141,7 @@ export const IdeasFiltered = ({ filter }) => {
               : "flex-end",
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px'}}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
           {userInfo.role == enumRoles.QAM ? (
             <Box>
               <Button
@@ -209,33 +197,6 @@ export const IdeasFiltered = ({ filter }) => {
                 </Box>
               </Popover>
             </Box>
-          ) : null}
-          {userInfo.role == enumRoles.ADMIN ||
-        
-        userInfo.role == enumRoles.QAM ? (
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel
-                id="select-helper-label"
-                sx={{ fontSize: "15px", top: "-8px" }}
-              >
-                Department
-              </InputLabel>
-              <Select
-                labelId="select-helper-label"
-                id="select-helper"
-                label="Department"
-                value={age}
-                onChange={handleChangeDepartment}
-                sx={{
-                  fontSize: "15px",
-                  ".MuiSelect-select": { padding: "8.5px 14px" },
-                }}
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
           ) : null}
         </Box>
 
@@ -311,58 +272,76 @@ export const IdeasFiltered = ({ filter }) => {
       <Box>
         <Box mt={2} mb={3}>
           <IdeasWrapper>
-            <IdeaItem elevation={3} onClick={() => redirectTo("/ideas/123")}>
-              <IdeaItemHead>
-                <Box
-                  width="50px"
-                  height="50px"
-                  border="1px solid"
-                  borderRadius="50%"
-                >
-                  <IdeaItemHeadImage />
-                </Box>
-                <Box ml={2}>
-                  <IdeaItemHeadTitle>
-                    Why React is important for frontend?
-                  </IdeaItemHeadTitle>
-                  <IdeaItemHeadNameWrapper>
-                    <IdeaItemHeadNameText>Long Yonkou</IdeaItemHeadNameText>-
-                    <IdeaItemHeadDateText>
-                      February 24 2023, 15:25:25
-                    </IdeaItemHeadDateText>
-                  </IdeaItemHeadNameWrapper>
-                </Box>
-              </IdeaItemHead>
-              <IdeaItemBody>
-                <IdeaItemContent>text.file</IdeaItemContent>
-              </IdeaItemBody>
-              <IdeaItemBottom>
-                <Box sx={{ display: "flex", gap: "8px" }}>
-                  <IconButton aria-label="thumb-up">
-                    <StyledBadge badgeContent={4} color="secondary">
-                      <ThumbUpIcon fontSize="small" />
-                    </StyledBadge>
-                  </IconButton>
-                  <IconButton aria-label="thumb-down">
-                    <StyledBadge badgeContent={4} color="secondary">
-                      <ThumbDownAltIcon fontSize="small" />
-                    </StyledBadge>
-                  </IconButton>
-                  <IconButton aria-label="comment">
-                    <StyledBadge badgeContent={4} color="secondary">
-                      <CommentIcon fontSize="small" />
-                    </StyledBadge>
-                  </IconButton>
-                </Box>
-                <Box>
-                  <IconButton aria-label="eye">
-                    <StyledBadge badgeContent={4} color="secondary">
-                      <VisibilityIcon fontSize="small" />
-                    </StyledBadge>
-                  </IconButton>
-                </Box>
-              </IdeaItemBottom>
-            </IdeaItem>
+            {loading && (
+              <Box my={10} mx={"auto"} textAlign="center">
+                <CircularProgress color="inherit" size={30} />
+              </Box>
+            )}
+
+            {!loading &&
+              ideas?.map((idea) => {
+                return (
+                  <IdeaItem
+                    elevation={3}
+                    onClick={() =>
+                      redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`)
+                    }
+                  >
+                    <IdeaItemHead>
+                      <Box
+                        width="50px"
+                        height="50px"
+                        border="1px solid"
+                        borderRadius="50%"
+                      >
+                        <IdeaItemHeadImage />
+                      </Box>
+                      <Box ml={2}>
+                        <IdeaItemHeadTitle>
+                          {idea?.content}
+                        </IdeaItemHeadTitle>
+                        <IdeaItemHeadNameWrapper>
+                          <IdeaItemHeadNameText>
+                            Long Yonkou
+                          </IdeaItemHeadNameText>
+                          -
+                          <IdeaItemHeadDateText>
+                            February 24 2023, 15:25:25
+                          </IdeaItemHeadDateText>
+                        </IdeaItemHeadNameWrapper>
+                      </Box>
+                    </IdeaItemHead>
+                    <IdeaItemBody>
+                    </IdeaItemBody>
+                    <IdeaItemBottom>
+                      <Box sx={{ display: "flex", gap: "8px" }}>
+                        <IconButton aria-label="thumb-up">
+                          <StyledBadge badgeContent={4} color="secondary">
+                            <ThumbUpIcon fontSize="small" />
+                          </StyledBadge>
+                        </IconButton>
+                        <IconButton aria-label="thumb-down">
+                          <StyledBadge badgeContent={4} color="secondary">
+                            <ThumbDownAltIcon fontSize="small" />
+                          </StyledBadge>
+                        </IconButton>
+                        <IconButton aria-label="comment">
+                          <StyledBadge badgeContent={4} color="secondary">
+                            <CommentIcon fontSize="small" />
+                          </StyledBadge>
+                        </IconButton>
+                      </Box>
+                      <Box>
+                        <IconButton aria-label="eye">
+                          <StyledBadge badgeContent={idea?.viewer?.length} color="secondary">
+                            <VisibilityIcon fontSize="small" />
+                          </StyledBadge>
+                        </IconButton>
+                      </Box>
+                    </IdeaItemBottom>
+                  </IdeaItem>
+                );
+              })}
           </IdeasWrapper>
         </Box>
         <Stack
