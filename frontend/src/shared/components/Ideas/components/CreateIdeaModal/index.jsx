@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useForm, useWatch } from "react-hook-form";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 import {
   StyledTextField,
@@ -26,11 +24,13 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { postCampaign } from "@/services/admin.services";
+import { postIdea } from "@/services/idea.services";
 
-import { useDepartmentStore } from "@/stores/DepartmentStore";
+import { useCategoryStore } from "@/stores/CategoryStore";
 import { useAppStore } from "@/stores/AppStore";
+import { useIdeaStore } from "@/stores/IdeaStore";
 import { enumRoles } from "@/shared/utils/constant.utils";
+
 import {
   CreateCampaignFormWrapper,
   CreateCampaignForm,
@@ -76,17 +76,20 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  name: "",
-  campaignId: 0,
+  content: "",
   categoryId: 0,
-  enonymous: false,
+  enonymously: false,
 };
 
 export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
   const { userInfo } = useAppStore((state) => state);
-  const { departments, fetchDepartments } = useDepartmentStore(
+  const { idCampaign } = useParams();
+  const { categories, fetchCategorys } = useCategoryStore((state) => state);
+  const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
     (state) => state
   );
+
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const {
     control,
@@ -99,12 +102,7 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
     let isEnable = false;
 
     const field = useWatch({ control });
-    if (
-      field?.name &&
-      field?.startTime &&
-      field?.firstClosureDate &&
-      field?.department
-    ) {
+    if (field?.content && field?.categoryId) {
       isEnable = false;
     } else {
       isEnable = true;
@@ -112,23 +110,55 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
     return isEnable;
   };
 
+  const handleChangeFile = (e) => {
+    const [file] = e.target.files;
+    setSelectedFile(file);
+    console.log(file);
+  };
+
   const onSubmit = async (data) => {
+    const newPayload = {
+      ...data,
+      authorId: userInfo?._id,
+      campaignId: idCampaign,
+    };
+
     try {
-      const respData = await postCampaign(data);
+      const respData = await postIdea(newPayload);
 
       if (respData) {
+        const idea = respData?.data?.data;
         setLoading(true);
-        fetchCampaigns({
-          organizeId: userInfo?.organizeId,
-          id: "",
-          email: "",
-          paging: { page: 1, size: 10 },
-        });
-        toast.success("Create Campaign successfully.");
+
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          formData.append("ideaId", idea?._id);
+
+          axios({
+            method: "post",
+            url: `http://localhost:8080/file`,
+            data: formData,
+            headers: {
+              withCredentials: "true",
+              "Content-Type": "multipart/form-data",
+            },
+          })
+            .then(function (response) {
+              if (response) {
+              }
+            })
+            .catch(function (error) {
+              throw error;
+            });
+        }
+        
+        toast.success("Create Idea successfully");
+        fetchIdeas();
         handleClose();
       }
     } catch (error) {
-      const errorMessage = error?.response?.data?.content;
+      const errorMessage = error?.response?.data?.content || error;
       toast.error(errorMessage);
     }
   };
@@ -146,17 +176,8 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
     (async () => {
       try {
         //fetch department
-        await fetchDepartments();
 
-        if (editCampaign) {
-          setValue("role", resp?.data?.data?.role);
-          setValue("department", resp?.data?.data?.department);
-          setValue("name", resp?.data?.data?.name);
-          setValue("email", resp?.data?.data?.email);
-          setValue("password", resp?.data?.data?.password);
-          setValue("dob", resp?.data?.data?.dob);
-          setValue("image", resp?.data?.data?.image);
-        }
+        await fetchCategorys();
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
         toast.error(errorMessage);
@@ -179,13 +200,13 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
           <DialogContent dividers>
             <CreateCampaignInputContainer>
               <Typography fontSize="medium">
-                Idea Name <span style={{ color: "red" }}>*</span>
+                Idea Content <span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
-                fieldNameErrorMessage="Idea Name"
-                fieldName="name"
+                fieldNameErrorMessage="Idea Content"
+                fieldName="content"
                 required={true}
               >
                 {(field) => (
@@ -200,50 +221,16 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
               </ControllerInput>
             </CreateCampaignInputContainer>
 
-            {/* //Campain */}
-            <CreateCampaignInputContainer>
-              <Typography fontSize="medium">
-                Department<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <ControllerInput
-                control={control}
-                errors={errors}
-                fieldNameErrorMessage="Department"
-                fieldName="department"
-                required={true}
-              >
-                {(field) => (
-                  <Select
-                    {...field}
-                    fullWidth
-                    size="small"
-                    value={field?.value || ""}
-                    sx={{ fontSize: "15px" }}
-                  >
-                    {departments.map((option) => (
-                      <MenuItem
-                        sx={{ fontSize: "15px" }}
-                        key={option._id}
-                        value={option._id || ""}
-                      >
-                        {option.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              </ControllerInput>
-            </CreateCampaignInputContainer>
-
             {/* //Category */}
             <CreateCampaignInputContainer>
               <Typography fontSize="medium">
-                Category<span style={{ color: "red" }}>*</span>
+                Categories<span style={{ color: "red" }}>*</span>
               </Typography>
               <ControllerInput
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Category"
-                fieldName="category"
+                fieldName="categoryId"
                 required={true}
               >
                 {(field) => (
@@ -254,13 +241,13 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
                     value={field?.value || ""}
                     sx={{ fontSize: "15px" }}
                   >
-                    {departments.map((option) => (
+                    {categories.map((category) => (
                       <MenuItem
                         sx={{ fontSize: "15px" }}
-                        key={option._id}
-                        value={option._id || ""}
+                        key={category._id}
+                        value={category._id || ""}
                       >
-                        {option.name}
+                        {category?.type}
                       </MenuItem>
                     ))}
                   </Select>
@@ -273,7 +260,7 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Anonymous"
-                fieldName="anonymous"
+                fieldName="enonymously"
                 required={false}
               >
                 {(field) => (
@@ -282,9 +269,9 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
                       control={<Checkbox {...field} color="secondary" />}
                       label="Anonymous"
                       sx={{
-                        '.MuiTypography-root': {
-                          fontSize: "15px"
-                        }
+                        ".MuiTypography-root": {
+                          fontSize: "15px",
+                        },
                       }}
                     />
                   </FormGroup>
@@ -301,13 +288,23 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
                 required={false}
               >
                 {(field) => (
-                  <input type="file" multiple  {...field}/>
+                  <input
+                    type="file"
+                    multiple
+                    {...field}
+                    onChange={handleChangeFile}
+                  />
                 )}
               </ControllerInput>
             </CreateCampaignInputContainer>
           </DialogContent>
           <DialogActions>
-            <Button variant="outlined" color="secondary" autoFocus onClick={() => handleClose()}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              autoFocus
+              onClick={() => handleClose()}
+            >
               Cancel
             </Button>
             <Button

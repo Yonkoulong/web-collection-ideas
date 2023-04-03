@@ -10,15 +10,15 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  CircularProgress
+  CircularProgress,
 } from "@/shared/components";
 
 import { useAppStore } from "@/stores/AppStore";
 import { useCampaignStore } from "@/stores/CampaignStore";
 import { useDepartmentStore } from "@/stores/DepartmentStore";
+import { SearchCustomize } from "@/shared/components/Search";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import { redirectTo } from "@/shared/utils/history";
-import { SearchCustomize } from "@/shared/components/Search";
 
 import {
   CampaignsWrapper,
@@ -32,20 +32,49 @@ import {
   CampaignItemBottomTag,
 } from "./CampaignList.styles";
 
+const MAX_ITEM_PER_PAGE = 5;
+
 export const CampaignList = () => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const { campaigns, fetchCampaigns, loading, setLoading } = useCampaignStore(
-    (state) => state
-  );
+  const { campaigns, fetchCampaigns, loading, setLoading, totalRecord } =
+    useCampaignStore((state) => state);
   const { departments, fetchDepartments } = useDepartmentStore(
     (state) => state
   );
 
   const [deparment, setDepartment] = useState("");
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: MAX_ITEM_PER_PAGE,
+  });
+
+  const handlePageChange = (event, newPage) => {
+    setController({
+      ...controller,
+      page: newPage - 1,
+    });
+  };
+
+  const handleChangeStatusCampaign = (time) => {
+    let now = new Date();
+
+    if (now.getTime() > new Date(time).getTime()) {
+      return "red";
+    } else {
+      return "green";
+    }
+  };
 
   //select department
-  const handleChangeDepartment = (e) => {
-    setAge(e.target.value);
+  const handleChangeDepartment = async (e) => {
+    try {
+      setDepartment(e.target.value);
+      await fetchCampaigns({departmentId: e.target.value });
+
+    } catch (error) {
+        const errorMessage = error?.response?.data?.status || error;
+        toast.error(errorMessage);
+    }
   };
 
   useEffect(() => {
@@ -89,7 +118,7 @@ export const CampaignList = () => {
                 id="select-helper"
                 label="Department"
                 value={deparment}
-                onChange={handleChangeDepartment}
+                onChange={(e) => handleChangeDepartment(e)}
                 sx={{
                   fontSize: "15px",
                   ".MuiSelect-select": { padding: "8.5px 14px" },
@@ -130,50 +159,65 @@ export const CampaignList = () => {
             )}
 
             {!loading &&
-              campaigns?.map((campaigns) => {
-                return (
-                  <CampaignItem
-                    onClick={() =>
-                      redirectTo(`/campaigns/${campaigns?._id}/ideas`)
-                    }
-                  >
-                    <CampaignItemHead>
-                      <CampaignItemHeadStartTime>
-                        Start date:{" "}
-                        {dayjs(campaigns?.startTime).format(
-                          "MM/DD/YYYY HH:mm A"
-                        )}
-                      </CampaignItemHeadStartTime>
-                    </CampaignItemHead>
-                    <CampaignItemBody>
-                      <CampaignItemContent>
-                        {campaigns?.name}{" "}
-                        <span
-                          style={{ color: "#000000" }}
-                        >{`(${campaigns?.departmentName})`}</span>
-                      </CampaignItemContent>
-                    </CampaignItemBody>
-                    <CampaignItemBottom>
-                      <CampaignItemBottomTag>
-                        <CampaignItemBottomClosureTime>
-                          Fist Closure date:{" "}
-                          {dayjs(campaigns?.firstClosureDate).format(
+              campaigns
+                ?.slice(controller.page * controller.rowsPerPage, controller.page * controller.rowsPerPage + controller.rowsPerPage)
+                ?.map((campaigns) => {
+                  return (
+                    <CampaignItem
+                      key={campaigns?._id}
+                      onClick={() =>
+                        redirectTo(`/campaigns/${campaigns?._id}/ideas`)
+                      }
+                    >
+                      <CampaignItemHead>
+                        <CampaignItemHeadStartTime>
+                          Start date:{" "}
+                          {dayjs(campaigns?.startTime).format(
                             "MM/DD/YYYY HH:mm A"
                           )}
-                        </CampaignItemBottomClosureTime>
-                      </CampaignItemBottomTag>
-                      <CampaignItemBottomTag>
-                        <CampaignItemBottomClosureTime>
-                          Final Closure date:{" "}
-                          {dayjs(campaigns?.finalClosureDate).format(
-                            "MM/DD/YYYY HH:mm A"
-                          )}
-                        </CampaignItemBottomClosureTime>
-                      </CampaignItemBottomTag>
-                    </CampaignItemBottom>
-                  </CampaignItem>
-                );
-              })}
+                        </CampaignItemHeadStartTime>
+                      </CampaignItemHead>
+                      <CampaignItemBody>
+                        <CampaignItemContent>
+                          {campaigns?.name}{" "}
+                          <span
+                            style={{ color: "#000000" }}
+                          >{`(${campaigns?.departmentName})`}</span>
+                        </CampaignItemContent>
+                      </CampaignItemBody>
+                      <CampaignItemBottom>
+                        <CampaignItemBottomTag
+                          sx={{
+                            backgroundColor: `${handleChangeStatusCampaign(
+                              campaigns?.firstClosureDate
+                            )}`,
+                          }}
+                        >
+                          <CampaignItemBottomClosureTime>
+                            First Closure date:{" "}
+                            {dayjs(campaigns?.firstClosureDate).format(
+                              "MM/DD/YYYY HH:mm A"
+                            )}
+                          </CampaignItemBottomClosureTime>
+                        </CampaignItemBottomTag>
+                        <CampaignItemBottomTag
+                          sx={{
+                            backgroundColor: `${handleChangeStatusCampaign(
+                              campaigns?.finalClosureDate
+                            )}`,
+                          }}
+                        >
+                          <CampaignItemBottomClosureTime>
+                            Final Closure date:{" "}
+                            {dayjs(campaigns?.finalClosureDate).format(
+                              "MM/DD/YYYY HH:mm A"
+                            )}
+                          </CampaignItemBottomClosureTime>
+                        </CampaignItemBottomTag>
+                      </CampaignItemBottom>
+                    </CampaignItem>
+                  );
+                })}
           </CampaignsWrapper>
         </Box>
         <Stack
@@ -185,7 +229,11 @@ export const CampaignList = () => {
             },
           }}
         >
-          <Pagination count={10} color="secondary" />
+          <Pagination
+            onChange={handlePageChange}
+            count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
+            color="secondary"
+          />
         </Stack>
       </Box>
     </Box>

@@ -7,8 +7,9 @@ export const useCampaignStore = create((set) => ({
     totalRecord: 0,
     setLoading: () => set((payload) => ({ loading: payload})),
 
-    fetchCampaigns: async () => {
-        const response = await getCampaign();
+    fetchCampaigns: async (payload) => {
+        console.log(payload);
+        const response = await getCampaign(payload);
         if(response) {
             set({ campaigns: response?.data?.data })
             set({ loading: false })

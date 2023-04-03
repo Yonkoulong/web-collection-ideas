@@ -2,7 +2,7 @@ import { http } from './http';
 
 //Category
 export async function getCategory() {
-    return http.get("/category");
+    return http.get("/categories");
 }
 
 export async function postCategory(payload) {
