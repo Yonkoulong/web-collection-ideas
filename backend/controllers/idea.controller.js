@@ -6,6 +6,7 @@ const campaignModel = require("../models/campaign.model");
 const mailer = require("../Utils/mailer");
 const nodemailer = require("nodemailer");
 const accountModel = require("../models/account.model");
+const CategoryModel = require("../models/category.model");
 // select idea có reation nhiều nhất
 const getIdeaMostLike = async (req, res) => {
   try {
@@ -57,18 +58,18 @@ const getIdeasMostView = async(req, res)=>{
       
    }
 }
-const getIdeas = async (req, res) => {
+const getIdeaFilter = async (req, res) => {
   try {
-    let campaignId = req.body?.campaignId
-    let categoryId = req.body?.categoryId
+    let filter = req.params.filter
     let ideas
-    if (campaignId == null && categoryId== null) {
-       ideas = await IdeaModel.find({}).populate(['authorId','campaignId','viewer','reaction','comment'])
+    if(filter == null){
+      ideas = await IdeaModel.find({}).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
-    else if(categoryId== null ) {
-       ideas = await IdeaModel.find({ campaignId: campaignId }).populate(['authorId','campaignId','viewer','reaction','comment'])
-    } else{
-       ideas = await IdeaModel.find({ categoryId: categoryId }).populate(['authorId','campaignId','viewer','reaction','comment'])
+    else if(await campaignModel.findOne({filter:filter})){
+      ideas = await IdeaModel.find({ campaignId: campaignId }).populate(['authorId','campaignId','viewer','reaction','comment'])
+    }
+    else if(await CategoryModel.findOne({filter:filter})){
+      ideas = await IdeaModel.find({ categoryId: categoryId }).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
     let response = {
       'status': 'Get idea success',
@@ -94,9 +95,9 @@ const getIdeaById = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
-const getIdeaFilter = async (req, res) => {
+const searchIdea = async (req, res) => {
   try {
-    let filter = req.body.filter
+    let filter = req.params.filter
     let ideaFilter = await IdeaModel.find({ "content": { $regex: `${filter}` } })
     if (ideaFilter) {
       response = {
@@ -262,13 +263,13 @@ const postReaction = async (req, res) =>{
 module.exports = [
   {
     method: "get", //define method http
-    controller: getIdeas, //this is method handle when have request on server
-    route: "/idea", //define API
+    controller: getIdeaFilter, //this is method handle when have request on server
+    route: "/idea/:filter", //define API
   },
   {
     method: "get", //define method http
-    controller: getIdeaFilter, //this is method handle when have request on server
-    route: "/idea/filter", //define API
+    controller: searchIdea, //this is method handle when have request on server
+    route: "/idea/filter/:filter", //define API
   },
   {
     method: "get", //define method http
@@ -276,7 +277,7 @@ module.exports = [
     route: "/idea/:id", //define API
   },
   {
-    method: "get", //define method http
+    method: "post", //define method http
     controller: getIdeaMostLike, //this is method handle when have request on server
     route: "/idea/MostReaction", //define API
   },
