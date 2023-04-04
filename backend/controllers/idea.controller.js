@@ -123,7 +123,7 @@ const postIdea = async (req, res) => {
     let response
     let campaign = await campaignModel.findOne({_id:campaignId})
     let currentAccount = await accountModel.findOne({_id:authorId})
-    let newIdea= IdeaModel.create({
+    let newIdea= await IdeaModel.create({
       content: content,
       authorId: authorId,
       campaignId: campaignId,
@@ -136,17 +136,15 @@ const postIdea = async (req, res) => {
       qac.forEach(element => {
         qacArr.push(element.email)
       });
-      console.log(qacArr)
       if(qac){
         let infor= await mailer.sendMail(qacArr,`${currentAccount.name} has post new idea at${(await newIdea).createdAt} .Content: ${(await newIdea).content}`,`${process.env.APP_URL}/campaigns/${campaignId}/ideas/${(await newIdea)._id}`)
         // sau này tính làm sau
-        // if(infor){
-        //   let response = {
-        //     'status': 'send email success',
-        //     'data':infor
-        //   }
-        //   res.status(200).json(response)
-        // }    
+        if(!infor){
+          let response = {
+            'status': 'No recipients',
+          }
+          return res.status(401).json(response)
+        }    
       }
       response = {
         'status': 'Upload new idea success',
