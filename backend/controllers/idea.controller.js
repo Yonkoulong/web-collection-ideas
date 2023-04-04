@@ -53,25 +53,24 @@ const getIdeaMostLike = async (req, res) => {
 }
 const getIdeasMostView = async(req, res)=>{
    try {
-      
+      await IdeaModel.aggregate([
+        { $group: { _id: { ideaId: '$ideaId' }, viewCount: { $push: "$ideaId" } } },
+        { $sort: { count: -1 } }
+      ])
    } catch (error) {
       
    }
 }
 const postIdeaFilter = async (req, res) => {
   try {
-    let filter = req.body?.filter
+    let campaignId = req.body.campaignId
+    let categoryId = req.body?.categoryId
     let ideas
-    console.log(await campaignModel.findOne({_id:filter}))
-    if(filter == null){
-      ideas = await IdeaModel.find({}).populate(['authorId','campaignId','viewer','reaction','comment'])
+    if(campaignId && categoryId == null){
+      ideas = await IdeaModel.find({ campaignId: campaignId }).populate(['authorId','reaction'])
     }
-   
-    else if(await campaignModel.findOne({_id:filter})){
-      ideas = await IdeaModel.find({ campaignId: filter }).populate(['authorId','campaignId','viewer','reaction','comment'])
-    }
-    else if(await CategoryModel.findOne({_id:filter})){
-      ideas = await IdeaModel.find({ categoryId: filter }).populate(['authorId','campaignId','viewer','reaction','comment'])
+    else if(categoryId && campaignId ){
+      ideas = await IdeaModel.find({ campaignId: campaignId,categoryId: categoryId }).populate(['authorId','reaction'])
     }
     let response = {
       'status': 'Get idea success',
@@ -260,7 +259,7 @@ module.exports = [
   {
     method: "post", //define method http
     controller: postIdeaFilter, //this is method handle when have request on server
-    route: "/idea", //define API
+    route: "/idea/filter", //define API
   },
   {
     method: "post", //define method http
