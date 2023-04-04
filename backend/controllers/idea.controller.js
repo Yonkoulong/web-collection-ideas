@@ -99,7 +99,7 @@ const getIdeaById = async (req, res) => {
 }
 const searchIdea = async (req, res) => {
   try {
-    let filter = req.params.filter
+    let filter = req.body?.filter
     let ideaFilter = await IdeaModel.find({ "content": { $regex: `${filter}` } })
     if (ideaFilter) {
       response = {
@@ -258,14 +258,14 @@ const postReaction = async (req, res) =>{
 };
 module.exports = [
   {
-    method: "get", //define method http
+    method: "post", //define method http
     controller: postIdeaFilter, //this is method handle when have request on server
     route: "/idea", //define API
   },
   {
-    method: "get", //define method http
+    method: "post", //define method http
     controller: searchIdea, //this is method handle when have request on server
-    route: "/idea/filter/:filter", //define API
+    route: "/idea/search", //define API
   },
   {
     method: "get", //define method http
