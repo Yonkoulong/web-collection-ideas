@@ -2,12 +2,8 @@ import { http } from './http';
 
 //Idea
 
-export async function getIdeas() {
-    return await http.get('/idea');
-}
-
 export async function getIdeaFilter(payload) {
-    return await http.get(`/idea/${payload?.filter}`);
+    return await http.post(`/idea/filter`, payload);
 }
 
 export async function getIdeaById(payload) {

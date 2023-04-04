@@ -59,6 +59,7 @@ import {
 
 import { useAppStore } from "@/stores/AppStore";
 import { useIdeaStore } from "@/stores/IdeaStore";
+import { useCategoryStore } from "@/stores/CategoryStore";
 import { getCampaignDetail } from "@/services/admin.services";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -82,20 +83,12 @@ export const IdeasFiltered = ({ filter }) => {
   const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
     (state) => state
   );
+  const { categories, fetchCategorys } = useCategoryStore((state) => state);
 
   const [campaignDetail, setCampaignDetail] = useState(null);
-  const [anchorSortEl, setAnchorSortEl] = useState(null);
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
   const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
-
-  //sort
-  const handleClickSortAnchor = (event) => {
-    setAnchorSortEl(event.currentTarget);
-  };
-
-  const handleCloseSortAnchor = () => {
-    setAnchorSortEl(null);
-  };
+  const [category, setCategory] = useState("");
 
   //download
   const handleClickDownloadAnchor = (event) => {
@@ -107,8 +100,8 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   //select department
-  const handleChangeDepartment = (e) => {
-    setAge(e.target.value);
+  const handleChangeCategory = (e) => {
+    setCategory(e.target.value);
   };
 
   const handleOpenCreateIdeaModal = () => {
@@ -145,10 +138,8 @@ export const IdeasFiltered = ({ filter }) => {
     }
   };
 
-  const openSortAnchor = Boolean(anchorSortEl);
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
-  const idSortAnchor = openSortAnchor ? "sort-popover" : undefined;
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
 
   useEffect(() => {
@@ -157,6 +148,7 @@ export const IdeasFiltered = ({ filter }) => {
     (async () => {
       try {
         await fetchIdeas({ filter: null });
+        await fetchCategorys();
       } catch (error) {
         const errorMessage = error?.data?.status || error;
         toast.error(errorMessage);
@@ -194,7 +186,38 @@ export const IdeasFiltered = ({ filter }) => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel
+              id="select-helper-label"
+              sx={{ fontSize: "15px", top: "-8px" }}
+            >
+              Categories
+            </InputLabel>
+            <Select
+              labelId="select-helper-label"
+              id="select-helper"
+              label="Categories"
+              value={category}
+              onChange={(e) => handleChangeCategory(e)}
+              sx={{
+                fontSize: "15px",
+                ".MuiSelect-select": { padding: "8.5px 14px" },
+              }}
+            >
+              {categories?.map((category) => {
+                return (
+                  <MenuItem
+                    sx={{ fontSize: "15px" }}
+                    key={category._id}
+                    value={category._id || ""}
+                  >
+                    {category.name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+
           {userInfo.role == enumRoles.QAM ? (
             <Box>
               <Button
@@ -278,6 +301,7 @@ export const IdeasFiltered = ({ filter }) => {
                 return (
                   <IdeaItem
                     elevation={3}
+                    key={idea?._id}
                     onClick={() =>
                       redirectTo(
                         `/campaigns/${idea?.campaignId}/ideas/${idea?._id}`

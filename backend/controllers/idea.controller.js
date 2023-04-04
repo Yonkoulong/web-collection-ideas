@@ -260,7 +260,7 @@ module.exports = [
   {
     method: "post", //define method http
     controller: postIdeaFilter, //this is method handle when have request on server
-    route: "/idea", //define API
+    route: "/idea/filter", //define API
   },
   {
     method: "post", //define method http
