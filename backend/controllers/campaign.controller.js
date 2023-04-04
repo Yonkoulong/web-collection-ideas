@@ -36,37 +36,39 @@ const postCampaign= async (req, res) => {
   }
    
  }
+ const getCampaignByDepartment = async(req, res)=>{
+  try {
+    let departmentId = req.params.id
+    if(departmentId){
+      campaigns = await CampaignModel.find({departmentId:departmentId}).populate('departmentId');
+    }
+    if(campaigns){
+      let response = {
+        'status': 'Get all campaigns by department',
+        'data': campaigns
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+ }
  const getCampaign = async(req, res) =>{
    try {
     let campaigns 
-    let coppyCampaigns=[]
-    let departmentId = req.params?.dpId
-    console.log(departmentId);
-     if(departmentId){
-       campaigns = await CampaignModel.find({departmentId:departmentId});
-     }
-     else{
-      campaigns = await CampaignModel.find({});
-     }
-     if(campaigns){
-      for (let campaign of campaigns) {
-        let department = await DepartmentModel.findOne({_id:campaign.departmentId})
-        coppyCampaigns.push({...campaign._doc, departmentName: department.name})
-        console.log(campaign)
-      }
-     }
+    campaigns = await CampaignModel.find({}).populate('departmentId');
+    if(campaigns){
       let response = {
         'status': 'Get all campaigns success',
-        'data': coppyCampaigns
+        'data': campaigns
       }
-      console.log(coppyCampaigns)
       res.status(200).json(response)
-     
+    }
    } catch (error) {
      res.status(500).json(error.message)
    }
  };
- const postCampaignFilter = async(req, res) =>{
+ const postSearchCampaign = async(req, res) =>{
   try {
     let departmentId= req.body.departmentId
     let filter = req.body.filter
@@ -81,10 +83,6 @@ const postCampaign= async (req, res) => {
   } catch (error) {
     res.status(500).json(error.message)
   }
-    
-   
-    
-
  }
  const getCampaignById = async(req, res) =>{
    try {
@@ -150,20 +148,24 @@ const postCampaign= async (req, res) => {
     },
     {
       method: "post", //define method http
-      controller: postCampaignFilter, //this is method handle when have request on server
+      controller: postSearchCampaign, //this is method handle when have request on server
       route: "/campaign/Filter", //define API
     },
     {
       method: "get", //define method http
       controller: getCampaign, //this is method handle when have request on server
-      route: "/campaign/:dpId", //define API
+      route: "/Campaign", //define API
     },
     {
       method: "get", //define method http
       controller: getCampaignById, //this is method handle when have request on server
       route: "/campaign/:id", //define API
     },
-   
+    {
+      method: "get", //define method http
+      controller: getCampaignByDepartment, //this is method handle when have request on server
+      route: "/campaign/department/:id", //define API
+    },
     {
       method: "put", //define method http
       controller: putCampaign, //this is method handle when have request on server
