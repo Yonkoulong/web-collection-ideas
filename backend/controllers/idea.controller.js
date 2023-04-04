@@ -54,7 +54,7 @@ const getIdeaMostLike = async (req, res) => {
 const getIdeasMostView = async(req, res)=>{
    try {
       await IdeaModel.aggregate([
-        { $group: { _id: { ideaId: '$ideaId' }, viewCount: { $push: "$ideaId" } } },
+        { $group: { _id: { ideaId: '$ideaId' }, viewCount: { $: "$ideaId" } } },
         { $sort: { count: -1 } }
       ])
    } catch (error) {
