@@ -120,7 +120,7 @@ export const IdeasFiltered = ({ filter }) => {
     if (!campaignDetail) {
       return;
     }
-  
+
     if (
       now.getTime() >= new Date(campaignDetail?.startTime).getTime() &&
       now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime()
@@ -194,6 +194,7 @@ export const IdeasFiltered = ({ filter }) => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          
           {userInfo.role == enumRoles.QAM ? (
             <Box>
               <Button
@@ -260,64 +261,6 @@ export const IdeasFiltered = ({ filter }) => {
         >
           <Box sx={{ mr: 2 }}>
             <SearchCustomize />
-          </Box>
-          <Box>
-            <Button
-              aria-describedby={idSortAnchor}
-              variant="contained"
-              onClick={handleClickSortAnchor}
-              sx={{ fontSize: "15px" }}
-            >
-              Sort by
-            </Button>
-
-            <Popover
-              id={idSortAnchor}
-              open={openSortAnchor}
-              anchorEl={anchorSortEl}
-              onClose={handleCloseSortAnchor}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-            >
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Name
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Closure Date
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Final Closure Date
-                </Typography>
-              </Box>
-            </Popover>
           </Box>
         </Box>
       </Box>

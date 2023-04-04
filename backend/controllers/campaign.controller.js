@@ -1,7 +1,7 @@
 const CampaignModel = require('../models/campaign.model')
 const DepartmentModel = require('../models/department.model')
 
- const postCampaign= async (req, res) => {
+const postCampaign = async (req, res) => {
   try {
     let name = req.body.name
     let departmentId = req.body.departmentId
@@ -10,145 +10,173 @@ const DepartmentModel = require('../models/department.model')
     let finalClosureDate = req.body.finalClosureDate
     let date1 = new Date(finalClosureDate)
     console.log(date1.getDate())
-    let department = await DepartmentModel.findOne({_id:departmentId})
+    let department = await DepartmentModel.findOne({ _id: departmentId })
 
     let newCampaign = await CampaignModel.create({
-       name:name,
-       startTime: startTime,
-       firstClosureDate:firstClosureDate,
-       finalClosureDate: finalClosureDate,
-       departmentId:departmentId,
-       
+      name: name,
+      startTime: startTime,
+      firstClosureDate: firstClosureDate,
+      finalClosureDate: finalClosureDate,
+      departmentId: departmentId,
+
     })
-    
+
     //{...newCampaign, departmentName: department.name}
     //var finalCampaign=  Object.assign(newCampaign,{departmentName: department.name})
     //newCampaign['departmentName'] = await department.name
-    if(newCampaign){
+    if (newCampaign) {
       let response = {
         'status': 'Create new campaign success',
-        'data': {...newCampaign._doc, departmentName: department.name}
-      }      
+        'data': { ...newCampaign._doc, departmentName: department.name }
+      }
       console.log(newCampaign)
       res.status(201).json(response)
     }
   } catch (error) {
     res.status(500).json(error.message)
   }
-   
- }
- const getCampaign = async(req, res) =>{
-   try {
-    let campaigns 
-    let coppyCampaigns=[]
-    let departmentId = req.body?.departmentId
-    console.log(departmentId);
-     if(departmentId){
-       campaigns = await CampaignModel.find({departmentId:departmentId});
-     }
-     else{
+
+}
+const getCampaign = async (req, res) => {
+  try {
+    let campaigns
+    let coppyCampaigns = []
+    let departmentId = req.params?.dpId
+    console.log("departmentId", departmentId);
+
+    if (departmentId) {
+      campaigns = await CampaignModel.find({ departmentId: departmentId });
+    }
+    else {
       campaigns = await CampaignModel.find({});
-     }
-     if(campaigns){
-      for (let campaign of campaigns) {
-        let department = await DepartmentModel.findOne({_id:campaign.departmentId})
-        coppyCampaigns.push({...campaign._doc, departmentName: department.name})
-        console.log(campaign)
-      }
-     }
+    }
+
+    // if (campaigns) {
+    //   for (let campaign of campaigns) {
+    //     let department = await DepartmentModel.findOne({ _id: campaign.departmentId })
+    //     coppyCampaigns.push({ ...campaign._doc, departmentName: department.name })
+    //     console.log(campaign)
+    //   }
+    //}
+    
+    let response = {
+      'status': 'Get all campaigns success',
+      'data': coppyCampaigns
+    }
+    console.log(coppyCampaigns)
+    res.status(200).json(response)
+
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const postCampaignFilter = async (req, res) => {
+  try {
+    let departmentId = req.body.departmentId
+    let filter = req.body.filter
+    if (departmentId != null) {
+      let campaignFilter = await IdeaModel.find({ "name": { $regex: `${filter}` } })
       let response = {
-        'status': 'Get all campaigns success',
-        'data': coppyCampaigns
+        'status': 'Get campaigns filter success',
+        'data': campaignFilter
       }
-      console.log(coppyCampaigns)
       res.status(200).json(response)
-     
-   } catch (error) {
-     res.status(500).json(error.message)
-   }
- };
- const getCampaignById = async(req, res) =>{
-   try {
-     let id = req.params.id
-     let campaign = await CampaignModel.findById({_id:id});
-     if(campaign){
-       let response = {
-         'status': 'Get campaign success',
-         'data': campaign
-       }      
-       res.status(200).json(response)
-     }
-   } catch (error) {
-     res.status(500).json(error.message)
-   }
- };
- const putCampaign = async (req, res)=>{
-   try {
-     let id = req.params.id
-     let name = req.body.name
-     let startTime = req.body.startTime
-     let firstClosureDate = req.body.firstClosureDate
-     let finalClosureDate = req.body.finalClosureDate
-     let response
-     let department = await DepartmentModel.findOne({_id:departmentId})
-     let newCampaign= await CampaignModel.findByIdAndUpdate(id,{
-        name:name,
-        startTime: startTime,
-        firstClosureDate:firstClosureDate,
-        finalClosureDate: finalClosureDate,
-     })
-     if(newCampaign){
-       response = {
-         'status': 'Update campaign success',
-         'data': {...newCampaign._doc,departmentName:department.name}
-       }      
-       res.status(200).json(response)
-     }
-   } catch (error) {
-     res.status(500).json(error.message)
-   }
- };
- const deleteCampaign = async(req, res) =>{
-   try {
-     let id = req.params.id
-     let campaign = await CampaignModel.findByIdAndDelete({_id:id});
-     if(campaign){
-       response = {
-         'status': 'Delete campaign success',
-         'data': campaign
-       }      
-       res.status(200).json(response)
-     }
-   } catch (error) {
-     res.status(500).json(error.message)
-   }
- };
- module.exports = [
-    {
-      method: "post", //define method http
-      controller: postCampaign, //this is method handle when have request on server
-      route: "/campaign", //define API
-    },
-    {
-      method: "get", //define method http
-      controller: getCampaign, //this is method handle when have request on server
-      route: "/campaign", //define API
-    },
-    {
-      method: "get", //define method http
-      controller: getCampaignById, //this is method handle when have request on server
-      route: "/campaign/:id", //define API
-    },
-   
-    {
-      method: "put", //define method http
-      controller: putCampaign, //this is method handle when have request on server
-      route: "/campaign/:id", //define API
-    },
-    {
-      method: "delete", //define method http
-      controller: deleteCampaign, //this is method handle when have request on server
-      route: "/campaign/:id", //define API
-    },
-  ]
-  
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+
+
+
+
+}
+const getCampaignById = async (req, res) => {
+  try {
+    let id = req.params.id
+    let campaign = await CampaignModel.findById({ _id: id });
+    if (campaign) {
+      let response = {
+        'status': 'Get campaign success',
+        'data': campaign
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const putCampaign = async (req, res) => {
+  try {
+    let id = req.params.id
+    let name = req.body.name
+    let startTime = req.body.startTime
+    let firstClosureDate = req.body.firstClosureDate
+    let finalClosureDate = req.body.finalClosureDate
+    let response
+    let department = await DepartmentModel.findOne({ _id: departmentId })
+    let newCampaign = await CampaignModel.findByIdAndUpdate(id, {
+      name: name,
+      startTime: startTime,
+      firstClosureDate: firstClosureDate,
+      finalClosureDate: finalClosureDate,
+    })
+    if (newCampaign) {
+      response = {
+        'status': 'Update campaign success',
+        'data': { ...newCampaign._doc, departmentName: department.name }
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+const deleteCampaign = async (req, res) => {
+  try {
+    let id = req.params.id
+    let campaign = await CampaignModel.findByIdAndDelete({ _id: id });
+    if (campaign) {
+      response = {
+        'status': 'Delete campaign success',
+        'data': campaign
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
+module.exports = [
+  {
+    method: "post", //define method http
+    controller: postCampaign, //this is method handle when have request on server
+    route: "/campaign", //define API
+  },
+  {
+    method: "post", //define method http
+    controller: postCampaignFilter, //this is method handle when have request on server
+    route: "/campaign/Filter", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getCampaign, //this is method handle when have request on server
+    route: "/campaign/:dpId", //define API
+  },
+  {
+    method: "get", //define method http
+    controller: getCampaignById, //this is method handle when have request on server
+    route: "/campaign/:id", //define API
+  },
+
+  {
+    method: "put", //define method http
+    controller: putCampaign, //this is method handle when have request on server
+    route: "/campaign/:id", //define API
+  },
+  {
+    method: "delete", //define method http
+    controller: deleteCampaign, //this is method handle when have request on server
+    route: "/campaign/:id", //define API
+  },
+]
+
