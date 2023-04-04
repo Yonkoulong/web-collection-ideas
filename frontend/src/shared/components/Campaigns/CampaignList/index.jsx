@@ -36,9 +36,9 @@ const MAX_ITEM_PER_PAGE = 5;
 
 export const CampaignList = () => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const { campaigns, fetchCampaigns, loading, setLoading, totalRecord } =
+  const { campaigns, fetchCampaigns, fetchCampaignsByDepartmentId, loading, setLoading, totalRecord } =
     useCampaignStore((state) => state);
-  const { departments, fetchDepartments } = useDepartmentStore(
+  const { departments, fetchDepartments,  } = useDepartmentStore(
     (state) => state
   );
 
@@ -69,7 +69,7 @@ export const CampaignList = () => {
   const handleChangeDepartment = async (e) => {
     try {
       setDepartment(e.target.value);
-      await fetchCampaigns({departmentId: e.target.value });
+      await fetchCampaignsByDepartmentId({departmentId: e.target.value });
 
     } catch (error) {
         const errorMessage = error?.response?.data?.status || error;
@@ -182,7 +182,7 @@ export const CampaignList = () => {
                           {campaigns?.name}{" "}
                           <span
                             style={{ color: "#000000" }}
-                          >{`(${campaigns?.departmentName})`}</span>
+                          >{`(${campaigns?.departmentId?.name})`}</span>
                         </CampaignItemContent>
                       </CampaignItemBody>
                       <CampaignItemBottom>

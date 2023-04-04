@@ -22,8 +22,12 @@ export async function deleteAccount(payload) {
 }
 
 //Campaign
-export async function getCampaign(idDepartment) {
-    return http.get(`/campaign/${idDepartment}`);
+export async function getCampaign() {
+    return http.get(`/campaign/`);
+}
+
+export async function getCampaignByDepartmentId(idDepartment) {
+    return http.get(`/campaign/department/${idDepartment}`);
 }
 
 export async function postCampaign(payload) {
