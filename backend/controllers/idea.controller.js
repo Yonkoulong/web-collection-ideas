@@ -58,18 +58,20 @@ const getIdeasMostView = async(req, res)=>{
       
    }
 }
-const getIdeaFilter = async (req, res) => {
+const postIdeaFilter = async (req, res) => {
   try {
-    let filter = req.params.filter
+    let filter = req.body?.filter
     let ideas
+    console.log(await campaignModel.findOne({_id:filter}))
     if(filter == null){
       ideas = await IdeaModel.find({}).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
-    else if(await campaignModel.findOne({filter:filter})){
-      ideas = await IdeaModel.find({ campaignId: campaignId }).populate(['authorId','campaignId','viewer','reaction','comment'])
+   
+    else if(await campaignModel.findOne({_id:filter})){
+      ideas = await IdeaModel.find({ campaignId: filter }).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
-    else if(await CategoryModel.findOne({filter:filter})){
-      ideas = await IdeaModel.find({ categoryId: categoryId }).populate(['authorId','campaignId','viewer','reaction','comment'])
+    else if(await CategoryModel.findOne({_id:filter})){
+      ideas = await IdeaModel.find({ categoryId: filter }).populate(['authorId','campaignId','viewer','reaction','comment'])
     }
     let response = {
       'status': 'Get idea success',
@@ -128,9 +130,8 @@ const postIdea = async (req, res) => {
       categoryId: categoryId,
       enonymously: enonymously
     })
-    if(newIdea){
+    if(!newIdea) return res.sendStatus(401);
       let qac= await accountModel.find({role:"qac",departmentId:campaign.departmentId})
-     
       let qacArr = []
       qac.forEach(element => {
         qacArr.push(element.email)
@@ -152,12 +153,9 @@ const postIdea = async (req, res) => {
         'data': newIdea
       }
       res.status(200).json(response)
-    }
   } catch (error) {
     res.status(500).json(error.message)
   }
- 
-  
 }
 const putIdea = async (req, res) => {
   let id = req.params.id
@@ -263,8 +261,8 @@ const postReaction = async (req, res) =>{
 module.exports = [
   {
     method: "get", //define method http
-    controller: getIdeaFilter, //this is method handle when have request on server
-    route: "/idea/:filter", //define API
+    controller: postIdeaFilter, //this is method handle when have request on server
+    route: "/idea", //define API
   },
   {
     method: "get", //define method http

@@ -40,7 +40,7 @@ const postCampaign= async (req, res) => {
    try {
     let campaigns 
     let coppyCampaigns=[]
-    let departmentId = req.body?.departmentId
+    let departmentId = req.params?.dpId
     console.log(departmentId);
      if(departmentId){
        campaigns = await CampaignModel.find({departmentId:departmentId});
@@ -66,6 +66,26 @@ const postCampaign= async (req, res) => {
      res.status(500).json(error.message)
    }
  };
+ const postCampaignFilter = async(req, res) =>{
+  try {
+    let departmentId= req.body.departmentId
+    let filter = req.body.filter
+    if(departmentId != null ){
+      let campaignFilter = await IdeaModel.find({ "name": { $regex: `${filter}` } })
+      let response = {
+        'status': 'Get campaigns filter success',
+        'data': campaignFilter
+      }
+      res.status(200).json(response)
+    }
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+    
+   
+    
+
+ }
  const getCampaignById = async(req, res) =>{
    try {
      let id = req.params.id
@@ -129,9 +149,14 @@ const postCampaign= async (req, res) => {
       route: "/campaign", //define API
     },
     {
+      method: "post", //define method http
+      controller: postCampaignFilter, //this is method handle when have request on server
+      route: "/campaign/Filter", //define API
+    },
+    {
       method: "get", //define method http
       controller: getCampaign, //this is method handle when have request on server
-      route: "/campaign", //define API
+      route: "/campaign/:dpId", //define API
     },
     {
       method: "get", //define method http
