@@ -100,8 +100,13 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   //select department
-  const handleChangeCategory = (e) => {
-    setCategory(e.target.value);
+  const handleChangeCategory = async (e) => {
+    try {
+      setCategory(e.target.value);
+      await fetchIdeas({ campaignId: idCampaign, categoryId: e.target.value });
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   const handleOpenCreateIdeaModal = () => {
@@ -147,7 +152,7 @@ export const IdeasFiltered = ({ filter }) => {
 
     (async () => {
       try {
-        await fetchIdeas({ filter: null });
+        await fetchIdeas({ campaignId: idCampaign });
         await fetchCategorys();
       } catch (error) {
         const errorMessage = error?.data?.status || error;
@@ -172,7 +177,7 @@ export const IdeasFiltered = ({ filter }) => {
       }
     })();
   }, []);
-
+  console.log(categories);
   return (
     <Box>
       <Box
@@ -211,7 +216,7 @@ export const IdeasFiltered = ({ filter }) => {
                     key={category._id}
                     value={category._id || ""}
                   >
-                    {category.name}
+                    {category.type}
                   </MenuItem>
                 );
               })}
