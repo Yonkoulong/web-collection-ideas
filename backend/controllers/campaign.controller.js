@@ -19,18 +19,13 @@ const postCampaign= async (req, res) => {
        departmentId:departmentId,
        
     })
-    
-    //{...newCampaign, departmentName: department.name}
-    //var finalCampaign=  Object.assign(newCampaign,{departmentName: department.name})
-    //newCampaign['departmentName'] = await department.name
-    if(newCampaign){
+    if(!newCampaign) return res.sendStatus(409);
       let response = {
         'status': 'Create new campaign success',
         'data': {...newCampaign._doc, departmentName: department.name}
       }      
       console.log(newCampaign)
       res.status(201).json(response)
-    }
   } catch (error) {
     res.status(500).json(error.message)
   }

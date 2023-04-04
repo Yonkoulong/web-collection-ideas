@@ -67,7 +67,21 @@ const postAccount = async (req, res) => {
         }
     }
 };
-
+const postSearchAccount = async (req,res) =>{
+    try {
+    let filter = req.body?.filter
+    let accountFilter = await AccountModel.find({ "email": { $regex: `${filter}` } })
+    if (accountFilter) {
+      response = {
+        'status': `Get idea filter by ${filter} success`,
+        'data': accountFilter
+      }
+      res.status(200).json(response)
+    }
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
 const getCurrentAccount = async (req, res) => {
     try {
         let id = req.id
@@ -223,6 +237,11 @@ module.exports = [
         method: "get", //define method http
         controller: getAccountById, //this is method handle when have request on server
         route: "/account/:id", //define API
+    },
+    {
+        method: "post", //define method http
+        controller: postSearchAccount, //this is method handle when have request on server
+        route: "/account/filter", //define API
     },
     {
         method: "get", //define method http
