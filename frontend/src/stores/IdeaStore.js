@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getIdeas } from "@/services/idea.services";
+import { getIdeaFilter } from "@/services/idea.services";
 
 export const useIdeaStore = create((set) => ({
     ideas: [],
@@ -7,8 +7,8 @@ export const useIdeaStore = create((set) => ({
     totalRecord: 0,
     setLoading: () => set((payload) => ({ loading: payload})),
 
-    fetchIdeas: async () => {
-        const response = await getIdeas();
+    fetchIdeas: async (payload) => {
+        const response = await getIdeaFilter(payload);
         if(response) {
             set({ ideas: response?.data?.data })
             set({ loading: false })

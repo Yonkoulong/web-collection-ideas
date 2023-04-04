@@ -131,6 +131,7 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
         setLoading(true);
 
         if (selectedFile) {
+          debugger
           const formData = new FormData();
           formData.append("file", selectedFile);
           formData.append("ideaId", idea?._id);
@@ -146,6 +147,7 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
           })
             .then(function (response) {
               if (response) {
+                console.log(response);
               }
             })
             .catch(function (error) {

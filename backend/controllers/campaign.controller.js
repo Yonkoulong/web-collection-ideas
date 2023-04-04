@@ -1,6 +1,7 @@
 const CampaignModel = require('../models/campaign.model')
 const DepartmentModel = require('../models/department.model')
-const postCampaign= async (req, res) => {
+
+ const postCampaign= async (req, res) => {
   try {
     let name = req.body.name
     let departmentId = req.body.departmentId

@@ -156,7 +156,7 @@ export const IdeasFiltered = ({ filter }) => {
 
     (async () => {
       try {
-        await fetchIdeas();
+        await fetchIdeas({ filter: null });
       } catch (error) {
         const errorMessage = error?.data?.status || error;
         toast.error(errorMessage);

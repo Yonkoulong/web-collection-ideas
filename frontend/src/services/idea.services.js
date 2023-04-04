@@ -6,8 +6,8 @@ export async function getIdeas() {
     return await http.get('/idea');
 }
 
-export async function getIdeaFilter() {
-    return await http.get('/idea/filter');
+export async function getIdeaFilter(payload) {
+    return await http.get(`/idea/${payload?.filter}`);
 }
 
 export async function getIdeaById(payload) {

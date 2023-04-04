@@ -60,6 +60,7 @@ const getIdeasMostView = async(req, res)=>{
 }
 const getIdeaFilter = async (req, res) => {
   try {
+    console.log(req.params.filter);
     let filter = req.params.filter
     let ideas
     if(filter == null){
