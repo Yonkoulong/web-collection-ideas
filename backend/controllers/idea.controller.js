@@ -7,15 +7,34 @@ const mailer = require("../Utils/mailer");
 const nodemailer = require("nodemailer");
 const accountModel = require("../models/account.model");
 const CategoryModel = require("../models/category.model");
+const AttachMentController = require("../controllers/attachment.controller")
 // select idea có reation nhiều nhất
-const getIdeaMostLike = async (req, res) => {
+const mongoose = require("mongoose");
+const commentModel = require("../models/comment.model");
+const path = require("path");
+const postIdeaMostLike = async (req, res) => {
   try {
-     let ideaMostLike = await IdeaModel.aggregate([
-      { $project: { count: { 
-        $size: { "$ifNull": [ "$reaction", [] ] }
-    } } },
-    {$sort: { count: -1 }}
-     ])
+    let campaignId = req.body.campaignId
+    let categoryId = req.body?.categoryId
+    let ideaMostLike
+    if(categoryId == null){
+       ideaMostLike = await IdeaModel.aggregate([
+        {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
+        { $project: { count: { 
+          $size: { "$ifNull": [ "$reaction", [] ] }
+      } } },
+      {$sort: { count: -1 }}
+       ])
+    }
+    else{
+      ideaMostLike = await IdeaModel.aggregate([
+        {$match:{campaignId:mongoose.Types.ObjectId(campaignId),categoryId:mongoose.Types.ObjectId(categoryId)}},
+        { $project: { count: { 
+          $size: { "$ifNull": [ "$reaction", [] ] }
+      } } },
+      {$sort: { count: -1 }}
+       ])
+    }
      if(!ideaMostLike) return res.sendStatus(404);
     response = {
       'status': 'Get idea most reaction',
@@ -26,32 +45,52 @@ const getIdeaMostLike = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
-const getIdeaLatestComment = async (req, res) => {
+const postIdeaLatestComment = async (req, res) => {
   try {
-     let ideaMostLike = await IdeaModel.aggregate([
-      { $project: { count: { 
-        $size: { "$ifNull": [ "$comment", [] ] }
-    } } },
-    {$sort: { count: -1 }}
-     ])
-     if(!ideaMostLike) return res.sendStatus(404);
+    let campaignId = req.body.campaignId
+    let categoryId = req.body?.categoryId
+    let ideaLateComment
+    if(categoryId == null){
+      let idea= await IdeaModel.aggregate([
+        {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
+       ])
+       ideaLateComment = await commentModel.populate(idea,{path:"comment",options:{$orderby:'-createAt'}})
+      
+    }
+     if(!ideaLateComment) return res.sendStatus(404);
     response = {
       'status': 'Get idea latest comment',
-      'data': ideaMostLike
+      'data': ideaLateComment
     }
     res.status(200).json(response)
   } catch (error) {
     res.status(500).json(error.message)
   }
 }
-const getIdeasMostView = async(req, res)=>{
+const postIdeasMostView = async(req, res)=>{
    try {
-      let ideaMostView= await IdeaModel.aggregate([
+    let campaignId = req.body.campaignId
+    let categoryId = req.body?.categoryId
+    let ideaMostView
+    if(categoryId == null){
+      ideaMostView= await IdeaModel.aggregate([
+        { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
+        { $project: { count: { 
+          $size: { "$ifNull": [ "$viewer", [] ] }
+        } } },
+        {$sort: { count: -1 }}
+      ])
+    }
+    else  {
+       ideaMostView= await IdeaModel.aggregate([
+        {$match:{categoryId:mongoose.Types.ObjectId(categoryId) ,campaignId:mongoose.Types.ObjectId(campaignId) }},
         { $project: { count: { 
           $size: { "$ifNull": [ "$viewer", [] ] }
       } } },
       {$sort: { count: -1 }}
       ])
+    }
+      
       if(!ideaMostView) return res.sendStatus(404);
      // let ideaMostView = await IdeaModel.find({}).sort({viewer:1})
       response = {
@@ -63,9 +102,16 @@ const getIdeasMostView = async(req, res)=>{
     res.status(500).json(error.message)
    }
 }
-const getIdeasLatest = async (req, res) =>{
+const postIdeasLatest = async (req, res) =>{
   try {
-    let ideaLatest= await IdeaModel.find({}).sort({createdAt: -1})
+    let categoryId = req.body?.categoryId
+    let ideaLatest
+    if(categoryId == null){
+       ideaLatest= await IdeaModel.find({}).sort({createdAt: -1})
+    }
+    else{
+      ideaLatest= await IdeaModel.find({categoryId:categoryId}).sort({createdAt: -1})
+    }
     if(!ideaLatest) return res.sendStatus(404);
     let response = {
       'status': 'Get idea most view',
@@ -98,15 +144,16 @@ const postIdeaFilter = async (req, res) => {
 }
 const getIdeaById = async (req, res) => {
   try {
+    //AttachMentController.getAttchmentById(req, res)
     let id = req.params.id
-    let detailIdea = await IdeaModel.findOne({_id:id}).populate(['authorId','campaignId','viewer','reaction','comment'])
-    if(detailIdea){
-      let response = {
-        'status': 'Get idea success',
-        'data': detailIdea
-      }
-      res.status(200).json(response)
+    let detailIdea = await IdeaModel.findOne({_id:id}).populate(['authorId','campaignId','viewer','reaction','comment','attachment'])
+    if(!detailIdea)return res.sendStatus(404);
+    let response = {
+      'status': 'Get idea success',
+      'data': detailIdea
     }
+    res.status(200).json(response)
+    
   } catch (error) {
     res.status(500).json(error.message)
   }
@@ -287,19 +334,24 @@ module.exports = [
     route: "/idea/:id", //define API
   },
   {
-    method: "get", //define method http
-    controller: getIdeaMostLike, //this is method handle when have request on server
-    route: "/ideaMostReaction", //define API
+    method: "post", //define method http
+    controller: postIdeaMostLike, //this is method handle when have request on server
+    route: "/idea/mostLike", //define API
+  },
+  {
+    method: "post", //define method http
+    controller: postIdeasMostView, //this is method handle when have request on server
+    route: "/idea/mostView", //define API
   },
   {
     method: "get", //define method http
-    controller: getIdeasMostView, //this is method handle when have request on server
-    route: "/ideaMostView", //define API
-  },
-  {
-    method: "get", //define method http
-    controller: getIdeasLatest, //this is method handle when have request on server
+    controller: postIdeasLatest, //this is method handle when have request on server
     route: "/ideaLatest", //define API
+  },
+  {
+    method: "post", //define method http
+    controller: postIdeaLatestComment, //this is method handle when have request on server
+    route: "/idea/latestComment", //define API
   },
   {
     method: "put", //define method http

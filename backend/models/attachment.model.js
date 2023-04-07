@@ -15,6 +15,9 @@ const attachmentSchema  = new Schema({
     fileSize:{
         type: String,
     },
+    type:{
+        type: String,
+    },
     authorId:{
         type:mongoose.Schema.Types.ObjectId, 
         ref:'account',

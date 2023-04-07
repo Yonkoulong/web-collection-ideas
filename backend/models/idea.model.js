@@ -20,6 +20,11 @@ const ideaSchema  = new Schema({
             ref: 'comment',
         }
     ],
+    attachment :[
+        {   type: mongoose.Schema.Types.ObjectId, 
+            ref: 'attachment',
+        }
+    ],
     authorId:{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'account',
