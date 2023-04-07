@@ -11,7 +11,7 @@ export async function getIdeaById(payload) {
 }
 
 export async function getIdeaMostLike() {
-    return await http.get('/idea/MostReaction');
+    return await http.get('/ideaMostReaction');
 }
 
 export async function getIdeasMostView() {

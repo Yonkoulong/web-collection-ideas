@@ -23,7 +23,7 @@ export async function deleteAccount(payload) {
 
 //Campaign
 export async function getCampaign() {
-    return http.get(`/campaign/`);
+    return http.get(`/campaign`);
 }
 
 export async function getCampaignByDepartmentId(idDepartment) {

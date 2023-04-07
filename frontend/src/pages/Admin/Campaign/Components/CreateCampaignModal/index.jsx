@@ -34,6 +34,7 @@ import {
   CreateCampaignForm,
   CreateCampaignInputContainer,
 } from "./CreateCampaignModal.styles";
+import { useCampaignStore } from "@/stores/CampaignStore";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -83,6 +84,7 @@ const defaultValues = {
 
 export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
   const { userInfo } = useAppStore((state) => state);
+  const { fetchCampaigns, setLoading } = useCampaignStore((state) => state);
   const { departments, fetchDepartments } = useDepartmentStore(
     (state) => state
   );
@@ -117,11 +119,15 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
       let payload = {};
 
       //check final clouse date
+
       if (!data?.finalClosureDate) {
         let newFinalClousureDate = new Date(data?.firstClosureDate).setDate(
           new Date(data?.firstClosureDate).getDate() + 7
         );
-        payload = { ...data, finalClosureDate: newFinalClousureDate };
+        payload = {
+          ...data,
+          finalClosureDate: new Date(newFinalClousureDate).toISOString(),
+        };
       } else {
         payload = { ...data };
       }
@@ -138,8 +144,10 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
         )
       ) {
         if (editCampaign) {
-          console.log(editCampaign?._id);
-          const respData = await putCampaign({ id: editCampaign?._id }, data);
+          const respData = await putCampaign(
+            { id: editCampaign?._id },
+            payload
+          );
 
           if (respData) {
             setLoading(true);
@@ -148,9 +156,10 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
             handleClose();
           }
         } else {
-          const respData = await postCampaign(data);
+          const respData = await postCampaign(payload);
 
           if (respData) {
+            debugger
             setLoading(true);
             fetchCampaigns();
             toast.success("Create Campaign successfully.");

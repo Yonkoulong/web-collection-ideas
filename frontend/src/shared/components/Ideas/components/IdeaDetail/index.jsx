@@ -62,6 +62,12 @@ export const IdeaDetail = () => {
           const resp = await postComment(payload);
           if (resp) {
             e.target.value = "";
+
+            const respIdeaDetail = await getIdeaById({ id: idIdea });
+
+            if (respIdeaDetail) {
+              setIdeaDetail(respIdeaDetail?.data?.data);
+            }
           }
         }
       }
@@ -105,6 +111,18 @@ export const IdeaDetail = () => {
     }
   };
 
+  const handleStatusIdea = () => {
+    if(!ideaDetail) { return; }
+
+    const now = new Date();
+
+    if(new Date(ideaDetail.campaignId?.finalClosureDate).getTime() < now.getTime()) {
+      return true;
+    }
+
+    return false
+  }
+
   useEffect(() => {
     (async () => {
       if (idIdea) {
@@ -142,13 +160,24 @@ export const IdeaDetail = () => {
               border: "1px solid",
             }}
           >
-            <img src={ideaDetail?.authorId?.avartarUrl} alt="avatar" />
+            <img
+              src={
+                ideaDetail?.enonymously
+                  ? "https://www.kindpng.com/picc/m/206-2069926_google-chrome-incognito-mode-detection-incognito-logo-hd.png"
+                  : ideaDetail?.authorId?.avartarUrl
+              }
+              alt="avatar"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
           </Box>
           <Box sx={{ marginLeft: 1 }}>
             <Typography fontSize="20px" fontWeight="bold">
               {ideaDetail?.content}
             </Typography>
-            <Typography fontSize="small">{ideaDetail?.updatedAt}</Typography>
+            <Typography fontSize="small">
+              {ideaDetail?.enonymously ? "unknow" : ideaDetail?.authorId?.email}{" "}
+              - {dayjs(ideaDetail?.updatedAt).format("MM/DD/YYYY HH:mm A")}
+            </Typography>
           </Box>
         </Box>
 
@@ -168,7 +197,10 @@ export const IdeaDetail = () => {
           }}
         >
           <IconButton aria-label="thumb-up">
-            <StyledBadge badgeContent={countReactionTypeByIdea(reactionType.LIKE)} color="secondary">
+            <StyledBadge
+              badgeContent={countReactionTypeByIdea(reactionType.LIKE)}
+              color="secondary"
+            >
               <ThumbUpIcon
                 fontSize="small"
                 onClick={() => handleReactionIdea(reactionType.LIKE)}
@@ -185,7 +217,10 @@ export const IdeaDetail = () => {
             </StyledBadge>
           </IconButton>
           <IconButton aria-label="thumb-down">
-            <StyledBadge badgeContent={countReactionTypeByIdea(reactionType.DISLIKE)} color="secondary">
+            <StyledBadge
+              badgeContent={countReactionTypeByIdea(reactionType.DISLIKE)}
+              color="secondary"
+            >
               <ThumbDownAltIcon
                 fontSize="small"
                 onClick={() => handleReactionIdea(reactionType.DISLIKE)}
@@ -205,7 +240,7 @@ export const IdeaDetail = () => {
           <TextField
             id="input-with-icon-textfield"
             label=""
-            placeholder="Comment"
+            placeholder={handleStatusIdea() ? "Comments are off" : "Comment"}
             onKeyDown={handleCommentIdea}
             InputProps={{
               endAdornment: (
@@ -214,6 +249,7 @@ export const IdeaDetail = () => {
                 </InputAdornment>
               ),
             }}
+            disabled={handleStatusIdea()}
             variant="outlined"
             fullWidth
             sx={{

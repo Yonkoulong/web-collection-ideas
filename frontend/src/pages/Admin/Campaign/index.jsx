@@ -238,7 +238,7 @@ export const CampaignManagement = () => {
                           }}
                           onClick={() => handleClickOpenModalCreateCampaign(campaign?._id)}
                         >
-                          {campaign?.departmentName || '-'}
+                          {campaign?.departmentId?.name || '-'}
                         </TableCell>
                         
                         <TableCell>
