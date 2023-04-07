@@ -44,6 +44,7 @@ const getIdeaLatestComment = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
+
 const getIdeasMostView = async(req, res)=>{
    try {
       let ideaMostView= await IdeaModel.aggregate([
@@ -63,6 +64,7 @@ const getIdeasMostView = async(req, res)=>{
     res.status(500).json(error.message)
    }
 }
+
 const getIdeasLatest = async (req, res) =>{
   try {
     let ideaLatest= await IdeaModel.find({}).sort({createdAt: -1})
@@ -151,6 +153,7 @@ const postIdea = async (req, res) => {
         qacArr.push(element.email)
       });
       if(qac){
+        console.log(qac);
         let infor= await mailer.sendMail(qacArr,`${currentAccount.name} has post new idea at${(await newIdea).createdAt} .Content: ${(await newIdea).content}`,`${process.env.APP_URL}/campaigns/${campaignId}/ideas/${(await newIdea)._id}`)
         // sau này tính làm sau
         if(!infor){

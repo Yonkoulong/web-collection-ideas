@@ -14,6 +14,14 @@ export async function getIdeaMostLike() {
     return await http.get('/idea/MostReaction');
 }
 
+export async function getIdeasMostView() {
+    return await http.get('/ideaMostView');
+}
+
+export async function getIdeasLatest() {
+    return await http.get('/ideaLatest')
+}
+
 export async function putIdea(id, payload) {
     return await http.put(`/idea/${id}`, payload)
 }

@@ -40,8 +40,11 @@ import {
   activeColor,
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
-import { enumRoles } from "@/shared/utils/constant.utils";
-import { ideaFilter } from "@/shared/utils/constant.utils";
+import {
+  enumRoles,
+  ideaFilter,
+  reactionType,
+} from "@/shared/utils/constant.utils";
 
 import {
   IdeasWrapper,
@@ -60,7 +63,9 @@ import {
 import { useAppStore } from "@/stores/AppStore";
 import { useIdeaStore } from "@/stores/IdeaStore";
 import { useCategoryStore } from "@/stores/CategoryStore";
+
 import { getCampaignDetail } from "@/services/admin.services";
+import { postView } from "@/services/idea.services";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -71,6 +76,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
+const MAX_ITEM_PER_PAGE = 5;
+
 const flexCenter = {
   display: "flex",
   alignItems: "center",
@@ -78,9 +85,9 @@ const flexCenter = {
 
 export const IdeasFiltered = ({ filter }) => {
   const { idCampaign } = useParams();
-
+  
   const userInfo = useAppStore((state) => state.userInfo);
-  const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
+  const { ideas, loading, setLoading, fetchIdeas, totalRecord } = useIdeaStore(
     (state) => state
   );
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
@@ -89,6 +96,10 @@ export const IdeasFiltered = ({ filter }) => {
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
   const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
   const [category, setCategory] = useState("");
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: MAX_ITEM_PER_PAGE,
+  });
 
   //download
   const handleClickDownloadAnchor = (event) => {
@@ -97,6 +108,13 @@ export const IdeasFiltered = ({ filter }) => {
 
   const handleCloseDownloadAnchor = () => {
     setAnchorDownloadEl(null);
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setController({
+      ...controller,
+      page: newPage - 1,
+    });
   };
 
   //select department
@@ -121,7 +139,8 @@ export const IdeasFiltered = ({ filter }) => {
 
     if (
       now.getTime() >= new Date(campaignDetail?.startTime).getTime() &&
-      now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime()
+      now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime() &&
+      userInfo?.role == enumRoles.STAFF
     ) {
       return (
         <Box
@@ -140,6 +159,44 @@ export const IdeasFiltered = ({ filter }) => {
       );
     } else {
       return <></>;
+    }
+  };
+
+  const handleClickIdea = async (idea) => {
+    try {
+      const payload = {
+        id: idea?._id,
+        viewerId: userInfo?._id,
+      };
+
+      const resp = await postView(payload);
+
+      if (resp) {
+        redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const countReactionTypeByIdea = (typeReaction) => {
+    if (!ideas && ideas.length <= 0) {
+      return;
+    }
+
+    switch (typeReaction) {
+      case reactionType.LIKE: {
+        const newListReactions = ideas?.reaction?.filter(
+          (react) => react?.type === reactionType.LIKE
+        );
+        return newListReactions?.length;
+      }
+      case reactionType.DISLIKE: {
+        const newListReactions = ideas?.reaction?.filter(
+          (react) => react?.type === reactionType.DISLIKE
+        );
+        return newListReactions?.length;
+      }
     }
   };
 
@@ -177,17 +234,14 @@ export const IdeasFiltered = ({ filter }) => {
       }
     })();
   }, []);
-  console.log(categories);
+
   return (
     <Box>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent:
-            userInfo.role == enumRoles.ADMIN || userInfo.role == enumRoles.QAM
-              ? "space-between"
-              : "flex-end",
+          justifyContent: "space-between",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -302,72 +356,95 @@ export const IdeasFiltered = ({ filter }) => {
             )}
 
             {!loading &&
-              ideas?.map((idea) => {
-                return (
-                  <IdeaItem
-                    elevation={3}
-                    key={idea?._id}
-                    onClick={() =>
-                      redirectTo(
-                        `/campaigns/${idea?.campaignId}/ideas/${idea?._id}`
-                      )
-                    }
-                  >
-                    <IdeaItemHead>
-                      <Box
-                        width="50px"
-                        height="50px"
-                        border="1px solid"
-                        borderRadius="50%"
-                      >
-                        <IdeaItemHeadImage />
-                      </Box>
-                      <Box ml={2}>
-                        <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
-                        <IdeaItemHeadNameWrapper>
-                          <IdeaItemHeadNameText>
-                            Long Yonkou
-                          </IdeaItemHeadNameText>
-                          -
-                          <IdeaItemHeadDateText>
-                            February 24 2023, 15:25:25
-                          </IdeaItemHeadDateText>
-                        </IdeaItemHeadNameWrapper>
-                      </Box>
-                    </IdeaItemHead>
-                    <IdeaItemBody></IdeaItemBody>
-                    <IdeaItemBottom>
-                      <Box sx={{ display: "flex", gap: "8px" }}>
-                        <IconButton aria-label="thumb-up">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <ThumbUpIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                        <IconButton aria-label="thumb-down">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <ThumbDownAltIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                        <IconButton aria-label="comment">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <CommentIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                      </Box>
-                      <Box>
-                        <IconButton aria-label="eye">
-                          <StyledBadge
-                            badgeContent={idea?.viewer?.length}
-                            color="secondary"
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                      </Box>
-                    </IdeaItemBottom>
-                  </IdeaItem>
-                );
-              })}
+              ideas
+                ?.slice(
+                  controller.page * controller.rowsPerPage,
+                  controller.page * controller.rowsPerPage +
+                    controller.rowsPerPage
+                )
+                ?.map((idea) => {
+                  return (
+                    <IdeaItem
+                      elevation={3}
+                      key={idea?._id}
+                      onClick={() => handleClickIdea(idea)}
+                    >
+                      <IdeaItemHead>
+                        <Box
+                          width="50px"
+                          height="50px"
+                          borderRadius="50%"
+                          sx={{
+                            overflow: "hidden",
+                            display: "flex",
+                            alignItems: "center",
+                            border: "1px solid",
+                          }}
+                        >
+                          <IdeaItemHeadImage
+                            src={idea?.authorId?.avartarUrl}
+                            alt="avatar"
+                          />
+                        </Box>
+                        <Box ml={2}>
+                          <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
+                          <IdeaItemHeadNameWrapper>
+                            <IdeaItemHeadNameText>
+                              {idea?.authorId?.email}
+                            </IdeaItemHeadNameText>
+                            -
+                            <IdeaItemHeadDateText>
+                              {idea?.updatedAt}
+                            </IdeaItemHeadDateText>
+                          </IdeaItemHeadNameWrapper>
+                        </Box>
+                      </IdeaItemHead>
+                      <IdeaItemBody></IdeaItemBody>
+                      <IdeaItemBottom>
+                        <Box sx={{ display: "flex", gap: "8px" }}>
+                          <IconButton aria-label="thumb-up">
+                            <StyledBadge
+                              badgeContent={countReactionTypeByIdea(
+                                reactionType.LIKE
+                              )}
+                              color="secondary"
+                            >
+                              <ThumbUpIcon fontSize="small" />
+                            </StyledBadge>
+                          </IconButton>
+                          <IconButton aria-label="thumb-down">
+                            <StyledBadge
+                              badgeContent={countReactionTypeByIdea(
+                                reactionType.DISLIKE
+                              )}
+                              color="secondary"
+                            >
+                              <ThumbDownAltIcon fontSize="small" />
+                            </StyledBadge>
+                          </IconButton>
+                          <IconButton aria-label="comment">
+                            <StyledBadge
+                              badgeContent={idea?.comment?.length}
+                              color="secondary"
+                            >
+                              <CommentIcon fontSize="small" />
+                            </StyledBadge>
+                          </IconButton>
+                        </Box>
+                        <Box>
+                          <IconButton aria-label="eye">
+                            <StyledBadge
+                              badgeContent={idea?.viewer?.length}
+                              color="secondary"
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </StyledBadge>
+                          </IconButton>
+                        </Box>
+                      </IdeaItemBottom>
+                    </IdeaItem>
+                  );
+                })}
           </IdeasWrapper>
         </Box>
         <Stack
@@ -379,7 +456,11 @@ export const IdeasFiltered = ({ filter }) => {
             },
           }}
         >
-          <Pagination count={10} color="secondary" />
+          <Pagination
+            onChange={handlePageChange}
+            count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
+            color="secondary"
+          />
         </Stack>
       </Box>
       {handleRenderCreateIconForIdea()}

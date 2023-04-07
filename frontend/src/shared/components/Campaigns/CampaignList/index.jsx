@@ -11,6 +11,7 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  NoDataAvailable,
 } from "@/shared/components";
 
 import { useAppStore } from "@/stores/AppStore";
@@ -36,12 +37,18 @@ const MAX_ITEM_PER_PAGE = 5;
 
 export const CampaignList = () => {
   const userInfo = useAppStore((state) => state.userInfo);
-  const { campaigns, fetchCampaigns, fetchCampaignsByDepartmentId, loading, setLoading, totalRecord } =
-    useCampaignStore((state) => state);
-  const { departments, fetchDepartments,  } = useDepartmentStore(
+  const {
+    campaigns,
+    fetchCampaigns,
+    fetchCampaignsByDepartmentId,
+    loading,
+    setLoading,
+    totalRecord,
+  } = useCampaignStore((state) => state);
+  const { departments, fetchDepartments } = useDepartmentStore(
     (state) => state
   );
-
+  console.log(userInfo);
   const [deparment, setDepartment] = useState("");
   const [controller, setController] = useState({
     page: 0,
@@ -69,11 +76,10 @@ export const CampaignList = () => {
   const handleChangeDepartment = async (e) => {
     try {
       setDepartment(e.target.value);
-      await fetchCampaignsByDepartmentId({departmentId: e.target.value });
-
+      await fetchCampaignsByDepartmentId({ departmentId: e.target.value });
     } catch (error) {
-        const errorMessage = error?.response?.data?.status || error;
-        toast.error(errorMessage);
+      const errorMessage = error?.response?.data?.status || error;
+      toast.error(errorMessage);
     }
   };
 
@@ -82,8 +88,17 @@ export const CampaignList = () => {
 
     (async () => {
       try {
-        await fetchDepartments();
-        await fetchCampaigns();
+        if (
+          userInfo?.role == enumRoles.STAFF ||
+          userInfo?.role == enumRoles.QAM
+        ) {
+          await fetchCampaignsByDepartmentId({
+            departmentId: userInfo?.departmentId,
+          });
+        } else {
+          await fetchDepartments();
+          await fetchCampaigns();
+        }
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
         toast.error(errorMessage);
@@ -150,91 +165,101 @@ export const CampaignList = () => {
         </Box>
       </Box>
       <Box>
-        <Box mt={2} mb={3}>
-          <CampaignsWrapper>
-            {loading && (
-              <Box my={10} mx={"auto"} textAlign="center">
-                <CircularProgress color="inherit" size={30} />
-              </Box>
-            )}
+        {campaigns.length <= 0 ? (
+          <NoDataAvailable />
+        ) : (
+          <>
+            <Box mt={2} mb={3}>
+              <CampaignsWrapper>
+                {loading && (
+                  <Box my={10} mx={"auto"} textAlign="center">
+                    <CircularProgress color="inherit" size={30} />
+                  </Box>
+                )}
 
-            {!loading &&
-              campaigns
-                ?.slice(controller.page * controller.rowsPerPage, controller.page * controller.rowsPerPage + controller.rowsPerPage)
-                ?.map((campaigns) => {
-                  return (
-                    <CampaignItem
-                      key={campaigns?._id}
-                      onClick={() =>
-                        redirectTo(`/campaigns/${campaigns?._id}/ideas`)
-                      }
-                    >
-                      <CampaignItemHead>
-                        <CampaignItemHeadStartTime>
-                          Start date:{" "}
-                          {dayjs(campaigns?.startTime).format(
-                            "MM/DD/YYYY HH:mm A"
-                          )}
-                        </CampaignItemHeadStartTime>
-                      </CampaignItemHead>
-                      <CampaignItemBody>
-                        <CampaignItemContent>
-                          {campaigns?.name}{" "}
-                          <span
-                            style={{ color: "#000000" }}
-                          >{`(${campaigns?.departmentId?.name})`}</span>
-                        </CampaignItemContent>
-                      </CampaignItemBody>
-                      <CampaignItemBottom>
-                        <CampaignItemBottomTag
-                          sx={{
-                            backgroundColor: `${handleChangeStatusCampaign(
-                              campaigns?.firstClosureDate
-                            )}`,
-                          }}
+                {!loading &&
+                  campaigns
+                    ?.slice(
+                      controller.page * controller.rowsPerPage,
+                      controller.page * controller.rowsPerPage +
+                        controller.rowsPerPage
+                    )
+                    ?.map((campaigns) => {
+                      return (
+                        <CampaignItem
+                          key={campaigns?._id}
+                          onClick={() =>
+                            redirectTo(`/campaigns/${campaigns?._id}/ideas`)
+                          }
                         >
-                          <CampaignItemBottomClosureTime>
-                            First Closure date:{" "}
-                            {dayjs(campaigns?.firstClosureDate).format(
-                              "MM/DD/YYYY HH:mm A"
-                            )}
-                          </CampaignItemBottomClosureTime>
-                        </CampaignItemBottomTag>
-                        <CampaignItemBottomTag
-                          sx={{
-                            backgroundColor: `${handleChangeStatusCampaign(
-                              campaigns?.finalClosureDate
-                            )}`,
-                          }}
-                        >
-                          <CampaignItemBottomClosureTime>
-                            Final Closure date:{" "}
-                            {dayjs(campaigns?.finalClosureDate).format(
-                              "MM/DD/YYYY HH:mm A"
-                            )}
-                          </CampaignItemBottomClosureTime>
-                        </CampaignItemBottomTag>
-                      </CampaignItemBottom>
-                    </CampaignItem>
-                  );
-                })}
-          </CampaignsWrapper>
-        </Box>
-        <Stack
-          spacing={2}
-          sx={{
-            ".MuiPagination-root": {
-              display: "flex",
-              justifyContent: "flex-end",
-            },
-          }}
-        >
-          <Pagination
-            onChange={handlePageChange}
-            count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
-            color="secondary"
-          />
-        </Stack>
+                          <CampaignItemHead>
+                            <CampaignItemHeadStartTime>
+                              Start date:{" "}
+                              {dayjs(campaigns?.startTime).format(
+                                "MM/DD/YYYY HH:mm A"
+                              )}
+                            </CampaignItemHeadStartTime>
+                          </CampaignItemHead>
+                          <CampaignItemBody>
+                            <CampaignItemContent>
+                              {campaigns?.name}{" "}
+                              <span
+                                style={{ color: "#000000" }}
+                              >{`(${campaigns?.departmentId?.name})`}</span>
+                            </CampaignItemContent>
+                          </CampaignItemBody>
+                          <CampaignItemBottom>
+                            <CampaignItemBottomTag
+                              sx={{
+                                backgroundColor: `${handleChangeStatusCampaign(
+                                  campaigns?.firstClosureDate
+                                )}`,
+                              }}
+                            >
+                              <CampaignItemBottomClosureTime>
+                                First Closure date:{" "}
+                                {dayjs(campaigns?.firstClosureDate).format(
+                                  "MM/DD/YYYY HH:mm A"
+                                )}
+                              </CampaignItemBottomClosureTime>
+                            </CampaignItemBottomTag>
+                            <CampaignItemBottomTag
+                              sx={{
+                                backgroundColor: `${handleChangeStatusCampaign(
+                                  campaigns?.finalClosureDate
+                                )}`,
+                              }}
+                            >
+                              <CampaignItemBottomClosureTime>
+                                Final Closure date:{" "}
+                                {dayjs(campaigns?.finalClosureDate).format(
+                                  "MM/DD/YYYY HH:mm A"
+                                )}
+                              </CampaignItemBottomClosureTime>
+                            </CampaignItemBottomTag>
+                          </CampaignItemBottom>
+                        </CampaignItem>
+                      );
+                    })}
+              </CampaignsWrapper>
+            </Box>
+            <Stack
+              spacing={2}
+              sx={{
+                ".MuiPagination-root": {
+                  display: "flex",
+                  justifyContent: "flex-end",
+                },
+              }}
+            >
+              <Pagination
+                onChange={handlePageChange}
+                count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
+                color="secondary"
+              />
+            </Stack>
+          </>
+        )}
       </Box>
     </Box>
   );
