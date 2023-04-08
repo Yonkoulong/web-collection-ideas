@@ -75,10 +75,14 @@ const postIdeasMostView = async(req, res)=>{
     if(categoryId == null){
       ideaMostView= await IdeaModel.aggregate([
         { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
-        { $project: { count: { 
-          $size: { "$ifNull": [ "$viewer", [] ] }
-        } } },
-        {$sort: { count: -1 }}
+        { $project: {
+         
+           view: { 
+                 $size: { "$ifNull": [ "$viewer", [] ] }
+                 },
+           data:"$$ROOT"
+        } },
+        {$sort: { view: -1 }}
       ])
     }
     else  {
@@ -257,6 +261,7 @@ const postView = async (req, res) => {
         if(!updateIdea) return res.sendStatus(404);
         response = {
           'status': 'Account view success',
+          
         }
         res.status(200).json(response)
       }
