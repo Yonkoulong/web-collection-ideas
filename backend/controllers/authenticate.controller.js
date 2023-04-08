@@ -27,7 +27,7 @@ const postLogin = async (req, res) => {
                         "role": user.role 
                     },
                     process.env.ACCESS_TOKEN_SECRET,
-                    { expiresIn: '1d' }
+                    { expiresIn: '50s' }
                 );
                 const refreshToken = jwt.sign(
                     { 
@@ -91,7 +91,7 @@ const getRefreshToken = async (req, res) => {
                         "role": foundAccount.role 
                     },
                     process.env.ACCESS_TOKEN_SECRET,
-                    { expiresIn: '1d' }
+                    { expiresIn: '50s' }
                 );
                 return res.status(201).json({accesToken,foundAccount});
             }
