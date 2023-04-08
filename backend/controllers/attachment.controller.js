@@ -77,30 +77,18 @@ function uniqueFileName(filePath1,filePath2,filePath3,file)
 const getCSVfile = async(req, res)=>{
     try {
          let idea = await IdeaModel.find({})
-         if(idea){
+       
+         if(idea){        
           const fields = ['id','content','viewer','creater','category','campaign', 'enonymously']
           const opts = {fields}
           const csv=parse(idea, opts)
-          //
-          let csvFile= fs.writeFile(path.join(uniqueFileName(__dirname,'..','CSV','csvFile')), csv, function(error){
-            if(error) throw error
-           
-          })
-          fs.readFile('JournalDEV.txt', 'utf8', function(err, data) {
-            console.log(data);
-          });
-          const result = await cloudinary.uploader.upload(csvFile,{
-            resource_type:"auto",
-            folder:"web_collection_ideas",
-          })
-          let response = {
-            'status': 'Download CSV file success',  
-             'data': result.url
-            
-          }   
-          res.status(200).json(response)
+          let filename= path.join(uniqueFileName(__dirname,'..','CSV','csvFile'))
+          let stream= fs.writeFile(filename, csv, function(error){
+            if(error) throw  console.log(error)
+            let baseFileName = path.basename(filename)
+            res.download(`./CSV/${baseFileName}`);
+          })  
          }
-
     } catch (error) {
       res.status(500).json(error.message)
     }
