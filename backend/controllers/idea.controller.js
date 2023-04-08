@@ -237,7 +237,7 @@ const putIdea = async (req, res) => {
 }
 const postView = async (req, res) => {
   try {
-    let id = req.id
+    let id = req.body.ideaId
     let viewerId = req.id
     let response
     let idea = await IdeaModel.findOne({ _id: id }).populate()
@@ -254,7 +254,7 @@ const postView = async (req, res) => {
           { _id: id },
           { $push: { viewer: viewerId } }
         )
-        if(updateIdea)
+        if(!updateIdea) return res.sendStatus(404);
         response = {
           'status': 'Account view success',
         }
