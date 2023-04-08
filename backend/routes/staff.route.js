@@ -22,11 +22,11 @@ staffController.forEach((item) => {
 ideaController.forEach((item) =>{
    
     const { method, route, controller } = item;
-    router[method](route,controller);
+    router[method](route,verifyJWT,controller);
 })
 attachmentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,verifyJWT, controller);
     // if(item.method =="post" && item.route=="/file" ){
     //     router[method](route,uploadCloud.single('file'), controller);
     // }

@@ -34,7 +34,7 @@ accountController.forEach((item) =>{
 })
 ideaController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,verifyJWT, controller);
 })
 router.get('/admin',(req,res)=>{
     res.json('Hello admin')
