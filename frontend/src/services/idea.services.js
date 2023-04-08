@@ -2,12 +2,8 @@ import { http } from './http';
 
 //Idea
 
-export async function getIdeas() {
-    return await http.get('/idea');
-}
-
-export async function getIdeaFilter() {
-    return await http.get('/idea/filter');
+export async function getIdeaFilter(payload) {
+    return await http.post(`/idea/filter`, payload);
 }
 
 export async function getIdeaById(payload) {
@@ -15,7 +11,15 @@ export async function getIdeaById(payload) {
 }
 
 export async function getIdeaMostLike() {
-    return await http.get('/idea/MostReaction');
+    return await http.get('/ideaMostReaction');
+}
+
+export async function getIdeasMostView() {
+    return await http.get('/ideaMostView');
+}
+
+export async function getIdeasLatest() {
+    return await http.get('/ideaLatest')
 }
 
 export async function putIdea(id, payload) {

@@ -40,8 +40,11 @@ import {
   activeColor,
 } from "@/shared/utils/colors.utils";
 import { redirectTo } from "@/shared/utils/history";
-import { enumRoles } from "@/shared/utils/constant.utils";
-import { ideaFilter } from "@/shared/utils/constant.utils";
+import {
+  enumRoles,
+  ideaFilter,
+  reactionType,
+} from "@/shared/utils/constant.utils";
 
 import {
   IdeasWrapper,
@@ -59,7 +62,11 @@ import {
 
 import { useAppStore } from "@/stores/AppStore";
 import { useIdeaStore } from "@/stores/IdeaStore";
+import { useCategoryStore } from "@/stores/CategoryStore";
+
 import { getCampaignDetail } from "@/services/admin.services";
+import { postView } from "@/services/idea.services";
+import { postReaction } from "@/services/reaction.services";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -70,6 +77,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
+const MAX_ITEM_PER_PAGE = 5;
+
 const flexCenter = {
   display: "flex",
   alignItems: "center",
@@ -79,23 +88,26 @@ export const IdeasFiltered = ({ filter }) => {
   const { idCampaign } = useParams();
 
   const userInfo = useAppStore((state) => state.userInfo);
-  const { ideas, loading, setLoading, fetchIdeas } = useIdeaStore(
-    (state) => state
-  );
+  const {
+    ideas,
+    loading,
+    setLoading,
+    fetchIdeas,
+    totalRecord,
+    fetchIdeaMostLike,
+    fetchIdeaMostView,
+    fetchIdeaLatest,
+  } = useIdeaStore((state) => state);
+  const { categories, fetchCategorys } = useCategoryStore((state) => state);
 
   const [campaignDetail, setCampaignDetail] = useState(null);
-  const [anchorSortEl, setAnchorSortEl] = useState(null);
   const [anchorDownloadEl, setAnchorDownloadEl] = useState(null);
   const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
-
-  //sort
-  const handleClickSortAnchor = (event) => {
-    setAnchorSortEl(event.currentTarget);
-  };
-
-  const handleCloseSortAnchor = () => {
-    setAnchorSortEl(null);
-  };
+  const [category, setCategory] = useState("");
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: MAX_ITEM_PER_PAGE,
+  });
 
   //download
   const handleClickDownloadAnchor = (event) => {
@@ -106,9 +118,21 @@ export const IdeasFiltered = ({ filter }) => {
     setAnchorDownloadEl(null);
   };
 
+  const handlePageChange = (event, newPage) => {
+    setController({
+      ...controller,
+      page: newPage - 1,
+    });
+  };
+
   //select department
-  const handleChangeDepartment = (e) => {
-    setAge(e.target.value);
+  const handleChangeCategory = async (e) => {
+    try {
+      setCategory(e.target.value);
+      await fetchIdeas({ campaignId: idCampaign, categoryId: e.target.value });
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   const handleOpenCreateIdeaModal = () => {
@@ -120,10 +144,11 @@ export const IdeasFiltered = ({ filter }) => {
     if (!campaignDetail) {
       return;
     }
-  
+
     if (
       now.getTime() >= new Date(campaignDetail?.startTime).getTime() &&
-      now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime()
+      now.getTime() < new Date(campaignDetail?.firstClosureDate).getTime() &&
+      userInfo?.role == enumRoles.STAFF
     ) {
       return (
         <Box
@@ -145,23 +170,191 @@ export const IdeasFiltered = ({ filter }) => {
     }
   };
 
-  const openSortAnchor = Boolean(anchorSortEl);
+  const handleClickIdea = async (idea) => {
+    try {
+      const payload = {
+        id: idea?._id,
+        viewerId: userInfo?._id,
+      };
+
+      const resp = await postView(payload);
+
+      if (resp) {
+        redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const countReactionTypeByIdea = (typeReaction, idea) => {
+    if (!idea) {
+      return;
+    }
+
+    switch (typeReaction) {
+      case reactionType.LIKE: {
+        let count = 0;
+        idea?.reaction?.forEach((react) => {
+          if (react?.type == reactionType.LIKE) {
+            count++;
+          }
+        });
+        return count;
+      }
+      case reactionType.DISLIKE: {
+        let count = 0;
+
+        idea?.reaction?.forEach((react) => {
+          if (react?.type == reactionType.DISLIKE) {
+            count++;
+          }
+        });
+        return count;
+      }
+    }
+  };
+
+  const handleReactionIdea = async (typeReaction, idIdea) => {
+    try {
+      const payload = {
+        type: typeReaction,
+        authorId: userInfo?._id,
+        ideaId: idIdea,
+      };
+
+      const resp = await postReaction(payload);
+      if (resp) {
+        switch (filter) {
+          case ideaFilter.ALL: {
+            (async () => {
+              try {
+                await fetchIdeas({ campaignId: idCampaign });
+              } catch (error) {
+                const errorMessage = error?.data?.status || error;
+                toast.error(errorMessage);
+              }
+            })();
+            break;
+          }
+          case ideaFilter.MOST_POPULAR: {
+            (async () => {
+              try {
+                await fetchIdeaMostLike();
+              } catch (error) {
+                const errorMessage = error?.data?.status || error;
+                toast.error(errorMessage);
+              }
+            })();
+            break;
+          }
+          case ideaFilter.MOST_VIEWED: {
+            (async () => {
+              try {
+                await fetchIdeaMostView();
+              } catch (error) {
+                const errorMessage = error?.data?.status || error;
+                toast.error(errorMessage);
+              }
+            })();
+            break;
+          }
+          case ideaFilter.LASTEST_IDEAS: {
+            (async () => {
+              try {
+                await fetchIdeaLatest();
+              } catch (error) {
+                const errorMessage = error?.data?.status || error;
+                toast.error(errorMessage);
+              }
+            })();
+            break;
+          }
+          case ideaFilter.LASTEST_COMMENTS: {
+            (async () => {
+              try {
+                await fetchIdeas({ campaignId: idCampaign });
+                await fetchCategorys();
+              } catch (error) {
+                const errorMessage = error?.data?.status || error;
+                toast.error(errorMessage);
+              }
+            })();
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
-  const idSortAnchor = openSortAnchor ? "sort-popover" : undefined;
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
 
   useEffect(() => {
     setLoading(true);
 
-    (async () => {
-      try {
-        await fetchIdeas();
-      } catch (error) {
-        const errorMessage = error?.data?.status || error;
-        toast.error(errorMessage);
+    switch (filter) {
+      case ideaFilter.ALL: {
+        (async () => {
+          try {
+            await fetchIdeas({ campaignId: idCampaign });
+            await fetchCategorys();
+          } catch (error) {
+            const errorMessage = error?.data?.status || error;
+            toast.error(errorMessage);
+          }
+        })();
+        break;
       }
-    })();
+      case ideaFilter.MOST_POPULAR: {
+        (async () => {
+          try {
+            await fetchIdeaMostLike();
+          } catch (error) {
+            const errorMessage = error?.data?.status || error;
+            toast.error(errorMessage);
+          }
+        })();
+        break;
+      }
+      case ideaFilter.MOST_VIEWED: {
+        (async () => {
+          try {
+            await fetchIdeaMostView();
+          } catch (error) {
+            const errorMessage = error?.data?.status || error;
+            toast.error(errorMessage);
+          }
+        })();
+        break;
+      }
+      case ideaFilter.LASTEST_IDEAS: {
+        (async () => {
+          try {
+            await fetchIdeaLatest();
+          } catch (error) {
+            const errorMessage = error?.data?.status || error;
+            toast.error(errorMessage);
+          }
+        })();
+        break;
+      }
+      case ideaFilter.LASTEST_COMMENTS: {
+        (async () => {
+          try {
+            await fetchIdeas({ campaignId: idCampaign });
+            await fetchCategorys();
+          } catch (error) {
+            const errorMessage = error?.data?.status || error;
+            toast.error(errorMessage);
+          }
+        })();
+        break;
+      }
+    }
   }, [filter]);
 
   useEffect(() => {
@@ -187,13 +380,42 @@ export const IdeasFiltered = ({ filter }) => {
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent:
-            userInfo.role == enumRoles.ADMIN || userInfo.role == enumRoles.QAM
-              ? "space-between"
-              : "flex-end",
+          justifyContent: "space-between",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel
+              id="select-helper-label"
+              sx={{ fontSize: "15px", top: "-8px" }}
+            >
+              Categories
+            </InputLabel>
+            <Select
+              labelId="select-helper-label"
+              id="select-helper"
+              label="Categories"
+              value={category}
+              onChange={(e) => handleChangeCategory(e)}
+              sx={{
+                fontSize: "15px",
+                ".MuiSelect-select": { padding: "8.5px 14px" },
+              }}
+            >
+              {categories?.map((category) => {
+                return (
+                  <MenuItem
+                    sx={{ fontSize: "15px" }}
+                    key={category._id}
+                    value={category._id || ""}
+                  >
+                    {category.type}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+
           {userInfo.role == enumRoles.QAM ? (
             <Box>
               <Button
@@ -261,64 +483,6 @@ export const IdeasFiltered = ({ filter }) => {
           <Box sx={{ mr: 2 }}>
             <SearchCustomize />
           </Box>
-          <Box>
-            <Button
-              aria-describedby={idSortAnchor}
-              variant="contained"
-              onClick={handleClickSortAnchor}
-              sx={{ fontSize: "15px" }}
-            >
-              Sort by
-            </Button>
-
-            <Popover
-              id={idSortAnchor}
-              open={openSortAnchor}
-              anchorEl={anchorSortEl}
-              onClose={handleCloseSortAnchor}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-            >
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Name
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Closure Date
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  ":hover": {
-                    backgroundColor: activeColor,
-                    color: primaryColor,
-                  },
-                }}
-              >
-                <Typography sx={{ p: 1, cursor: "pointer" }} fontSize="small">
-                  Final Closure Date
-                </Typography>
-              </Box>
-            </Popover>
-          </Box>
         </Box>
       </Box>
       <Box>
@@ -331,71 +495,115 @@ export const IdeasFiltered = ({ filter }) => {
             )}
 
             {!loading &&
-              ideas?.map((idea) => {
-                return (
-                  <IdeaItem
-                    elevation={3}
-                    onClick={() =>
-                      redirectTo(
-                        `/campaigns/${idea?.campaignId}/ideas/${idea?._id}`
-                      )
-                    }
-                  >
-                    <IdeaItemHead>
-                      <Box
-                        width="50px"
-                        height="50px"
-                        border="1px solid"
-                        borderRadius="50%"
-                      >
-                        <IdeaItemHeadImage />
-                      </Box>
-                      <Box ml={2}>
-                        <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
-                        <IdeaItemHeadNameWrapper>
-                          <IdeaItemHeadNameText>
-                            Long Yonkou
-                          </IdeaItemHeadNameText>
-                          -
-                          <IdeaItemHeadDateText>
-                            February 24 2023, 15:25:25
-                          </IdeaItemHeadDateText>
-                        </IdeaItemHeadNameWrapper>
-                      </Box>
-                    </IdeaItemHead>
-                    <IdeaItemBody></IdeaItemBody>
-                    <IdeaItemBottom>
-                      <Box sx={{ display: "flex", gap: "8px" }}>
-                        <IconButton aria-label="thumb-up">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <ThumbUpIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                        <IconButton aria-label="thumb-down">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <ThumbDownAltIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                        <IconButton aria-label="comment">
-                          <StyledBadge badgeContent={4} color="secondary">
-                            <CommentIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                      </Box>
-                      <Box>
-                        <IconButton aria-label="eye">
-                          <StyledBadge
-                            badgeContent={idea?.viewer?.length}
-                            color="secondary"
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </StyledBadge>
-                        </IconButton>
-                      </Box>
-                    </IdeaItemBottom>
-                  </IdeaItem>
-                );
-              })}
+              ideas
+                ?.slice(
+                  controller.page * controller.rowsPerPage,
+                  controller.page * controller.rowsPerPage +
+                    controller.rowsPerPage
+                )
+                ?.map((idea) => {
+                  return (
+                    <IdeaItem elevation={3} key={idea?._id}>
+                      <IdeaItemHead>
+                        <Box
+                          width="50px"
+                          height="50px"
+                          borderRadius="50%"
+                          sx={{
+                            overflow: "hidden",
+                            display: "flex",
+                            alignItems: "center",
+                            border: "1px solid",
+                          }}
+                          onClick={() => handleClickIdea(idea)}
+                        >
+                          <IdeaItemHeadImage
+                            src={idea?.enonymously ? "https://www.kindpng.com/picc/m/206-2069926_google-chrome-incognito-mode-detection-incognito-logo-hd.png" : idea?.authorId?.avartarUrl}
+                            alt="avatar"
+                          />
+                        </Box>
+                        <Box ml={2} onClick={() => handleClickIdea(idea)}>
+                          <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
+                          <IdeaItemHeadNameWrapper>
+                            <IdeaItemHeadNameText>
+                              {idea?.enonymously ? "Unknow" : idea?.authorId?.email}
+                            </IdeaItemHeadNameText>
+                            -
+                            <IdeaItemHeadDateText>
+                              {dayjs(idea?.updatedAt).format(
+                                "MM/DD/YYYY HH:mm A"
+                              )}
+                            </IdeaItemHeadDateText>
+                          </IdeaItemHeadNameWrapper>
+                        </Box>
+                      </IdeaItemHead>
+                      <IdeaItemBody></IdeaItemBody>
+                      <IdeaItemBottom>
+                        <Box sx={{ display: "flex", gap: "8px" }}>
+                          <IconButton aria-label="thumb-up">
+                            <StyledBadge
+                              badgeContent={countReactionTypeByIdea(
+                                reactionType.LIKE,
+                                idea
+                              )}
+                              color="secondary"
+                            >
+                              <ThumbUpIcon
+                                fontSize="small"
+                                onClick={() =>
+                                  handleReactionIdea(
+                                    reactionType.LIKE,
+                                    idea?._id
+                                  )
+                                }
+                              />
+                            </StyledBadge>
+                          </IconButton>
+                          <IconButton aria-label="thumb-down">
+                            <StyledBadge
+                              badgeContent={countReactionTypeByIdea(
+                                reactionType.DISLIKE,
+                                idea
+                              )}
+                              color="secondary"
+                            >
+                              <ThumbDownAltIcon
+                                fontSize="small"
+                                onClick={() =>
+                                  handleReactionIdea(
+                                    reactionType.DISLIKE,
+                                    idea?._id
+                                  )
+                                }
+                              />
+                            </StyledBadge>
+                          </IconButton>
+                          <IconButton aria-label="comment">
+                            <StyledBadge
+                              badgeContent={idea?.comment?.length}
+                              color="secondary"
+                            >
+                              <CommentIcon
+                                fontSize="small"
+                                onClick={() => handleClickIdea(idea)}
+                              />
+                            </StyledBadge>
+                          </IconButton>
+                        </Box>
+                        <Box>
+                          <IconButton aria-label="eye">
+                            <StyledBadge
+                              badgeContent={idea?.viewer?.length}
+                              color="secondary"
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </StyledBadge>
+                          </IconButton>
+                        </Box>
+                      </IdeaItemBottom>
+                    </IdeaItem>
+                  );
+                })}
           </IdeasWrapper>
         </Box>
         <Stack
@@ -407,7 +615,11 @@ export const IdeasFiltered = ({ filter }) => {
             },
           }}
         >
-          <Pagination count={10} color="secondary" />
+          <Pagination
+            onChange={handlePageChange}
+            count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
+            color="secondary"
+          />
         </Stack>
       </Box>
       {handleRenderCreateIconForIdea()}

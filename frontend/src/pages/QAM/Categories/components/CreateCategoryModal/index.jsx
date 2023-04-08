@@ -66,7 +66,7 @@ BootstrapDialogTitle.propTypes = {
 };
 
 const defaultValues = {
-  name: "",
+  type: "",
   description: "",
 };
 
@@ -124,7 +124,7 @@ export const ModalCreateCategory = ({ open, onClose, editCategory }) => {
 
   const handleClose = () => {
     reset({
-      name: "",
+      type: "",
       description: "",
     });
     onClose(false);
@@ -132,7 +132,7 @@ export const ModalCreateCategory = ({ open, onClose, editCategory }) => {
 
   useEffect(() => {
     if (editCategory) {
-      setValue("name", editCategory?.name);
+      setValue("type", editCategory?.name);
       setValue("description", editCategory?.description);
     }
   }, [editCategory]);
@@ -158,7 +158,7 @@ export const ModalCreateCategory = ({ open, onClose, editCategory }) => {
                 control={control}
                 errors={errors}
                 fieldNameErrorMessage="Category name"
-                fieldName="name"
+                fieldName="type"
                 required={true}
               >
                 {(field) => (

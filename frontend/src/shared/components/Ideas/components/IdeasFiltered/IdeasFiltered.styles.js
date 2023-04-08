@@ -28,6 +28,7 @@ export const IdeaItemHead = styled(Box)`
 
 export const IdeaItemHeadImage = styled('img')`
     width: 100%;
+    height: 100%;
     object-fit: contain;
 `
 

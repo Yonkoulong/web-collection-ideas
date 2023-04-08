@@ -1,6 +1,7 @@
 const ReactionModel = require("../models/reaction.model")
 const IdeaModel = require("../models/idea.model");
 const AccountModel = require("../models/account.model");
+
 const getReactionByIdea = async(req, res)=>{
     let ideaId = req.body.ideaId
     let response
@@ -20,8 +21,8 @@ const getReactionByIdea = async(req, res)=>{
     } catch (error) {
         res.status(500).json(error.message)
     }
-    
 }
+
 const postReaction = async (req, res) =>{
     let type = req.body.type
     let authorId = req.body.authorId
