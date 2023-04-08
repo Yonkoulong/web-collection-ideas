@@ -77,23 +77,18 @@ function uniqueFileName(filePath1,filePath2,filePath3,file)
 const getCSVfile = async(req, res)=>{
     try {
          let idea = await IdeaModel.find({})
-         if(idea){
+       
+         if(idea){        
           const fields = ['id','content','viewer','creater','category','campaign', 'enonymously']
           const opts = {fields}
           const csv=parse(idea, opts)
-          //
-          fs.writeFile(path.join(uniqueFileName(__dirname,'..','CSV','csvFile')), csv, function(error){
-            if(error) throw error
-            let response = {
-              'status': 'Download CSV file success',  
-               'data': csv
-              
-            }   
-            console.log(csv)
-            res.status(200).json(response)
-          })
+          let filename= path.join(uniqueFileName(__dirname,'..','CSV','csvFile'))
+          let stream= fs.writeFile(filename, csv, function(error){
+            if(error) throw  console.log(error)
+            let baseFileName = path.basename(filename)
+            res.download(`./CSV/${baseFileName}`);
+          })  
          }
-
     } catch (error) {
       res.status(500).json(error.message)
     }
