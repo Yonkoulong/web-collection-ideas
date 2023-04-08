@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 import PieChartSharpIcon from "@mui/icons-material/PieChartSharp";
 import GroupIcon from "@mui/icons-material/Group";
 import { IconLightBulb } from "@/assets/icons";
@@ -22,6 +23,9 @@ import {
 import { NavLinkCustomize } from "./NavLink";
 import { useAppStore } from "@/stores/AppStore";
 import { isObjectEmpty } from "@/shared/utils/constant.utils";
+import { primaryColor } from "../../utils/colors.utils";
+import { getLogout } from "@/services/auth.services";
+import { redirectTo } from "../../utils/history";
 
 const navList = [
   {
@@ -77,6 +81,17 @@ export const Navbar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const resp = await getLogout();
+      localStorage.removeItem('token');
+      redirectTo('/');
+     
+    } catch (error) {
+      toast.error(error);
+    }
+  }
+
   useEffect(() => {
     handleShowNavLinkByRole();
   }, [userInfo]);
@@ -113,7 +128,16 @@ export const Navbar = () => {
             alt="Navbar bottom image"
           />
         </NavbarBottomWrapperImage>
-        <NavbarBottomLogout>
+        <NavbarBottomLogout
+          onClick={() => handleLogout()}
+          sx={{
+            marginTop: '16px',
+            ':hover': {
+              color: primaryColor,
+              cursor: 'pointer'
+            },
+          }}
+        >
           <LogoutIcon fontSize="small" />
           <NavbarBottomLogoutText>Logout</NavbarBottomLogoutText>
         </NavbarBottomLogout>

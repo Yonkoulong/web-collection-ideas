@@ -104,6 +104,10 @@ export const ModalCreateCategory = ({ open, onClose, editCategory }) => {
         if (respData) {
           toast.success("Update Category successfully.");
           await fetchCategorys();
+          reset({
+            type: "",
+            description: "",
+          });
           handleClose();
         }
       } else {
@@ -123,16 +127,13 @@ export const ModalCreateCategory = ({ open, onClose, editCategory }) => {
   };
 
   const handleClose = () => {
-    reset({
-      type: "",
-      description: "",
-    });
+    
     onClose(false);
   };
 
   useEffect(() => {
     if (editCategory) {
-      setValue("type", editCategory?.name);
+      setValue("type", editCategory?.type);
       setValue("description", editCategory?.description);
     }
   }, [editCategory]);

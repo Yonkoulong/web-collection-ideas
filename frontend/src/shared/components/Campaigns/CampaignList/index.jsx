@@ -48,7 +48,7 @@ export const CampaignList = () => {
   const { departments, fetchDepartments } = useDepartmentStore(
     (state) => state
   );
-  console.log(userInfo);
+  
   const [deparment, setDepartment] = useState("");
   const [controller, setController] = useState({
     page: 0,

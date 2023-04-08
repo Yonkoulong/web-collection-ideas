@@ -23,7 +23,7 @@ import {
 import { SearchCustomize } from "@/shared/components/Search";
 
 import { styled } from "@mui/material/styles";
-
+import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import DownloadIcon from "@mui/icons-material/Download";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -292,7 +292,7 @@ export const IdeasFiltered = ({ filter }) => {
 
   const handleDownloadCSV = async () => {
     await getCSVFile();
-  }
+  };
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
@@ -380,11 +380,26 @@ export const IdeasFiltered = ({ filter }) => {
 
   return (
     <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center'}}>
+        <ArrowCircleLeftIcon
+          sx={{
+            fontSize: "30px",
+            ":hover": {
+              color: primaryColor,
+              cursor: "pointer",
+
+            },
+          }}
+          onClick={() => redirectTo("/campaigns")}
+        />
+        <Typography sx={{ marginLeft: '8px'}}>Ideas</Typography>
+      </Box>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          marginTop: '16px'
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -523,7 +538,11 @@ export const IdeasFiltered = ({ filter }) => {
                           onClick={() => handleClickIdea(idea)}
                         >
                           <IdeaItemHeadImage
-                            src={idea?.enonymously ? "https://www.kindpng.com/picc/m/206-2069926_google-chrome-incognito-mode-detection-incognito-logo-hd.png" : idea?.authorId?.avartarUrl}
+                            src={
+                              idea?.enonymously
+                                ? "https://www.kindpng.com/picc/m/206-2069926_google-chrome-incognito-mode-detection-incognito-logo-hd.png"
+                                : idea?.authorId?.avartarUrl
+                            }
                             alt="avatar"
                           />
                         </Box>
@@ -531,7 +550,9 @@ export const IdeasFiltered = ({ filter }) => {
                           <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
                           <IdeaItemHeadNameWrapper>
                             <IdeaItemHeadNameText>
-                              {idea?.enonymously ? "Unknow" : idea?.authorId?.email}
+                              {idea?.enonymously
+                                ? "Unknow"
+                                : idea?.authorId?.email}
                             </IdeaItemHeadNameText>
                             -
                             <IdeaItemHeadDateText>

@@ -47,14 +47,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export const SearchCustomize = () => {
+export const SearchCustomize = ({placeholder}) => {
   return (
     <Search>
       <SearchIconWrapper>
         <SearchIcon sx={{ color: primaryColor }}/>
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder="Search…"
+        placeholder={placeholder ? placeholder : "Search..."}
         inputProps={{ "aria-label": "search" }}
       />
     </Search>
