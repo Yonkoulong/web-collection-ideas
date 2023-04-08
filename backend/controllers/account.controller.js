@@ -17,6 +17,7 @@ const postAccount = async (req, res) => {
         let dob = req.body?.dob
         let role = req.body.role
         let departmentId = req.body?.departmentId
+        let newAccount
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
@@ -42,25 +43,38 @@ const postAccount = async (req, res) => {
         //upload image
         
         //create account
-        let newAccount = await AccountModel.create({
-            email: email,
-            password: hashedPwd,
-            name: name,
-            dob: dob,
-            departmentId: departmentId,
-            role: role,
-            publishId:result.public_id,
-            avartarUrl:result.secure_url,
-        })
-        if (newAccount) {
-            response = {
-                'status': 'Register account success',
-                'data': newAccount
-            }
-            console.log(response)
-            res.status(201).json(response);
+        if(departmentId == null) {
+            newAccount = await AccountModel.create({
+                email: email,
+                password: hashedPwd,
+                name: name,
+                dob: dob,
+                role: role,
+                publishId:result.public_id,
+                avartarUrl:result.secure_url,
+            })
         }
-
+        else{
+            newAccount = await AccountModel.create({
+                email: email,
+                password: hashedPwd,
+                name: name,
+                dob: dob,
+                departmentId: departmentId,
+                role: role,
+                publishId:result.public_id,
+                avartarUrl:result.secure_url,
+            })
+        }
+        if (!newAccount) {
+            return res.sendStatus(404);
+        }
+        response = {
+            'status': 'Register account success',
+            'data': newAccount
+        }
+        console.log(response)
+        res.status(201).json(response);
     } catch (error) {
         if(error) {
             res.status(500).json(error)

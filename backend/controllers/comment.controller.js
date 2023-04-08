@@ -40,7 +40,7 @@ const getCommentById = async (req, res) =>{
 const postComment = async (req, res) =>{
   try {
     let content = req.body.content
-    let authorId = req.body.authorId
+    let authorId = req.id
     let ideaId = req.body.ideaId
     let response
     let newComment= await CommentModel.create({

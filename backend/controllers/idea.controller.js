@@ -75,10 +75,14 @@ const postIdeasMostView = async(req, res)=>{
     if(categoryId == null){
       ideaMostView= await IdeaModel.aggregate([
         { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
-        { $project: { count: { 
-          $size: { "$ifNull": [ "$viewer", [] ] }
-        } } },
-        {$sort: { count: -1 }}
+        { $project: {
+         
+           view: { 
+                 $size: { "$ifNull": [ "$viewer", [] ] }
+                 },
+           data:"$$ROOT"
+        } },
+        {$sort: { view: -1 }}
       ])
     }
     else  {
@@ -177,10 +181,10 @@ const searchIdea = async (req, res) => {
 const postIdea = async (req, res) => {
   try {
     let content = req.body.content
-    let authorId = req.body.authorId
+    let authorId = req.id
     let campaignId = req.body.campaignId
     let categoryId = req.body.categoryId
-    let enonymously = (req.body.enonymously === 'true') ? true : false
+    let enonymously = (req.body.enonymously === 1) ? true : false
     let response
     let campaign = await campaignModel.findOne({_id:campaignId})
     let currentAccount = await accountModel.findOne({_id:authorId})
@@ -237,7 +241,7 @@ const putIdea = async (req, res) => {
 }
 const postView = async (req, res) => {
   try {
-    let id = req.body.id
+    let id = req.body.ideaId
     let viewerId = req.id
     let response
     let idea = await IdeaModel.findOne({ _id: id }).populate()
@@ -254,8 +258,10 @@ const postView = async (req, res) => {
           { _id: id },
           { $push: { viewer: viewerId } }
         )
+        if(!updateIdea) return res.sendStatus(404);
         response = {
           'status': 'Account view success',
+          
         }
         res.status(200).json(response)
       }
@@ -264,60 +270,7 @@ const postView = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
-const postReaction = async (req, res) =>{
-  let type = req.body.type
-  let authorId = req.id
-  let ideaId = req.body.ideaId
-  let response
-  try {
-      let IdeaModel = await IdeaModel.findOne({
-          ideaId:ideaId}).populate('reaction')
-      if(IdeaModel) {
-          if( IdeaModel.reaction.type== type){
-            let deleteReaction=  await ReactionModel.findOneAndDelete({
-                  authorId:authorId,
-                  ideaId:ideaId
-              })
-              response = {
-                  'status': 'Delete reaction success',
-                  'data':deleteReaction
-              }   
-              return res.json(response)
-          }    
-          else {
-             let updateReaction= await ReactionModel.findOneAndUpdate({
-                  authorId:authorId,
-                  ideaId:ideaId
-              },{type:type}).populate('authorId')
-              if(updateReaction){
-                   response = {
-                  'status': 'Delete reaction success',
-                  'code':updateReaction
-              }   
-              return res.json(response)}
-          }        
-      }
-      else{
-          let idea =await IdeaModel.findOne({_id:ideaId})
-          if(idea){
-              let data = await ReactionModel.create({
-                  type: type,
-                  authorId: authorId,
-                  ideaId: ideaId,
-                })
-              if(data){
-                  response = {
-                      'status': ' Reaction on idea success',
-                      'data': data         
-                  }      
-                  res.status(200).json(response)
-              }
-          }
-      }   
-  } catch (error) {
-      res.status(500).json(error.message)
-  }
-};
+
 module.exports = [
   {
     method: "post", //define method http

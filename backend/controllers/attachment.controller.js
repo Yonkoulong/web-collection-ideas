@@ -16,7 +16,7 @@ const postAttachment = async(req, res) =>{
         let response
         const fileData = req.files.file
         const ideaId = req.body.ideaId
-        const authorId = req.body.authorId
+        const authorId = req.id
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
           resource_type:"auto",
           folder:"web_collection_ideas",

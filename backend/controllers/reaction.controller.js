@@ -25,7 +25,7 @@ const getReactionByIdea = async(req, res)=>{
 
 const postReaction = async (req, res) =>{
     let type = req.body.type
-    let authorId = req.body.authorId
+    let authorId = req.id
     let ideaId = req.body.ideaId
     let response
   
