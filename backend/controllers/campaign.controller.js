@@ -1,6 +1,7 @@
 const CampaignModel = require('../models/campaign.model')
 const DepartmentModel = require('../models/department.model')
-const postCampaign= async (req, res) => {
+
+const postCampaign = async (req, res) => {
   try {
     let name = req.body.name
     let departmentId = req.body.departmentId
@@ -9,21 +10,21 @@ const postCampaign= async (req, res) => {
     let finalClosureDate = req.body.finalClosureDate
     let date1 = new Date(finalClosureDate)
     console.log(date1.getDate())
-    let department = await DepartmentModel.findOne({_id:departmentId})
+    let department = await DepartmentModel.findOne({ _id: departmentId })
 
     let newCampaign = await CampaignModel.create({
-       name:name,
-       startTime: startTime,
-       firstClosureDate:firstClosureDate,
-       finalClosureDate: finalClosureDate,
-       departmentId:departmentId,
-       
+      name: name,
+      startTime: startTime,
+      firstClosureDate: firstClosureDate,
+      finalClosureDate: finalClosureDate,
+      departmentId: departmentId,
+
     })
     if(!newCampaign) return res.sendStatus(409);
       let response = {
         'status': 'Create new campaign success',
-        'data': {...newCampaign._doc, departmentName: department.name}
-      }      
+        'data': { ...newCampaign._doc, departmentName: department.name }
+      }
       console.log(newCampaign)
       res.status(201).json(response)
   } catch (error) {
@@ -65,9 +66,9 @@ const postCampaign= async (req, res) => {
  };
  const postSearchCampaign = async(req, res) =>{
   try {
-    let departmentId= req.body.departmentId
+    let departmentId = req.body.departmentId
     let filter = req.body.filter
-    if(departmentId != null ){
+    if (departmentId != null) {
       let campaignFilter = await IdeaModel.find({ "name": { $regex: `${filter}` } })
       let response = {
         'status': 'Get campaigns filter success',

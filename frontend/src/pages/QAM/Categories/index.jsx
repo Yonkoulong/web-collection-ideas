@@ -42,7 +42,7 @@ export const CategoryManagement = () => {
     page: 0,
     rowsPerPage: 10,
   });
-  const { categorys, fetchCategorys, loading, setLoading, totalRecord } =
+  const { categories, fetchCategorys, loading, setLoading, totalRecord } =
     useCategoryStore((state) => state);
 
   const handlePageChange = (event, newPage) => {
@@ -173,7 +173,7 @@ export const CategoryManagement = () => {
               </TableHead>
               <TableBody>
                 {!loading &&
-                  categorys
+                  categories
                     ?.slice(controller.page * controller.rowsPerPage, controller.page * controller.rowsPerPage + controller.rowsPerPage)
                     ?.map((category) => (
                     <StyledTableRow key={category?._id}>
@@ -188,7 +188,7 @@ export const CategoryManagement = () => {
                           handleClickOpenModalCreateCategory(category?._id)
                         }
                       >
-                        {category?.name}
+                        {category?.type}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -223,7 +223,7 @@ export const CategoryManagement = () => {
                 <CircularProgress color="inherit" size={30} />
               </Box>
             )}
-            {!loading && categorys.length === 0 && <NoDataAvailable />}
+            {!loading && categories.length === 0 && <NoDataAvailable />}
           </TableContainer>
           <TablePagination
             rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}

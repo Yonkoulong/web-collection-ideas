@@ -146,15 +146,16 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
           })
             .then(function (response) {
               if (response) {
+                console.log(response);
               }
             })
             .catch(function (error) {
               throw error;
             });
         }
-        
+
         toast.success("Create Idea successfully");
-        fetchIdeas();
+        fetchIdeas({ campaignId: idCampaign });
         handleClose();
       }
     } catch (error) {

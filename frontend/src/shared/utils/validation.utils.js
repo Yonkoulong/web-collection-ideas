@@ -4,3 +4,7 @@ export const StringRequired = (v, fieldName) => {
     }
     return !!String(v).trim() || `${fieldName} is required.`;
 };
+
+export const hasWhiteSpace = (s) => {
+    return /^\s+$/g.test(s);
+};

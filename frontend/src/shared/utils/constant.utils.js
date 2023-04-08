@@ -29,3 +29,9 @@ export const ideaFilter = {
     LASTEST_IDEAS: 'lastest-ideas',
     LASTEST_COMMENTS: 'lastest-comments'
 }
+
+
+export const reactionType = {
+    DISLIKE: 0,
+    LIKE: 1
+}
