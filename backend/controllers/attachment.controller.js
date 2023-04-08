@@ -2,7 +2,7 @@ const cloudinary = require('cloudinary').v2;
 //const cloudinary = require("../middleware/cloudinary.middleware")
 const AttachmentModel = require("../models/attachment.model")
 const AccountModel = require("../models/account.model");
-const IdeaModel = require("../models/idea.model")
+const IdeaModel = require("../models/idea.model");
 const fs = require('fs-extra');
 const { parse } = require('json2csv');
 const path = require('path')
@@ -16,28 +16,38 @@ const postAttachment = async(req, res) =>{
         let response
         const fileData = req.files.file
         const ideaId = req.body.ideaId
+        const authorId = req.body.authorId
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
           resource_type:"auto",
           folder:"web_collection_ideas",
         })
         let newAttachment= await AttachmentModel.create({
+          type:result.resource_type,
           publishId:result.public_id,
           url:result.secure_url,
-          authorId:req.id,
+          authorId:authorId,
           ideaId:ideaId
+
         })
-        if(newAttachment){
+        if(!newAttachment) return res.sendStatus(406);
+        let updateIdea = await IdeaModel.updateOne(
+          { _id: ideaId },
+          { $push: { attachment: newAttachment._id } }
+        )
+        if(!updateIdea) return res.sendStatus(404);
           response = {
             'status': 'Upload new file success',
-            'data': newAttachment
-          }   
-        }
+            'data': result
+          }    
         console.log(fileData.tempFilePath);
         res.status(200).json(response)
      } catch (error) {
       res.status(500).json(error.message)
      }
 };
+exports.getAttchmentById = async(req, res)=>{
+    
+}
 const deleteAttachment = async(req, res)=>{
   try {
     // destroy cloud

@@ -28,11 +28,12 @@ const postReaction = async (req, res) =>{
     let authorId = req.body.authorId
     let ideaId = req.body.ideaId
     let response
-    console.log(type, authorId, ideaId);
+  
     try {
         let authorReaction = await ReactionModel.findOne({
             authorId:authorId,
             ideaId:ideaId}).populate('authorId')
+        console.log(authorReaction);
         if(authorReaction) {
             if( authorReaction.type== type){
               let deleteReaction=  await ReactionModel.findOneAndDelete({
@@ -41,11 +42,11 @@ const postReaction = async (req, res) =>{
                 })
                 let updateIdea = await IdeaModel.updateOne(
                     { _id: ideaId },
-                    { $unset: { reaction: newReaction._id } },false,true
+                    { $pull: { reaction: authorReaction._id } }
                   )
                   if(updateIdea){
                     response = {
-                        'status': 'Delete reaction success',
+                        'status': 'update reaction success',
                         'data':deleteReaction
                     }   
                     return res.json(response)
