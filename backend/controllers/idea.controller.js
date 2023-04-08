@@ -20,7 +20,8 @@ const postIdeaMostLike = async (req, res) => {
     if(categoryId == null){
        ideaMostLike = await IdeaModel.aggregate([
         {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
-        { $project: { count: { 
+        { $project: { 
+          data:"$$ROOT",count: { 
           $size: { "$ifNull": [ "$reaction", [] ] }
       } } },
       {$sort: { count: -1 }}
@@ -29,7 +30,8 @@ const postIdeaMostLike = async (req, res) => {
     else{
       ideaMostLike = await IdeaModel.aggregate([
         {$match:{campaignId:mongoose.Types.ObjectId(campaignId),categoryId:mongoose.Types.ObjectId(categoryId)}},
-        { $project: { count: { 
+        { $project: {
+          data:"$$ROOT", count: { 
           $size: { "$ifNull": [ "$reaction", [] ] }
       } } },
       {$sort: { count: -1 }}
@@ -54,8 +56,8 @@ const postIdeaLatestComment = async (req, res) => {
       let idea= await IdeaModel.aggregate([
         {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
        ])
-       ideaLateComment = await commentModel.populate(idea,{path:"comment",options:{$orderby:'-createAt'}})
-      
+        ideaLateComment = await commentModel.populate(idea,{path:"comment",options:{$orderby:'-createAt'}})
+      //ideaLateComment = await idea.populate('comment')
     }
      if(!ideaLateComment) return res.sendStatus(404);
     response = {
@@ -76,11 +78,11 @@ const postIdeasMostView = async(req, res)=>{
       ideaMostView= await IdeaModel.aggregate([
         { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
         { $project: {
-         
+          data:"$$ROOT",
            view: { 
                  $size: { "$ifNull": [ "$viewer", [] ] }
                  },
-           data:"$$ROOT"
+           
         } },
         {$sort: { view: -1 }}
       ])
@@ -88,7 +90,7 @@ const postIdeasMostView = async(req, res)=>{
     else  {
        ideaMostView= await IdeaModel.aggregate([
         {$match:{categoryId:mongoose.Types.ObjectId(categoryId) ,campaignId:mongoose.Types.ObjectId(campaignId) }},
-        { $project: { count: { 
+        { $project: {  data:"$$ROOT",count: { 
           $size: { "$ifNull": [ "$viewer", [] ] }
       } } },
       {$sort: { count: -1 }}

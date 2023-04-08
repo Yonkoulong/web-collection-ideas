@@ -82,16 +82,23 @@ const getCSVfile = async(req, res)=>{
           const opts = {fields}
           const csv=parse(idea, opts)
           //
-          fs.writeFile(path.join(uniqueFileName(__dirname,'..','CSV','csvFile')), csv, function(error){
+          let csvFile= fs.writeFile(path.join(uniqueFileName(__dirname,'..','CSV','csvFile')), csv, function(error){
             if(error) throw error
-            let response = {
-              'status': 'Download CSV file success',  
-               'data': csv
-              
-            }   
-            console.log(csv)
-            res.status(200).json(response)
+           
           })
+          fs.readFile('JournalDEV.txt', 'utf8', function(err, data) {
+            console.log(data);
+          });
+          const result = await cloudinary.uploader.upload(csvFile,{
+            resource_type:"auto",
+            folder:"web_collection_ideas",
+          })
+          let response = {
+            'status': 'Download CSV file success',  
+             'data': result.url
+            
+          }   
+          res.status(200).json(response)
          }
 
     } catch (error) {
