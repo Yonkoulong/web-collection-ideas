@@ -90,7 +90,7 @@ export const CampaignList = () => {
       try {
         if (
           userInfo?.role == enumRoles.STAFF ||
-          userInfo?.role == enumRoles.QAM
+          userInfo?.role == enumRoles.QAC
         ) {
           await fetchCampaignsByDepartmentId({
             departmentId: userInfo?.departmentId,

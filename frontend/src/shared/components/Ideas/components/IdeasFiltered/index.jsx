@@ -67,6 +67,7 @@ import { useCategoryStore } from "@/stores/CategoryStore";
 import { getCampaignDetail } from "@/services/admin.services";
 import { postView } from "@/services/idea.services";
 import { postReaction } from "@/services/reaction.services";
+import { getCSVFile } from "@/services/qam.services";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -289,6 +290,9 @@ export const IdeasFiltered = ({ filter }) => {
     }
   };
 
+  const handleDownloadCSV = async () => {
+    await getCSVFile();
+  }
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
@@ -449,6 +453,7 @@ export const IdeasFiltered = ({ filter }) => {
                       cursor: "pointer",
                     },
                   }}
+                  onClick={() => handleDownloadCSV()}
                 >
                   <Typography fontSize="small">CSV</Typography>
                   <DescriptionIcon fontSize="small" />
