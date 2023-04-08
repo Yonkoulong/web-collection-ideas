@@ -9,6 +9,7 @@ import { CampaignList } from "@/shared/components/Campaigns/CampaignList"
 import { Ideas } from "@/shared/components/Ideas";
 import { IdeaDetail } from "@/shared/components/Ideas/components/IdeaDetail";
 import { QAMPage } from "@/pages/QAM";
+import { Dashboard } from "@/pages/QAM/Dashboard";
 import { CategoryManagement } from "@/pages/QAM/Categories";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import { PageNotFound } from "@/pages/404";
@@ -68,7 +69,7 @@ export const routes = [
       },
       {
         path: "/qam/dashboard",
-        element: <>dashboard</>,
+        element: <Dashboard/>,
       },
     ],
   },

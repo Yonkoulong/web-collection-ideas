@@ -83,7 +83,7 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const resp = await getLogout();
+      await getLogout();
       localStorage.removeItem('token');
       redirectTo('/');
      
