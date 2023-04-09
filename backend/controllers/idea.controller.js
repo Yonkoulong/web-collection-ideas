@@ -110,13 +110,14 @@ const postIdeasMostView = async(req, res)=>{
 }
 const postIdeasLatest = async (req, res) =>{
   try {
+    let campaignId = req.body.campaignId
     let categoryId = req.body?.categoryId
     let ideaLatest
     if(categoryId == null){
-       ideaLatest= await IdeaModel.find({}).sort({createdAt: -1})
+       ideaLatest= await IdeaModel.find({campaignId:campaignId}).sort({createdAt: -1})
     }
     else{
-      ideaLatest= await IdeaModel.find({categoryId:categoryId}).sort({createdAt: -1})
+      ideaLatest= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({createdAt: -1})
     }
     if(!ideaLatest) return res.sendStatus(404);
     let response = {
