@@ -19,6 +19,7 @@ http.interceptors.request.use(function (config) {
   const token = localStorage.getItem('token');
 
   if (!token) {
+    console.log("token when send request", token);
     // toast.error(`Authorization Fail!`);
     return redirectTo('/');
   }
@@ -40,6 +41,8 @@ http.interceptors.response.use(function (response) {
 
   return response;
 }, function (error) {
+
+  console.log("error when receive response", error?.response);
 
   if (error?.response?.status == 401) {
     redirectTo("/");

@@ -127,7 +127,7 @@ const dataLineChart = {
 export const Dashboard = () => {
   return (
     <Box sx={{ padding: '24px'}}>
-      <Box sx={{ display: 'flex', gap: '24px', paddingRight: '24px'}}>
+      <Box sx={{ display: 'flex', gap: '24px', paddingRight: '24px', height: 'calc(50vh - 144.4px)'}}>
         <Paper sx={{ padding: "16px", flex: '0 0 50%', maxWidth: "50%", maxHeight: '400px' }}>
             <Bar options={optionsBarChart} data={dataBarChart} />
         </Paper>
@@ -135,7 +135,7 @@ export const Dashboard = () => {
           <Pie data={dataPieChart} />
         </Paper>
       </Box>
-      <Box sx={{ marginTop: "24px" }}>
+      <Box sx={{ marginTop: "24px", height: 'calc(50vh - 144.4px)' }}>
         <Paper sx={{ padding: "16px"}}>
             <Line options={optionsLineChart} data={dataBarChart} />
           </Paper>
