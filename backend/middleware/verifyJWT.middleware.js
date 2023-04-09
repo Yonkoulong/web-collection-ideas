@@ -2,11 +2,10 @@ const AccountModel = require("../models/account.model");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const verifyJWT = async (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    console.log(authHeader)
+    const authHeader = req.headers.authorization || req.headers.Authorization;
     let response
     try {
-        if (!authHeader) {
+        if (!authHeader?.startsWith('Bearer')) {
             response = {
                 'status': 'require authentication!!',               
               }      
