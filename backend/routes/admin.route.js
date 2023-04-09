@@ -14,7 +14,7 @@ adminController.forEach((item) => {
     //next, each item is element of useController or called a method which can handle a things
     //i use descstructuring declare from javascript ES6
     const { method, route, controller } = item;
-    router[method](route,verifyJWT,auth.isAdmin, controller);
+    router[method](route,auth.isAdmin, controller);
     
     //C2
     // router[item.method](item.routeName, item.controller);
@@ -26,7 +26,7 @@ departmentController.forEach((item) =>{
 })
 campaignController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,verifyJWT, controller);
 })
 accountController.forEach((item) =>{
     const { method, route, controller } = item;
@@ -34,7 +34,7 @@ accountController.forEach((item) =>{
 })
 ideaController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route,verifyJWT, controller);
+    router[method](route, controller);
 })
 router.get('/admin',(req,res)=>{
     res.json('Hello admin')
