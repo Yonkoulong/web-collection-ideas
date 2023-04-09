@@ -151,7 +151,7 @@ const postCampaign = async (req, res) => {
     {
       method: "get", //define method http
       controller: getCampaign, //this is method handle when have request on server
-      route: "/Campaign", //define API
+      route: "/campaign", //define API
     },
     {
       method: "get", //define method http
