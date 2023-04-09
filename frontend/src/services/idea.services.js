@@ -1,6 +1,9 @@
 import { http } from './http';
 
 //Idea
+export async function getAllIdea() {
+    return await http.get('/all-ideas');
+}
 
 export async function getIdeaFilter(payload) {
     return await http.post(`/idea/filter`, payload);
@@ -35,3 +38,4 @@ export async function postIdea(payload) {
 export async function postView(payload) {
     return await http.post('/view', payload);
 }
+

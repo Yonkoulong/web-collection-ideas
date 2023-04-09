@@ -4,8 +4,11 @@ import PieChartSharpIcon from "@mui/icons-material/PieChartSharp";
 import GroupIcon from "@mui/icons-material/Group";
 import { IconLightBulb } from "@/assets/icons";
 import LogoutIcon from "@mui/icons-material/Logout";
+import TagIcon from '@mui/icons-material/Tag';
 import NavbarBottomImageLink from "@/assets/images/navbarBottom.png";
-
+import EventIcon from '@mui/icons-material/Event';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import {
   NavbarContainer,
   NavbarHead,
@@ -30,37 +33,37 @@ import { redirectTo } from "../../utils/history";
 const navList = [
   {
     to: "/admin/user-management",
-    icon: <PieChartSharpIcon />,
+    icon: <GroupIcon />,
     title: "Manages Account",
     permission: "admin",
   },
   {
     to: "/admin/departments-management",
-    icon: <GroupIcon />,
+    icon: <CheckBoxOutlineBlankIcon />,
     title: "Manages Department",
     permission: "admin",
   },
   {
     to: "/admin/campains-management",
-    icon: <GroupIcon />,
+    icon: <EventIcon />,
     title: "Manages Campaign",
     permission: "admin",
   },
   {
     to: "/qam/categories-management",
-    icon: <GroupIcon />,
-    title: "Manages Categorie",
+    icon: <TagIcon />,
+    title: "Manages Categories",
     permission: "qam",
   },
   {
     to: "/qam/dashboard",
-    icon: <GroupIcon />,
+    icon: <PieChartSharpIcon />,
     title: "Dashboard",
     permission: "qam",
   },
   {
     to: "/campaigns",
-    icon: <GroupIcon />,
+    icon: <AssignmentIcon />,
     title: "Campaigns",
     permission: "all",
   },

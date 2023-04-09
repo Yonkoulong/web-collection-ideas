@@ -49,7 +49,7 @@ export const SignIn = () => {
     try {
       const response = await postLogin(data);
       if(response) {
-        localStorage.setItem('token', response?.data?.data?.user?.refreshToken);
+        localStorage.setItem('token', response?.data?.data?.accesToken);
         setUserInfo(response?.data?.data?.user);
         toast.success("Login in successfully!");
         setLoading(false);
