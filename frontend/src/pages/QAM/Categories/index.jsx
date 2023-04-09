@@ -60,9 +60,9 @@ export const CategoryManagement = () => {
     });
   };
 
-  const handleClickOpenModalCreateCategory = (id) => {
-    if (id) {
-      handleGetCategoryDetail(id);
+  const handleClickOpenModalCreateCategory = (category) => {
+    if (category) {
+      setEditCategory(category)
     } else {
       setEditCategory(null);
     }
@@ -89,18 +89,6 @@ export const CategoryManagement = () => {
 
   const handleClosePopupDeleteCategory = () => {
     setOpenPopupConfirm(false);
-  };
-
-  const handleGetCategoryDetail = async (id) => {
-    try {
-      const resp = await getCategoryDetail({ id });
-      if (resp) {
-        setEditCategory(resp?.data?.data);
-      }
-    } catch (error) {
-      const errorMessage = error?.response?.data?.content;
-      toast.error(errorMessage);
-    }
   };
 
   useEffect(() => {
@@ -185,7 +173,7 @@ export const CategoryManagement = () => {
                           },
                         }}
                         onClick={() =>
-                          handleClickOpenModalCreateCategory(category?._id)
+                          handleClickOpenModalCreateCategory(category)
                         }
                       >
                         {category?.type}
@@ -198,7 +186,7 @@ export const CategoryManagement = () => {
                           },
                         }}
                         onClick={() =>
-                          handleClickOpenModalCreateCategory(category?._id)
+                          handleClickOpenModalCreateCategory(category)
                         }
                       >
                         {category?.description}

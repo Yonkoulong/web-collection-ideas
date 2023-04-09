@@ -1,6 +1,5 @@
 
 import axios from "axios";
-import { useAppStore } from '@/stores/AppStore';
 import { redirectTo } from "../shared/utils/history";
 import { toast } from "react-toastify";
 
@@ -20,7 +19,8 @@ http.interceptors.request.use(function (config) {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    toast.error(`Authorization Fail!`);
+    console.log("token when send request", token);
+    // toast.error(`Authorization Fail!`);
     return redirectTo('/');
   }
 
@@ -41,6 +41,8 @@ http.interceptors.response.use(function (response) {
 
   return response;
 }, function (error) {
+
+  console.log("error when receive response", error?.response);
 
   if (error?.response?.status == 401) {
     redirectTo("/");

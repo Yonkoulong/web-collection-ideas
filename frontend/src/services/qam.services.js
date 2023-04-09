@@ -20,3 +20,8 @@ export async function putCategory(categoryId, payload) {
 export async function deleteCategory(payload) {
     return http.delete(`/category/${payload.id}`);
 }
+
+//file
+export async function getCSVFile() {
+    return http.get('/csvFile')
+}

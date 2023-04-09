@@ -30,7 +30,7 @@ const postCampaign = async (req, res) => {
   } catch (error) {
     res.status(500).json(error.message)
   }
-   
+ 
  }
  const getCampaignByDepartment = async(req, res)=>{
   try {
@@ -136,6 +136,7 @@ const postCampaign = async (req, res) => {
      res.status(500).json(error.message)
    }
  };
+
  module.exports = [
     {
       method: "post", //define method http

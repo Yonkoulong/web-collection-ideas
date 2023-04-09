@@ -9,6 +9,10 @@ export async function getAccount() {
     return http.get("/account");
 }
 
+export async function postSearchAccount(payload) {
+    return http.post("/account/filter", payload);
+}
+
 export async function getAccountDetail(payload) {
     return http.get(`/account/${payload?.id}`)
 }

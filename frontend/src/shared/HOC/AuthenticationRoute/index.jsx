@@ -15,6 +15,7 @@ const ProtectedRoute = ({ children }) => {
                 const resp = await getRefreshToken();
                 
                 if(resp) {
+                    localStorage.setItem('token', resp?.data?.accesToken);
                     setUserInfo(resp?.data?.foundAccount);
                     setIsLogged(!!resp);
                 }
