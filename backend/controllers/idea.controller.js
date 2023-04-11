@@ -19,10 +19,10 @@ const postIdeaMostLike = async (req, res) => {
     let ideaMostLike
     let finalIdea
     if(categoryId == null){
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:-1}).populate(['authorId','reaction'])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:1}).populate(['authorId','reaction'])
     }
     else{
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:-1}).populate(['authorId','reaction'])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:1}).populate(['authorId','reaction'])
     }
      if(!ideaMostLike) return res.sendStatus(404);
     response = {
@@ -40,10 +40,10 @@ const postIdeaMostComment = async (req, res) => {
     let categoryId = req.body?.categoryId
     let ideaMostComment
     if(categoryId == null){
-      ideaMostComment= await IdeaModel.find({campaignId:campaignId}).sort({comment:-1}).populate(['authorId','reaction'])
+      ideaMostComment= await IdeaModel.find({campaignId:campaignId}).sort({comment:1}).populate(['authorId','reaction'])
     }
     else  {
-      ideaMostComment= await IdeaModel.find({campaignId:campaignId, categoryId:categoryId}).sort({comment:-1}).populate(['authorId','reaction'])
+      ideaMostComment= await IdeaModel.find({campaignId:campaignId, categoryId:categoryId}).sort({comment:1}).populate(['authorId','reaction'])
     }
     response = {
       'status': 'Get idea most comment',
@@ -60,10 +60,10 @@ const postIdeasMostView = async(req, res)=>{
     let categoryId = req.body?.categoryId
     let ideaMostView
     if(categoryId == null){
-      ideaMostView= await IdeaModel.find({campaignId:campaignId}).sort({viewer:-1}).populate(['authorId','reaction'])
+      ideaMostView= await IdeaModel.find({campaignId:campaignId}).sort({viewer:1}).populate(['authorId','reaction'])
     }
     else  {
-       ideaMostView= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({viewer:-1}).populate(['authorId','reaction'])
+       ideaMostView= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({viewer:1}).populate(['authorId','reaction'])
     }
       
       if(!ideaMostView) return res.sendStatus(404);
@@ -83,10 +83,10 @@ const postIdeasLatest = async (req, res) =>{
     let categoryId = req.body?.categoryId
     let ideaLatest
     if(categoryId == null){
-       ideaLatest= await IdeaModel.find({campaignId:campaignId}).sort({createdAt: -1}).populate(['authorId','reaction'])
+       ideaLatest= await IdeaModel.find({campaignId:campaignId}).sort({createdAt: 1}).populate(['authorId','reaction'])
     }
     else{
-      ideaLatest= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({createdAt: -1}).populate(['authorId','reaction'])
+      ideaLatest= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({createdAt: 1}).populate(['authorId','reaction'])
     }
     if(!ideaLatest) return res.sendStatus(404);
     let response = {
@@ -293,7 +293,7 @@ module.exports = [
   {
     method: "post", //define method http
     controller: postIdeasLatest, //this is method handle when have request on server
-    route: "/ideaLatest", //define API
+    route: "/idea/latest", //define API
   },
   {
     method: "post", //define method http
