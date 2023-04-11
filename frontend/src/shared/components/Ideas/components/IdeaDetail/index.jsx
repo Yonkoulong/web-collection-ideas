@@ -191,7 +191,7 @@ export const IdeaDetail = () => {
               {ideaDetail?.content}
             </Typography>
             <Typography fontSize="small">
-              {ideaDetail?.enonymously ? "unknow" : ideaDetail?.authorId?.email}{" "}
+              {ideaDetail?.enonymously ? "unknown" : ideaDetail?.authorId?.email}{" "}
               - {dayjs(ideaDetail?.updatedAt).format("MM/DD/YYYY HH:mm A")}
             </Typography>
           </Box>
