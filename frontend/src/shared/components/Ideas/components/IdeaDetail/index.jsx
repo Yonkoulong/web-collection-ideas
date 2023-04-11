@@ -13,6 +13,8 @@ import {
   InputAdornment,
   Badge,
   TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@/shared/components";
 
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
@@ -50,6 +52,8 @@ export const IdeaDetail = () => {
 
   const { idIdea, idCampaign } = useParams();
   const [ideaDetail, setIdeaDetail] = useState({});
+  const [isEnonymously, setIsEnonymously] = useState(0);
+  const [isCommenting, setIsCommenting] = useState(false);
 
   const handleCommentIdea = async (e) => {
     try {
@@ -57,14 +61,21 @@ export const IdeaDetail = () => {
         content: e.target.value,
         authorId: userInfo?._id,
         ideaId: idIdea,
+        enonymously: isEnonymously,
       };
 
       if (e.target.value !== "" && !hasWhiteSpace(e.target.value)) {
+        if (e.target.value.length >= 1) {
+          setIsCommenting(true);
+        } else {
+          setIsCommenting(false);
+        }
+
         if (e.key === "Enter" || e.keyCode === 13) {
           const resp = await postComment(payload);
           if (resp) {
             e.target.value = "";
-
+            setIsCommenting(false);
             const respIdeaDetail = await getIdeaById({ id: idIdea });
 
             if (respIdeaDetail) {
@@ -74,7 +85,7 @@ export const IdeaDetail = () => {
         }
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error?.message);
     }
   };
 
@@ -114,16 +125,29 @@ export const IdeaDetail = () => {
   };
 
   const handleStatusIdea = () => {
-    if(!ideaDetail) { return; }
+    if (!ideaDetail) {
+      return;
+    }
 
     const now = new Date();
 
-    if(new Date(ideaDetail.campaignId?.finalClosureDate).getTime() < now.getTime()) {
+    if (
+      new Date(ideaDetail.campaignId?.finalClosureDate).getTime() <
+      now.getTime()
+    ) {
       return true;
     }
 
-    return false
-  }
+    return false;
+  };
+
+  const handleChangeCommentAnonymous = (e) => {
+    if (e.target.checked) {
+      setIsEnonymously(1);
+    } else {
+      setIsEnonymously(0);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -141,19 +165,20 @@ export const IdeaDetail = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', margin: '16px 0 0 16px'}}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", margin: "16px 0 0 16px" }}
+      >
         <ArrowCircleLeftIcon
           sx={{
             fontSize: "30px",
             ":hover": {
               color: primaryColor,
               cursor: "pointer",
-
             },
           }}
           onClick={() => redirectTo(`/campaigns/${idCampaign}/ideas`)}
         />
-        <Typography sx={{ marginLeft: '8px'}}>Idea detail</Typography>
+        <Typography sx={{ marginLeft: "8px" }}>Idea detail</Typography>
       </Box>
       <Paper
         elevation={3}
@@ -191,7 +216,9 @@ export const IdeaDetail = () => {
               {ideaDetail?.content}
             </Typography>
             <Typography fontSize="small">
-              {ideaDetail?.enonymously ? "unknown" : ideaDetail?.authorId?.email}{" "}
+              {ideaDetail?.enonymously
+                ? "unknown"
+                : ideaDetail?.authorId?.email}{" "}
               - {dayjs(ideaDetail?.updatedAt).format("MM/DD/YYYY HH:mm A")}
             </Typography>
           </Box>
@@ -275,6 +302,25 @@ export const IdeaDetail = () => {
               },
             }}
           />
+          {isCommenting && (
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => handleChangeCommentAnonymous(e)}
+                    name="enonymously"
+                    color="secondary"
+                  />
+                }
+                label="Anonymous"
+                sx={{
+                  ".MuiTypography-root": {
+                    fontSize: "15px",
+                  },
+                }}
+              />
+            </Box>
+          )}
         </Box>
 
         <Box mt={3}>
@@ -292,7 +338,7 @@ export const IdeaDetail = () => {
                 return (
                   <Box sx={{ display: "flex" }} key={cmt?._id}>
                     <Box
-                      minWidth={50}
+                      width={50}
                       height={50}
                       sx={{
                         border: "1px solid ",
@@ -300,12 +346,17 @@ export const IdeaDetail = () => {
                       }}
                     >
                       <img
-                        src={cmt?.authorId?.avartarUrl}
+                        src={
+                          cmt?.enonymously
+                            ? "https://www.kindpng.com/picc/m/206-2069926_google-chrome-incognito-mode-detection-incognito-logo-hd.png"
+                            : cmt?.authorId?.avartarUrl
+                        }
                         alt="asd"
-                        sx={{
+                        style={{
                           borderRadius: "50px",
                           objectFit: "contain",
                           width: "100%",
+                          height: "100%"
                         }}
                       />
                     </Box>
@@ -319,7 +370,8 @@ export const IdeaDetail = () => {
                       }}
                     >
                       <Typography fontSize="15px" fontWeight="bold">
-                        {cmt?.authorId}
+                        {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email} -{" "}
+                        {dayjs(cmt?.updatedAt).format("MM/DD/YYYY HH:mm A")}
                       </Typography>
                       <Box fontSize="14px">{cmt?.content}</Box>
                     </Box>

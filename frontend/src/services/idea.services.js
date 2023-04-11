@@ -37,6 +37,10 @@ export async function postIdea(payload) {
     return await http.post('/idea', payload);
 }
 
+export async function searchIdea(payload) {
+    return await http.post('/idea/search', payload);
+}
+
 
 //view
 export async function postView(payload) {
