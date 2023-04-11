@@ -244,10 +244,10 @@ const putIdea = async (req, res) => {
 }
 const postView = async (req, res) => {
   try {
-    let id = req.body.ideaId
+    let ideaId = req.body.ideaId
     let viewerId = req.id
     let response
-    let idea = await IdeaModel.findOne({ _id: id }).populate()
+    let idea = await IdeaModel.findOne({ _id: ideaId }).populate()
     if (idea) {
       if (idea.viewer.includes(viewerId)) {
         response = {
@@ -258,7 +258,7 @@ const postView = async (req, res) => {
       }
       else {
         let updateIdea = await IdeaModel.updateOne(
-          { _id: id },
+          { _id: ideaId },
           { $push: { viewer: viewerId } }
         )
         if(!updateIdea) return res.sendStatus(404);
