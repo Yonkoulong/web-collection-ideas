@@ -17,25 +17,12 @@ const postIdeaMostLike = async (req, res) => {
     let campaignId = req.body.campaignId
     let categoryId = req.body?.categoryId
     let ideaMostLike
+    let finalIdea
     if(categoryId == null){
-       ideaMostLike = await IdeaModel.aggregate([
-        {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
-        { $project: { 
-          data:"$$ROOT",count: { 
-          $size: { "$ifNull": [ "$reaction", [] ] }
-      } } },
-      {$sort: { count: -1 }}
-       ])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:-1})
     }
     else{
-      ideaMostLike = await IdeaModel.aggregate([
-        {$match:{campaignId:mongoose.Types.ObjectId(campaignId),categoryId:mongoose.Types.ObjectId(categoryId)}},
-        { $project: {
-          data:"$$ROOT", count: { 
-          $size: { "$ifNull": [ "$reaction", [] ] }
-      } } },
-      {$sort: { count: -1 }}
-       ])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:-1})
     }
      if(!ideaMostLike) return res.sendStatus(404);
     response = {
@@ -53,26 +40,10 @@ const postIdeaMostComment = async (req, res) => {
     let categoryId = req.body?.categoryId
     let ideaMostComment
     if(categoryId == null){
-      ideaMostComment= await IdeaModel.aggregate([
-        { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
-        { $project: {
-          data:"$$ROOT",
-           view: { 
-                 $size: { "$ifNull": [ "$comment", [] ] }
-                 },
-           
-        } },
-        {$sort: { view: -1 }}
-      ])
+      ideaMostComment= await IdeaModel.find({campaignId:campaignId}).sort({comment:-1})
     }
     else  {
-      ideaMostComment= await IdeaModel.aggregate([
-        {$match:{categoryId:mongoose.Types.ObjectId(categoryId) ,campaignId:mongoose.Types.ObjectId(campaignId) }},
-        { $project: {  data:"$$ROOT",count: { 
-          $size: { "$ifNull": [ "$comment", [] ] }
-      } } },
-      {$sort: { count: -1 }}
-      ])
+      ideaMostComment= await IdeaModel.find({campaignId:campaignId, categoryId:categoryId}).sort({comment:-1})
     }
     response = {
       'status': 'Get idea most comment',
@@ -89,26 +60,10 @@ const postIdeasMostView = async(req, res)=>{
     let categoryId = req.body?.categoryId
     let ideaMostView
     if(categoryId == null){
-      ideaMostView= await IdeaModel.aggregate([
-        { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
-        { $project: {
-          data:"$$ROOT",
-           view: { 
-                 $size: { "$ifNull": [ "$viewer", [] ] }
-                 },
-           
-        } },
-        {$sort: { view: -1 }}
-      ])
+      ideaMostView= await IdeaModel.find({campaignId:campaignId}).sort({viewer:-1})
     }
     else  {
-       ideaMostView= await IdeaModel.aggregate([
-        {$match:{categoryId:mongoose.Types.ObjectId(categoryId) ,campaignId:mongoose.Types.ObjectId(campaignId) }},
-        { $project: {  data:"$$ROOT",count: { 
-          $size: { "$ifNull": [ "$viewer", [] ] }
-      } } },
-      {$sort: { count: -1 }}
-      ])
+       ideaMostView= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({viewer:-1})
     }
       
       if(!ideaMostView) return res.sendStatus(404);
