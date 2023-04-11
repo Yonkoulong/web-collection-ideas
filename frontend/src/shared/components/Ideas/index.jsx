@@ -66,8 +66,8 @@ export const Ideas = () => {
               }}
             />
             <Tab
-              label="Lastest Comments"
-              value={ideaFilter.LASTEST_COMMENTS}
+              label="Most Comments"
+              value={ideaFilter.MOST_COMMENTS}
               sx={{
                 fontSize: "small",
                 "&.Mui-selected": { color: primaryColor },
@@ -87,7 +87,7 @@ export const Ideas = () => {
         <TabPanel value={ideaFilter.LASTEST_IDEAS}>
           <IdeasFiltered filter={value} />
         </TabPanel>
-        <TabPanel value={ideaFilter.LASTEST_COMMENTS}>
+        <TabPanel value={ideaFilter.MOST_COMMENTS}>
           <IdeasFiltered filter={value} />
         </TabPanel>
       </TabContext>

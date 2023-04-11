@@ -293,7 +293,7 @@ module.exports = [
   {
     method: "post", //define method http
     controller: postIdeasLatest, //this is method handle when have request on server
-    route: "/ideaLatest", //define API
+    route: "/idea/latest", //define API
   },
   {
     method: "post", //define method http

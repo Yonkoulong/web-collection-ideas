@@ -22,7 +22,11 @@ export async function getIdeasMostView(payload) {
 }
 
 export async function getIdeasLatest(payload) {
-    return await http.post('/idea/ideaLatest')
+    return await http.post('/idea/latest', payload)
+}
+
+export async function getIdeaMostComment(payload) {
+    return await http.post('/idea/mostComment', payload);
 }
 
 export async function putIdea(id, payload) {
