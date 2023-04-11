@@ -98,6 +98,7 @@ export const IdeasFiltered = ({ filter }) => {
     fetchIdeaMostLike,
     fetchIdeaMostView,
     fetchIdeaLatest,
+    fetchIdeaMostComment
   } = useIdeaStore((state) => state);
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
 
@@ -216,7 +217,9 @@ export const IdeasFiltered = ({ filter }) => {
     }
   };
 
-  const handleReactionIdea = async (typeReaction, idIdea) => {
+  const handleReactionIdea = async (typeReaction, idIdea, e) => {
+    e.stopPropagation();
+
     try {
       const payload = {
         type: typeReaction,
@@ -231,6 +234,7 @@ export const IdeasFiltered = ({ filter }) => {
             (async () => {
               try {
                 await fetchIdeas({ campaignId: idCampaign });
+                await fetchCategorys();
               } catch (error) {
                 const errorMessage = error?.data?.status || error;
                 toast.error(errorMessage);
@@ -241,7 +245,7 @@ export const IdeasFiltered = ({ filter }) => {
           case ideaFilter.MOST_POPULAR: {
             (async () => {
               try {
-                await fetchIdeaMostLike();
+                await fetchIdeaMostLike({ campaignId: idCampaign, categoryId: category ? category : null });
               } catch (error) {
                 const errorMessage = error?.data?.status || error;
                 toast.error(errorMessage);
@@ -252,7 +256,7 @@ export const IdeasFiltered = ({ filter }) => {
           case ideaFilter.MOST_VIEWED: {
             (async () => {
               try {
-                await fetchIdeaMostView();
+                await fetchIdeaMostView({ campaignId: idCampaign, categoryId: category ? category : null });
               } catch (error) {
                 const errorMessage = error?.data?.status || error;
                 toast.error(errorMessage);
@@ -263,7 +267,7 @@ export const IdeasFiltered = ({ filter }) => {
           case ideaFilter.LASTEST_IDEAS: {
             (async () => {
               try {
-                await fetchIdeaLatest();
+                await fetchIdeaLatest({ campaignId: idCampaign, categoryId: category ? category : null });
               } catch (error) {
                 const errorMessage = error?.data?.status || error;
                 toast.error(errorMessage);
@@ -271,11 +275,10 @@ export const IdeasFiltered = ({ filter }) => {
             })();
             break;
           }
-          case ideaFilter.LASTEST_COMMENTS: {
+          case ideaFilter.MOST_COMMENTS: {
             (async () => {
               try {
-                await fetchIdeas({ campaignId: idCampaign });
-                await fetchCategorys();
+                await fetchIdeaMostComment({ campaignId: idCampaign, categoryId: category ? category : null });
               } catch (error) {
                 const errorMessage = error?.data?.status || error;
                 toast.error(errorMessage);
@@ -322,7 +325,7 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.MOST_POPULAR: {
         (async () => {
           try {
-            await fetchIdeaMostLike();
+            await fetchIdeaMostLike({ campaignId: idCampaign, categoryId: category ? category : null });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -333,7 +336,7 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.MOST_VIEWED: {
         (async () => {
           try {
-            await fetchIdeaMostView();
+            await fetchIdeaMostView({ campaignId: idCampaign, categoryId: category ? category : null });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -344,7 +347,7 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.LASTEST_IDEAS: {
         (async () => {
           try {
-            await fetchIdeaLatest();
+            await fetchIdeaLatest({ campaignId: idCampaign, categoryId: category ? category : null });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -352,11 +355,10 @@ export const IdeasFiltered = ({ filter }) => {
         })();
         break;
       }
-      case ideaFilter.LASTEST_COMMENTS: {
+      case ideaFilter.MOST_COMMENTS: {
         (async () => {
           try {
-            await fetchIdeas({ campaignId: idCampaign });
-            await fetchCategorys();
+            await fetchIdeaMostComment({ campaignId: idCampaign, categoryId: category ? category : null });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -529,7 +531,7 @@ export const IdeasFiltered = ({ filter }) => {
                 )
                 ?.map((idea) => {
                   return (
-                    <IdeaItem elevation={3} key={idea?._id}>
+                    <IdeaItem elevation={3} key={idea?._id} onClick={() => handleClickIdea(idea)}>
                       <IdeaItemHead>
                         <Box
                           width="50px"
@@ -541,7 +543,6 @@ export const IdeasFiltered = ({ filter }) => {
                             alignItems: "center",
                             border: "1px solid",
                           }}
-                          onClick={() => handleClickIdea(idea)}
                         >
                           <IdeaItemHeadImage
                             src={
@@ -552,12 +553,12 @@ export const IdeasFiltered = ({ filter }) => {
                             alt="avatar"
                           />
                         </Box>
-                        <Box ml={2} onClick={() => handleClickIdea(idea)}>
+                        <Box ml={2}>
                           <IdeaItemHeadTitle>{idea?.content}</IdeaItemHeadTitle>
                           <IdeaItemHeadNameWrapper>
                             <IdeaItemHeadNameText>
                               {idea?.enonymously
-                                ? "Unknow"
+                                ? "Unknown"
                                 : idea?.authorId?.email}
                             </IdeaItemHeadNameText>
                             -
@@ -582,10 +583,10 @@ export const IdeasFiltered = ({ filter }) => {
                             >
                               <ThumbUpIcon
                                 fontSize="small"
-                                onClick={() =>
+                                onClick={(event) =>
                                   handleReactionIdea(
                                     reactionType.LIKE,
-                                    idea?._id
+                                    idea?._id, event
                                   )
                                 }
                               />

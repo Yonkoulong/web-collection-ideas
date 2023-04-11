@@ -27,7 +27,7 @@ export const ideaFilter = {
     MOST_POPULAR: 'most-popular',
     MOST_VIEWED: 'most-viewed',
     LASTEST_IDEAS: 'lastest-ideas',
-    LASTEST_COMMENTS: 'lastest-comments'
+    MOST_COMMENTS: 'most-comments'
 }
 
 
