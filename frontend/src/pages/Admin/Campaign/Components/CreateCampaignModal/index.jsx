@@ -145,6 +145,9 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
         )
       ) {
         if (editCampaign) {
+          if(payload?.departmentId) {
+            delete payload?.departmentId;
+          }
           const respData = await putCampaign(
             { id: editCampaign?._id },
             payload
