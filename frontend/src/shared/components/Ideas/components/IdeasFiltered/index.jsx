@@ -45,7 +45,9 @@ import {
   ideaFilter,
   reactionType,
 } from "@/shared/utils/constant.utils";
-
+import {
+  hasWhiteSpace
+} from "@/shared/utils/validation.utils";
 import {
   IdeasWrapper,
   IdeaItem,
@@ -92,13 +94,17 @@ export const IdeasFiltered = ({ filter }) => {
   const {
     ideas,
     loading,
+    isSearching,
+    setIsSearching,
+    ideasFiltered,
     setLoading,
     fetchIdeas,
     totalRecord,
     fetchIdeaMostLike,
     fetchIdeaMostView,
     fetchIdeaLatest,
-    fetchIdeaMostComment
+    fetchIdeaMostComment,
+    filterIdeas
   } = useIdeaStore((state) => state);
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
 
@@ -110,6 +116,7 @@ export const IdeasFiltered = ({ filter }) => {
     page: 0,
     rowsPerPage: MAX_ITEM_PER_PAGE,
   });
+  const [ideaIdsInTab, setIdeaIdsInTab] = useState([]);
 
   //download
   const handleClickDownloadAnchor = (event) => {
@@ -301,6 +308,23 @@ export const IdeasFiltered = ({ filter }) => {
    
     
   };
+
+  const handleSearch = async (e) => {
+    const keyFilter = e.target.value;
+    let newIdeaIds = [];
+
+    ideas.forEach((idea) => newIdeaIds.push(idea?._id));
+
+    if(keyFilter.length > 0 && !hasWhiteSpace(keyFilter)) {
+      const payload = {
+        filter: keyFilter,
+        listIdea: newIdeaIds
+      };
+
+      const resp = await filterIdeas(payload);
+      
+    }
+  }
 
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
@@ -509,7 +533,7 @@ export const IdeasFiltered = ({ filter }) => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize />
+            <SearchCustomize handleChange={handleSearch}/>
           </Box>
         </Box>
       </Box>
