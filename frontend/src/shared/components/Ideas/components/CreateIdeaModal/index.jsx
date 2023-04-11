@@ -81,7 +81,7 @@ const defaultValues = {
   enonymously: false,
 };
 
-export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
+export const ModalCreateIdea = ({ open, onClose }) => {
   const { userInfo } = useAppStore((state) => state);
   const { idCampaign } = useParams();
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
@@ -177,7 +177,6 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
     (async () => {
       try {
         //fetch department
-
         await fetchCategorys();
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
