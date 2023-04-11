@@ -19,10 +19,10 @@ const postIdeaMostLike = async (req, res) => {
     let ideaMostLike
     let finalIdea
     if(categoryId == null){
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:1}).populate(['authorId','reaction'])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
     }
     else{
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:1}).populate(['authorId','reaction'])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
     }
      if(!ideaMostLike) return res.sendStatus(404);
     response = {
