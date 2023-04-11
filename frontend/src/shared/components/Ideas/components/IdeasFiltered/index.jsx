@@ -602,10 +602,11 @@ export const IdeasFiltered = ({ filter }) => {
                             >
                               <ThumbDownAltIcon
                                 fontSize="small"
-                                onClick={() =>
+                                onClick={(event) =>
                                   handleReactionIdea(
                                     reactionType.DISLIKE,
-                                    idea?._id
+                                    idea?._id,
+                                    event
                                   )
                                 }
                               />

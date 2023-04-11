@@ -78,10 +78,10 @@ BootstrapDialogTitle.propTypes = {
 const defaultValues = {
   content: "",
   categoryId: 0,
-  enonymously: false,
+  enonymously: 0,
 };
 
-export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
+export const ModalCreateIdea = ({ open, onClose }) => {
   const { userInfo } = useAppStore((state) => state);
   const { idCampaign } = useParams();
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
@@ -113,12 +113,12 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
   const handleChangeFile = (e) => {
     const [file] = e.target.files;
     setSelectedFile(file);
-    console.log(file);
   };
 
   const onSubmit = async (data) => {
     const newPayload = {
       ...data,
+      enonymously: data?.enonymously ? 1 : 0,
       authorId: userInfo?._id,
       campaignId: idCampaign,
     };
@@ -177,7 +177,6 @@ export const ModalCreateIdea = ({ open, onClose, editCampaign }) => {
     (async () => {
       try {
         //fetch department
-
         await fetchCategorys();
       } catch (error) {
         const errorMessage = error?.response?.data?.status;
