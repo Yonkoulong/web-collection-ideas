@@ -5,7 +5,7 @@ const getCoordinator = async (_req, res) => {
     //create an array of documents
     try {
       const users = await User.find({});
-  
+      
       return res.status(httpCode.ok).json(users);
     } catch {
       return res.status(httpCode.badRequest).json([]);

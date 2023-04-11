@@ -41,7 +41,7 @@ const getCommentById = async (req, res) =>{
 const postComment = async (req, res) =>{
   try {
     let content = req.body.content
-    let enonymously = req.body.enonymously
+    let enonymously = (req.body.enonymously === 1) ? true : false
     let authorId = req.id
     let ideaId = req.body.ideaId
     let response
