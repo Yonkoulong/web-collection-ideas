@@ -78,7 +78,7 @@ BootstrapDialogTitle.propTypes = {
 const defaultValues = {
   content: "",
   categoryId: 0,
-  enonymously: false,
+  enonymously: 0,
 };
 
 export const ModalCreateIdea = ({ open, onClose }) => {
@@ -113,12 +113,12 @@ export const ModalCreateIdea = ({ open, onClose }) => {
   const handleChangeFile = (e) => {
     const [file] = e.target.files;
     setSelectedFile(file);
-    console.log(file);
   };
 
   const onSubmit = async (data) => {
     const newPayload = {
       ...data,
+      enonymously: data?.enonymously ? 1 : 0,
       authorId: userInfo?._id,
       campaignId: idCampaign,
     };
