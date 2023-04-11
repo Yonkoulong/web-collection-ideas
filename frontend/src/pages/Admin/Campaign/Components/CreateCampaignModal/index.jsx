@@ -29,6 +29,7 @@ import { postCampaign, putCampaign } from "@/services/admin.services";
 import { useDepartmentStore } from "@/stores/DepartmentStore";
 import { useAppStore } from "@/stores/AppStore";
 import { enumRoles } from "@/shared/utils/constant.utils";
+import { primaryColor } from "@/shared/utils/colors.utils"
 import {
   CreateCampaignFormWrapper,
   CreateCampaignForm,
@@ -244,7 +245,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
       fullWidth
     >
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-        Create Campaign
+        {editCampaign ? 'Edit' : 'Create'} Campaign
       </BootstrapDialogTitle>
       <CreateCampaignFormWrapper>
         <CreateCampaignForm onSubmit={handleSubmit(onSubmit)}>
@@ -386,7 +387,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
             </CreateCampaignInputContainer>
           </DialogContent>
           <DialogActions>
-            <Button variant="outlined" autoFocus onClick={() => handleClose()}>
+            <Button variant="outlined" sx={{ color: primaryColor }} autoFocus onClick={() => handleClose()}>
               Cancel
             </Button>
             <Button
@@ -394,7 +395,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
               type="submit"
               disabled={watchFieldsInModalCreateCampaign()}
             >
-              Create
+              {editCampaign ? 'Update' : 'Create'}
             </Button>
           </DialogActions>
         </CreateCampaignForm>
