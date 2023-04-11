@@ -46,7 +46,7 @@ const postReaction = async (req, res) =>{
                   )
                   if(updateIdea){
                     response = {
-                        'status': 'update reaction success',
+                        'status': 'delete reaction success',
                         'data':deleteReaction
                     }   
                     return res.json(response)
@@ -60,7 +60,7 @@ const postReaction = async (req, res) =>{
                 },{type:type}).populate('authorId')
                 if(updateReaction){
                      response = {
-                    'status': 'Delete reaction success',
+                    'status': 'update reaction success',
                     'code':updateReaction
                 }   
                 return res.json(response)}
