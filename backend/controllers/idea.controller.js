@@ -47,22 +47,36 @@ const postIdeaMostLike = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
-const postIdeaLatestComment = async (req, res) => {
+const postIdeaMostComment = async (req, res) => {
   try {
     let campaignId = req.body.campaignId
     let categoryId = req.body?.categoryId
-    let ideaLateComment
+    let ideaMostComment
     if(categoryId == null){
-      let idea= await IdeaModel.aggregate([
-        {$match:{campaignId:mongoose.Types.ObjectId(campaignId)}},
-       ])
-        ideaLateComment = await commentModel.populate(idea,{path:"comment",options:{$orderby:'-createAt'}})
-      //ideaLateComment = await idea.populate('comment')
+      ideaMostComment= await IdeaModel.aggregate([
+        { $match : { campaignId : mongoose.Types.ObjectId(campaignId) } },
+        { $project: {
+          data:"$$ROOT",
+           view: { 
+                 $size: { "$ifNull": [ "$comment", [] ] }
+                 },
+           
+        } },
+        {$sort: { view: -1 }}
+      ])
     }
-     if(!ideaLateComment) return res.sendStatus(404);
+    else  {
+      ideaMostComment= await IdeaModel.aggregate([
+        {$match:{categoryId:mongoose.Types.ObjectId(categoryId) ,campaignId:mongoose.Types.ObjectId(campaignId) }},
+        { $project: {  data:"$$ROOT",count: { 
+          $size: { "$ifNull": [ "$comment", [] ] }
+      } } },
+      {$sort: { count: -1 }}
+      ])
+    }
     response = {
-      'status': 'Get idea latest comment',
-      'data': ideaLateComment
+      'status': 'Get idea most comment',
+      'data': ideaMostComment
     }
     res.status(200).json(response)
   } catch (error) {
@@ -321,8 +335,8 @@ module.exports = [
   },
   {
     method: "post", //define method http
-    controller: postIdeaLatestComment, //this is method handle when have request on server
-    route: "/idea/latestComment", //define API
+    controller: postIdeaMostComment, //this is method handle when have request on server
+    route: "/idea/mostComment", //define API
   },
   {
     method: "put", //define method http

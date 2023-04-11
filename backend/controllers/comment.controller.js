@@ -40,18 +40,20 @@ const getCommentById = async (req, res) =>{
 const postComment = async (req, res) =>{
   try {
     let content = req.body.content
+    let enonymously = req.body.enonymously
     let authorId = req.id
     let ideaId = req.body.ideaId
     let response
     let newComment= await CommentModel.create({
       content: content,
+      enonymously:enonymously,
       authorId: authorId,
       ideaId: ideaId,
     })
-    if(newComment){
+    if(!newComment) return res.sendStatus(404);
       let idea= await IdeaModel.findOne({_id:ideaId}).populate('authorId')
       let poster = await AccountModel.findOne({_id:authorId})
-     // let infor= await mailer.sendMail(idea.authorId.email,`${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,`${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+      //let infor= await mailer.sendMail(idea.authorId.email,`${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,`${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
       let updateIdea = await IdeaModel.updateOne(
         { _id: ideaId },
         { $push: { comment: newComment._id } }
@@ -64,7 +66,7 @@ const postComment = async (req, res) =>{
         res.status(200).json(response)
       }
       
-    }
+    
   } catch (error) {
     res.status(500).json(error.message)
   }
