@@ -64,7 +64,6 @@ export const UserManagement = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      console.log({id: idSelected});
       const resp = await deleteAccount( { id: idSelected } );
       if(resp) {
         toast.success("Delete this account successfully!");
@@ -74,6 +73,10 @@ export const UserManagement = () => {
       const errorMessage = error?.response?.data?.status;
       toast.error(errorMessage);
     }
+  }
+
+  const handleSearchAccountByEmail = async () => {
+    
   }
 
   useEffect(() => {
@@ -103,7 +106,7 @@ export const UserManagement = () => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize />
+            <SearchCustomize placeholder="Search by email"/>
           </Box>
           <Button
             variant="contained"

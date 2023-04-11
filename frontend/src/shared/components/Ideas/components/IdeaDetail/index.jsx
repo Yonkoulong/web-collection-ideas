@@ -15,6 +15,7 @@ import {
   TextField,
 } from "@/shared/components";
 
+import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import CommentIcon from "@mui/icons-material/Comment";
@@ -27,6 +28,7 @@ import {
   activeColor,
 } from "@/shared/utils/colors.utils";
 import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { redirectTo } from "@/shared/utils/history";
 
 import { useAppStore } from "@/stores/AppStore";
 
@@ -46,7 +48,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 export const IdeaDetail = () => {
   const userInfo = useAppStore((state) => state.userInfo);
 
-  const { idIdea } = useParams();
+  const { idIdea, idCampaign } = useParams();
   const [ideaDetail, setIdeaDetail] = useState({});
 
   const handleCommentIdea = async (e) => {
@@ -139,6 +141,20 @@ export const IdeaDetail = () => {
 
   return (
     <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', margin: '16px 0 0 16px'}}>
+        <ArrowCircleLeftIcon
+          sx={{
+            fontSize: "30px",
+            ":hover": {
+              color: primaryColor,
+              cursor: "pointer",
+
+            },
+          }}
+          onClick={() => redirectTo(`/campaigns/${idCampaign}/ideas`)}
+        />
+        <Typography sx={{ marginLeft: '8px'}}>Idea detail</Typography>
+      </Box>
       <Paper
         elevation={3}
         sx={{

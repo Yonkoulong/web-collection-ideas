@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@mui/material';
+import { primaryColor } from '../../utils/colors.utils';
 
 export const NavbarContainer = styled(Box)`
     position: fixed;
@@ -59,7 +60,7 @@ export const NavbarBottomLogout = styled(Box)`
 export const NavbarBottomLogoutText = styled(Typography)`
     ${({ theme: { } }) => css`
         &&& {
-            margin-left: 16px;
+            margin-left: 4px;
             font-size: 15px;
         }
     `}

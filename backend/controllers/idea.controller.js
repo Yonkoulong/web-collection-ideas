@@ -274,6 +274,19 @@ const postView = async (req, res) => {
   }
 }
 
+const getAllIdeas = async(req, res) => {
+  try {
+    let ideas = await IdeaModel.find({ }).populate(['authorId','reaction']);
+    let response = {
+      'status': 'Get all ideas success',
+      'data': ideas
+    }
+    res.status(200).json(response)
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+}
+
 module.exports = [
   {
     method: "post", //define method http
@@ -325,4 +338,9 @@ module.exports = [
     controller: postView, //this is method handle when have request on server
     route: "/view", //define API
   },
+  {
+    method: "get",
+    controller: getAllIdeas,
+    route: "/all-ideas"
+  }
 ]

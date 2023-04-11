@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 import PieChartSharpIcon from "@mui/icons-material/PieChartSharp";
 import GroupIcon from "@mui/icons-material/Group";
 import { IconLightBulb } from "@/assets/icons";
 import LogoutIcon from "@mui/icons-material/Logout";
+import TagIcon from '@mui/icons-material/Tag';
 import NavbarBottomImageLink from "@/assets/images/navbarBottom.png";
-
+import EventIcon from '@mui/icons-material/Event';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import {
   NavbarContainer,
   NavbarHead,
@@ -22,41 +26,44 @@ import {
 import { NavLinkCustomize } from "./NavLink";
 import { useAppStore } from "@/stores/AppStore";
 import { isObjectEmpty } from "@/shared/utils/constant.utils";
+import { primaryColor } from "../../utils/colors.utils";
+import { getLogout } from "@/services/auth.services";
+import { redirectTo } from "../../utils/history";
 
 const navList = [
   {
     to: "/admin/user-management",
-    icon: <PieChartSharpIcon />,
+    icon: <GroupIcon />,
     title: "Manages Account",
     permission: "admin",
   },
   {
     to: "/admin/departments-management",
-    icon: <GroupIcon />,
+    icon: <CheckBoxOutlineBlankIcon />,
     title: "Manages Department",
     permission: "admin",
   },
   {
     to: "/admin/campains-management",
-    icon: <GroupIcon />,
+    icon: <EventIcon />,
     title: "Manages Campaign",
     permission: "admin",
   },
   {
     to: "/qam/categories-management",
-    icon: <GroupIcon />,
-    title: "Manages Categorie",
+    icon: <TagIcon />,
+    title: "Manages Categories",
     permission: "qam",
   },
   {
     to: "/qam/dashboard",
-    icon: <GroupIcon />,
+    icon: <PieChartSharpIcon />,
     title: "Dashboard",
     permission: "qam",
   },
   {
     to: "/campaigns",
-    icon: <GroupIcon />,
+    icon: <AssignmentIcon />,
     title: "Campaigns",
     permission: "all",
   },
@@ -76,6 +83,17 @@ export const Navbar = () => {
       return newNavList;
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      await getLogout();
+      localStorage.removeItem('token');
+      redirectTo('/');
+     
+    } catch (error) {
+      toast.error(error);
+    }
+  }
 
   useEffect(() => {
     handleShowNavLinkByRole();
@@ -113,7 +131,16 @@ export const Navbar = () => {
             alt="Navbar bottom image"
           />
         </NavbarBottomWrapperImage>
-        <NavbarBottomLogout>
+        <NavbarBottomLogout
+          onClick={() => handleLogout()}
+          sx={{
+            marginTop: '16px',
+            ':hover': {
+              color: primaryColor,
+              cursor: 'pointer'
+            },
+          }}
+        >
           <LogoutIcon fontSize="small" />
           <NavbarBottomLogoutText>Logout</NavbarBottomLogoutText>
         </NavbarBottomLogout>
