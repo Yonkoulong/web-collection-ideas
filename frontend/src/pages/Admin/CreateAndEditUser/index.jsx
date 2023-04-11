@@ -94,6 +94,10 @@ export const CreateAndEditUser = () => {
 
   const onSubmit = async (data) => {
     try {
+      if(!data.departmentId) {
+        delete data.departmentId;
+      }
+
       const [file] = fileRef.current.files;
       const formData = new FormData();
 
