@@ -168,7 +168,8 @@ const getIdeaById = async (req, res) => {
 const searchIdea = async (req, res) => {
   try {
     let filter = req.body?.filter
-    let ideaFilter = await IdeaModel.find({ "content": { $regex: `${filter}` } })
+    let campaignId = req.body.campaignId
+    let ideaFilter = await IdeaModel.find({ campaignId:campaignId ,"content": { $regex: `${filter}` }})
     if (ideaFilter) {
       response = {
         'status': `Get idea filter by ${filter} success`,

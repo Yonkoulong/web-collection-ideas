@@ -104,16 +104,17 @@ const getRefreshToken = async (req, res) => {
 
 const getLogout = async (req, res) => {
     const cookies = req.cookies
-    if (!cookies?.jwt) return res.sendStatus(204);
+    if (!cookies?.jwt) return res.sendStatus(404);
     const refreshToken = cookies.jwt;
     try {
         const foundAccount = await AccountModel.findOne({ refreshToken: refreshToken })
         if (!foundAccount) {
-            res.clearCookie('jwt', { httpOnly: true })
+           // res.clearCookie('jwt', { httpOnly: true })
             return res.sendStatus(403);
         }
         await AccountModel.findOneAndUpdate({ refreshToken: refreshToken }, { refreshToken: '' })
         res.clearCookie('jwt', { httpOnly: true })
+        return res.status(200).json("logout success");
     } catch (error) {
         return res.status(500).json(error.message);
     }

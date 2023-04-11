@@ -43,7 +43,7 @@ const postAccount = async (req, res) => {
         //upload image
         
         //create account
-        if(departmentId == null) {
+        if(departmentId === null) {
             newAccount = await AccountModel.create({
                 email: email,
                 password: hashedPwd,
@@ -67,6 +67,7 @@ const postAccount = async (req, res) => {
             })
         }
         if (!newAccount) {
+            if(fileData) cloudinary.uploader.destroy(fileData.filename)
             return res.sendStatus(404);
         }
         response = {
