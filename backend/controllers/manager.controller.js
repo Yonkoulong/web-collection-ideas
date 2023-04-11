@@ -63,7 +63,20 @@ const putCategory = async(req, res)=>{
       res.status(500).json(err.message)
     })
 };
-
+const deleteCategory = async(req, res)=>{
+  try {
+    let id = req.params.id
+    let deleteCategory= await CategoryModel.findOneAndDelete({_id:id})
+    if(!deleteCategory) return res.sendStatus(404);
+    response = {
+      'status': 'Delete category success',
+      'data': data
+    }      
+    res.status(200).json(response)
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+};
 module.exports = [
   {
     method: "get", //define method http
@@ -79,6 +92,11 @@ module.exports = [
     method: "post", //define method http
     controller: postCategory, //this is method handle when have request on server
     route: "/category", //define API
+  },
+  {
+    method: "delete", //define method http
+    controller: deleteCategory, //this is method handle when have request on server
+    route: "/category/:id", //define API
   },
   {
     method: "put", //define method http

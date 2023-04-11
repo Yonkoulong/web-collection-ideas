@@ -137,8 +137,15 @@ const getIdeaById = async (req, res) => {
 const searchIdea = async (req, res) => {
   try {
     let filter = req.body?.filter
-    let campaignId = req.body.campaignId
-    let ideaFilter = await IdeaModel.find({ campaignId:campaignId ,"content": { $regex: `${filter}` }})
+    let listIdea = req.body.listIdea
+    var array = listIdea.split(",");
+  
+    array.forEach(element => {
+        element=mongoose.Types.ObjectId(element)
+    });
+    console.log(array)
+    let ideaFilter= await IdeaModel.find({_id:{$in:array},"content": { $regex: `${filter}` }})
+   // let ideaFilter = await IdeaModel.find({ campaignId:campaignId ,"content": { $regex: `${filter}` }})
     if (ideaFilter) {
       response = {
         'status': `Get idea filter by ${filter} success`,
@@ -147,7 +154,7 @@ const searchIdea = async (req, res) => {
       res.status(200).json(response)
     }
   } catch (error) {
-    res.status(500).json(err.message)
+    res.status(500).json(error.message)
   }
 }
 
@@ -284,7 +291,7 @@ module.exports = [
     route: "/idea/mostView", //define API
   },
   {
-    method: "get", //define method http
+    method: "post", //define method http
     controller: postIdeasLatest, //this is method handle when have request on server
     route: "/ideaLatest", //define API
   },
