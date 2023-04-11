@@ -70,7 +70,7 @@ const deleteCategory = async(req, res)=>{
     if(!deleteCategory) return res.sendStatus(404);
     response = {
       'status': 'Delete category success',
-      'data': data
+      'data': deleteCategory
     }      
     res.status(200).json(response)
   } catch (error) {
