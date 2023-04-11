@@ -174,8 +174,8 @@ export const IdeasFiltered = ({ filter }) => {
   const handleClickIdea = async (idea) => {
     try {
       const payload = {
-        id: idea?._id,
-        viewerId: userInfo?._id,
+        ideaId: idea?._id,
+        // viewerId: userInfo?._id,
       };
 
       const resp = await postView(payload);
@@ -291,8 +291,14 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   const handleDownloadCSV = async () => {
-    await getCSVFile();
+     const resp = await getCSVFile();
+
+     if(!resp) { return; }
+
+   
+    
   };
+
   const openDownloadAnchor = Boolean(anchorDownloadEl);
 
   const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
