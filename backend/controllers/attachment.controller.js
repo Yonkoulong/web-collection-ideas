@@ -82,11 +82,11 @@ const getCSVfile = async(req, res)=>{
           const fields = ['id','content','viewer','creater','category','campaign', 'enonymously']
           const opts = {fields}
           const csv=parse(idea, opts)
-          let filename= path.join(uniqueFileName(__dirname,'..','CSV','csvFile'))
+          let filename= path.join(uniqueFileName(__dirname,'..','public','csvFile'))
           let stream= fs.writeFile(filename, csv, function(error){
             if(error) throw  console.log(error)
             let baseFileName = path.basename(filename)
-            res.download(`./CSV/${baseFileName}`);
+            res.download(`./public/${baseFileName}`);
           })  
          }
     } catch (error) {
