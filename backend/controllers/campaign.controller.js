@@ -103,20 +103,19 @@ const postCampaign = async (req, res) => {
      let firstClosureDate = req.body.firstClosureDate
      let finalClosureDate = req.body.finalClosureDate
      let response
-     let department = await DepartmentModel.findOne({_id:departmentId})
-     let newCampaign= await CampaignModel.findByIdAndUpdate(id,{
+     let updateCampaign= await CampaignModel.findByIdAndUpdate(id,{
         name:name,
         startTime: startTime,
         firstClosureDate:firstClosureDate,
         finalClosureDate: finalClosureDate,
-     })
-     if(newCampaign){
+     }).populate('departmentId')
+     if(!updateCampaign) return res.sendStatus(404);
        response = {
          'status': 'Update campaign success',
-         'data': {...newCampaign._doc,departmentName:department.name}
+         'data': updateCampaign
        }      
        res.status(200).json(response)
-     }
+     
    } catch (error) {
      res.status(500).json(error.message)
    }

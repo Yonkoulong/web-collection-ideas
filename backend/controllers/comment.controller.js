@@ -3,6 +3,7 @@ const CommentModel = require("../models/comment.model");
 const IdeaModel = require("../models/idea.model");
 const AccountModel = require("../models/account.model")
 const mailer = require("../Utils/mailer");
+const validator = require("email-validator");
 const getComment = async (_req, res) => {
     //create an array of documents
     try {
@@ -53,7 +54,9 @@ const postComment = async (req, res) =>{
     if(!newComment) return res.sendStatus(404);
       let idea= await IdeaModel.findOne({_id:ideaId}).populate('authorId')
       let poster = await AccountModel.findOne({_id:authorId})
-      //let infor= await mailer.sendMail(idea.authorId.email,`${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,`${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+      if( validator.validate(element.authorId.email)){
+        let infor= await mailer.sendMail(idea.authorId.email,`${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,`${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+      }
       let updateIdea = await IdeaModel.updateOne(
         { _id: ideaId },
         { $push: { comment: newComment._id } }
