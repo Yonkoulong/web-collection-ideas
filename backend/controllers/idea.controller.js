@@ -138,12 +138,14 @@ const searchIdea = async (req, res) => {
   try {
     let filter = req.body?.filter
     let listIdea = req.body.listIdea
-    var array = listIdea.split(",");
-  
+
+    var array = JSON.parse(listIdea)
+   console.log(array)
     array.forEach(element => {
+      console.log(element)
         element=mongoose.Types.ObjectId(element)
     });
-    console.log(array)
+   
     let ideaFilter= await IdeaModel.find({_id:{$in:array},"content": { $regex: `${filter}` }})
    // let ideaFilter = await IdeaModel.find({ campaignId:campaignId ,"content": { $regex: `${filter}` }})
     if (ideaFilter) {
