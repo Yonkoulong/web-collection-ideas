@@ -44,8 +44,9 @@ const ideaSchema  = new Schema({
         type: Boolean,
         require: true
     },
-},{
-    timestamps:true
+    created: {
+         type: Date, default: Date.now
+    }
 });
 
 module.exports = mongoose.model('idea', ideaSchema );
