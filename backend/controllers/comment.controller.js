@@ -42,7 +42,7 @@ const postComment = async (req, res) => {
   try {
     let content = req.body.content
     let enonymously = (req.body.enonymously === 1) ? true : false
-    let authorId = req.body.authorId
+    let authorId = req.id
     let ideaId = req.body.ideaId
     let response;
 
@@ -56,7 +56,7 @@ const postComment = async (req, res) => {
     let idea = await IdeaModel.findOne({ _id: ideaId }).populate('authorId')
     let poster = await AccountModel.findOne({ _id: authorId })
 
-    if (validator.validate(element.authorId.email)) {
+    if (validator.validate(idea.authorId.email)) {
       let infor = await mailer.sendMail(idea.authorId.email, `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`, `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
     }
 

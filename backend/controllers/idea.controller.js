@@ -12,41 +12,28 @@ const AttachMentController = require("../controllers/attachment.controller")
 const mongoose = require("mongoose");
 const commentModel = require("../models/comment.model");
 const path = require("path");
-function compare( a, b ) {
-  if ( a.count < b.count ){
-    return -1;
-  }
-  if ( a.count > b.count ){
-    return 1;
-  }
-  return 0;
-}
+
 const postIdeaMostLike = async (req, res) => {
   try {
     let campaignId = req.body.campaignId
     let categoryId = req.body?.categoryId
     var ideaMostLike
-    let finalIdea
     if(categoryId == null){
       var count
       ideaMostLike = await IdeaModel.find({campaignId:campaignId}).populate('reaction')
-      ideaMostLike.forEach(ideaItem => {
-        count =0
-        ideaItem.reaction.forEach(reactionItem => {
-          count += reactionItem.type==1 ? 1:0
-        });
-        //ideaItem.viewer.push({count:"count"})
-//ideaItem= Object.assign(ideaItem,{count:1})
-       Object.assign(ideaItem._doc,{count:count})
-      });
-      //ideaMostLike.push({count:"count"})
-     
-      console.log( ideaMostLike.sort((a,b) => (a._doc.count > b._doc.count) ? 1 : ((b._doc.count > a._doc.count) ? -1 : 0)))
     }
     else{
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({like:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).populate(['authorId','reaction'])
     }
      if(!ideaMostLike) return res.sendStatus(404);
+     ideaMostLike.forEach(ideaItem => {
+      count =0
+      ideaItem.reaction.forEach(reactionItem => {
+        count += reactionItem.type==1 ? 1:0
+      });
+     Object.assign(ideaItem._doc,{count:count})
+    });
+     ideaMostLike.sort((a,b) => (a._doc.count > b._doc.count) ? -1 : ((b._doc.count > a._doc.count) ? 1 : 0))
     response = {
       'status': 'Get idea most reaction',
       'data': ideaMostLike
@@ -67,6 +54,15 @@ const postIdeaMostComment = async (req, res) => {
     else  {
       ideaMostComment= await IdeaModel.find({campaignId:campaignId, categoryId:categoryId}).sort({comment:1}).populate(['authorId','reaction'])
     }
+    if(!ideaMostComment) return res.sendStatus(404);
+    ideaMostComment.forEach(ideaItem => {
+      count =0
+      ideaItem.comment.forEach(commentItem => {
+        count += 1
+      });
+     Object.assign(ideaItem._doc,{count:count})
+    });
+    ideaMostComment.sort((a,b) => (a._doc.count > b._doc.count) ? -1 : ((b._doc.count > a._doc.count) ? 1 : 0))
     response = {
       'status': 'Get idea most comment',
       'data': ideaMostComment
@@ -82,13 +78,23 @@ const postIdeasMostView = async(req, res)=>{
     let categoryId = req.body?.categoryId
     let ideaMostView
     if(categoryId == null){
-      ideaMostView= await IdeaModel.find({campaignId:campaignId}).sort({viewer:1}).populate(['authorId','reaction'])
+      var count
+      ideaMostView = await IdeaModel.find({campaignId:campaignId}).populate(['authorId','reaction'])
+      
+      //ideaMostView= await IdeaModel.find({campaignId:campaignId}).sort({viewer:'descending'}).populate(['authorId','reaction'])
     }
     else  {
-       ideaMostView= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({viewer:1}).populate(['authorId','reaction'])
+       ideaMostView= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).populate(['authorId','reaction'])
     }
-      
-      if(!ideaMostView) return res.sendStatus(404);
+    if(!ideaMostView) return res.sendStatus(404);
+    ideaMostView.forEach(ideaItem => {
+      count =0
+      ideaItem.viewer.forEach(viewItem => {
+        count += 1
+      });
+     Object.assign(ideaItem._doc,{count:count})
+    });
+    ideaMostView.sort((a,b) => (a._doc.count > b._doc.count) ? -1 : ((b._doc.count > a._doc.count) ? 1 : 0))
      // let ideaMostView = await IdeaModel.find({}).sort({viewer:1})
       response = {
         'status': 'Get idea most view',
@@ -105,10 +111,10 @@ const postIdeasLatest = async (req, res) =>{
     let categoryId = req.body?.categoryId
     let ideaLatest
     if(categoryId == null){
-       ideaLatest= await IdeaModel.find({campaignId:campaignId}).sort({createdAt: 1}).populate(['authorId','reaction'])
+       ideaLatest= await IdeaModel.find({campaignId:campaignId}).sort("-created").populate(['authorId','reaction'])
     }
     else{
-      ideaLatest= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({createdAt: 1}).populate(['authorId','reaction'])
+      ideaLatest= await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort("-created").populate(['authorId','reaction'])
     }
     if(!ideaLatest) return res.sendStatus(404);
     let response = {
