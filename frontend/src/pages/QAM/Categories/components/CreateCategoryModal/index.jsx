@@ -20,7 +20,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { primaryColor } from "@/shared/utils/colors.utils";
 import { postCategory, putCategory } from "@/services/qam.services";
-import { useCategoryStore } from "@/stores/categoryStore";
+import { useCategoryStore } from "@/stores/CategoryStore";
 import {
   CreateCategoryFormWrapper,
   CreateCategoryForm,
