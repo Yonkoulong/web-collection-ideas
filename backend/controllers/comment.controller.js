@@ -56,9 +56,9 @@ const postComment = async (req, res) => {
     let idea = await IdeaModel.findOne({ _id: ideaId }).populate('authorId')
     let poster = await AccountModel.findOne({ _id: authorId })
 
-    // if (validator.validate(element.authorId.email)) {
-    //   let infor = await mailer.sendMail(idea.authorId.email, `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`, `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
-    // }
+    if (validator.validate(element.authorId.email)) {
+      let infor = await mailer.sendMail(idea.authorId.email, `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`, `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+    }
 
     let updateIdea = await IdeaModel.updateOne(
       { _id: ideaId },

@@ -29,7 +29,10 @@ const postAttachment = async(req, res) =>{
           ideaId:ideaId
 
         })
-        if(!newAttachment) return res.sendStatus(406);
+        if(!newAttachment){
+          await cloudinary.uploader.destroy(newAttachment.publishId)
+          return res.sendStatus(406);
+        } 
         let updateIdea = await IdeaModel.updateOne(
           { _id: ideaId },
           { $push: { attachment: newAttachment._id } }
