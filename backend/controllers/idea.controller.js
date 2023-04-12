@@ -19,7 +19,7 @@ const postIdeaMostLike = async (req, res) => {
     let ideaMostLike
     let finalIdea
     if(categoryId == null){
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).sort({reaction:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).populate(['authorId',{path:'reaction',match:{type:1}}]).sort({reaction:1})
     }
     else{
       ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
