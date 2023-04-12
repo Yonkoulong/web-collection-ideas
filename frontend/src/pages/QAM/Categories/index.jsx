@@ -23,7 +23,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { ModalCreateCategory } from "./components/CreateCategoryModal";
 import { PopUpConfirm } from "@/shared/components/Popup";
 import { redirectTo } from "@/shared/utils/history";
-import { useCategoryStore } from "@/stores/categoryStore";
+import { useCategoryStore } from "@/stores/CategoryStore";
 import {
   deleteCategory,
   getCategoryDetail,

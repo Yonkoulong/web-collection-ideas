@@ -3,7 +3,7 @@ import axios from "axios";
 import { redirectTo } from "../shared/utils/history";
 import { toast } from "react-toastify";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const baseURL = import.meta.env.VITE_API_ENV === "dev" ? "http://localhost:8080" : "https://backend-collection-ideas.onrender.com";
 
 export const http = axios.create({
   withCredentials: true,
