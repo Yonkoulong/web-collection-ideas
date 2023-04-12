@@ -304,9 +304,6 @@ export const IdeasFiltered = ({ filter }) => {
      const resp = await getCSVFile();
 
      if(!resp) { return; }
-
-   
-    
   };
 
   const handleSearch = async (e) => {

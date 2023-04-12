@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { styled } from "@mui/material/styles";
 import { reactionType, isObjectEmpty } from "@/shared/utils/constant.utils";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 import {
   Box,
@@ -28,6 +29,8 @@ import {
   primaryColor,
   backgroundColor,
   activeColor,
+  whiteColor,
+  blackColor
 } from "@/shared/utils/colors.utils";
 import { hasWhiteSpace } from "@/shared/utils/validation.utils";
 import { redirectTo } from "@/shared/utils/history";
@@ -98,6 +101,10 @@ export const IdeaDetail = () => {
       };
 
       const resp = await postReaction(payload);
+      if(resp) {
+        const respIdeaDetail = await getIdeaById({ id: idIdea })
+        setIdeaDetail(respIdeaDetail?.data?.data);
+      }
     } catch (error) {
       toast.error(error);
     }
@@ -149,6 +156,71 @@ export const IdeaDetail = () => {
     }
   };
 
+  const handleShowContentWithType = (file) => {
+    switch (file.type) {
+      case "raw": {
+        return (
+          <Box
+            component="a"
+            href={content?.content}
+            download
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              borderRadius: "10px",
+              // backgroundColor: hoverTextColor,
+              width: "max-content",
+              padding: "4px 8px",
+              marginTop: 1,
+            }}
+          >
+            <Box
+              sx={{
+                width: "34px",
+                height: "34px",
+                // backgroundColor: primaryColor,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <DescriptionIcon sx={{ color: whiteColor }} />
+            </Box>
+            <Typography ml={1} sx={{ color: blackColor }}>
+              filename.path
+            </Typography>
+          </Box>
+        );
+      }
+      case "image": {
+        return (
+          <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
+            <img
+              src={file?.url}
+              alt="image-message"
+              style={{ width: "100%", objectFit: "contain" }}
+            />
+          </Paper>
+        );
+      }
+      case "video": {
+        return (
+          <Paper sx={{ width: "fit-content", marginTop: 1 }}>
+            <video
+              width="320"
+              height="100%"
+              style={{ borderRadius: "4px" }}
+              controls
+            >
+              <source src={file?.url} type="video/mp4" />
+            </video>
+          </Paper>
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     (async () => {
       if (idIdea) {
@@ -186,7 +258,11 @@ export const IdeaDetail = () => {
           margin: "16px",
           padding: "24px",
           height: "calc(100vh - 136.4px)",
-          overflow: "hidden",
+          overflow: "auto",
+
+          "&::-webkit-scrollbar": {
+            display: 'none',
+          },
         }}
       >
         <Box sx={{ display: "flex" }}>
@@ -226,7 +302,9 @@ export const IdeaDetail = () => {
 
         {/* description */}
         <Box sx={{ margin: "24px 0" }}>
-          <img src={ideaDetail?.authorId?.avartarUrl} alt="avatar" />
+          {!isObjectEmpty(ideaDetail) && ideaDetail?.attachment.length > 0
+            ? handleShowContentWithType(ideaDetail?.attachment[0])
+            : "No content"}
         </Box>
         {/* end description */}
         <Paper
@@ -356,7 +434,7 @@ export const IdeaDetail = () => {
                           borderRadius: "50px",
                           objectFit: "contain",
                           width: "100%",
-                          height: "100%"
+                          height: "100%",
                         }}
                       />
                     </Box>

@@ -136,13 +136,15 @@ export const CreateAndEditUser = () => {
             throw error;
           });
       } else {
+        const token = localStorage.getItem('token');
         axios({
           method: "post",
           url: "http://localhost:8080/account",
           data: formData,
+          withCredentials: true,
           headers: {
-            withCredentials: "true",
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token && token}`
           },
         })
           .then(function (response) {
