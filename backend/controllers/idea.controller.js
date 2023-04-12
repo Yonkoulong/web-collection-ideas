@@ -12,17 +12,39 @@ const AttachMentController = require("../controllers/attachment.controller")
 const mongoose = require("mongoose");
 const commentModel = require("../models/comment.model");
 const path = require("path");
+function compare( a, b ) {
+  if ( a.count < b.count ){
+    return -1;
+  }
+  if ( a.count > b.count ){
+    return 1;
+  }
+  return 0;
+}
 const postIdeaMostLike = async (req, res) => {
   try {
     let campaignId = req.body.campaignId
     let categoryId = req.body?.categoryId
-    let ideaMostLike
+    var ideaMostLike
     let finalIdea
     if(categoryId == null){
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).populate(['authorId',{path:'reaction',match:{type:1}}]).sort({reaction:1})
+      var count
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId}).populate('reaction')
+      ideaMostLike.forEach(ideaItem => {
+        count =0
+        ideaItem.reaction.forEach(reactionItem => {
+          count += reactionItem.type==1 ? 1:0
+        });
+        //ideaItem.viewer.push({count:"count"})
+//ideaItem= Object.assign(ideaItem,{count:1})
+       Object.assign(ideaItem._doc,{count:count})
+      });
+      //ideaMostLike.push({count:"count"})
+     
+      console.log( ideaMostLike.sort((a,b) => (a._doc.count > b._doc.count) ? 1 : ((b._doc.count > a._doc.count) ? -1 : 0)))
     }
     else{
-      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({reaction:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
+      ideaMostLike = await IdeaModel.find({campaignId:campaignId,categoryId:categoryId}).sort({like:1}).populate(['authorId',{path:'reaction',match:{type:1}}])
     }
      if(!ideaMostLike) return res.sendStatus(404);
     response = {
