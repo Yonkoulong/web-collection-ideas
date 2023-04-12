@@ -48,7 +48,7 @@ const postLogin = async (req, res) => {
                     }
                 }
                 console.log(response)
-                res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: "none", secure })
+                res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: "none", secure: 'false' })
                 return res.status(201).json(response);
             }
             else {
