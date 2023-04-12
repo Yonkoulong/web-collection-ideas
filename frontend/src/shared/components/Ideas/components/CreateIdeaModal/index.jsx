@@ -138,7 +138,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
 
           axios({
             method: "post",
-            url: `http://localhost:8080/file`,
+            url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account/${id}` : `https://backend-collection-ideas.onrender.com/account/${id}`,
             data: formData,
             withCredentials: true,
             headers: {

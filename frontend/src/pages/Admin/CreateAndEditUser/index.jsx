@@ -118,7 +118,7 @@ export const CreateAndEditUser = () => {
       if (id) {
         axios({
           method: "put",
-          url: `http://localhost:8080/account/${id}`,
+          url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account/${id}` : `https://backend-collection-ideas.onrender.com/account/${id}`,
           data: formData,
           headers: {
             withCredentials: "true",
@@ -139,7 +139,7 @@ export const CreateAndEditUser = () => {
         const token = localStorage.getItem('token');
         axios({
           method: "post",
-          url: "http://localhost:8080/account",
+          url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account/${id}` : `https://backend-collection-ideas.onrender.com/account/${id}`,
           data: formData,
           withCredentials: true,
           headers: {
