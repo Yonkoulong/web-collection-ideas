@@ -116,6 +116,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
   };
 
   const onSubmit = async (data) => {
+    const token = localStorage.getItem('token');
     const newPayload = {
       ...data,
       enonymously: data?.enonymously ? 1 : 0,
@@ -139,9 +140,10 @@ export const ModalCreateIdea = ({ open, onClose }) => {
             method: "post",
             url: `http://localhost:8080/file`,
             data: formData,
+            withCredentials: true,
             headers: {
-              withCredentials: "true",
               "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token && token}`
             },
           })
             .then(function (response) {
