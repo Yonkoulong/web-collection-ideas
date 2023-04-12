@@ -11,6 +11,7 @@ export const http = axios.create({
 });
 
 export const noTokenHttp = axios.create({
+  withCredentials: true,
   baseURL
 });
 
