@@ -4,6 +4,7 @@ import { Navigate, redirect } from 'react-router-dom';
 import {  toast } from 'react-toastify';
 import { getRefreshToken } from '@/services/auth.services';
 import { useAppStore } from '@/stores/AppStore';
+import { redirectTo } from '../../utils/history';
 
 const ProtectedRoute = ({ children }) => {
     const [isLogged, setIsLogged] = useState();
@@ -23,6 +24,11 @@ const ProtectedRoute = ({ children }) => {
                 const errorMessage = error?.response?.status;
                 setIsLogged(error?.response?.status);
                 toast.error(errorMessage);
+
+                if(errorMessage == 403) {
+                    redirectTo('/');
+                    localStorage.removeItem('token');
+                }
             }
         })();
     }, []);
