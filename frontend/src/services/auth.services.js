@@ -5,7 +5,7 @@ export async function postLogin(payload) {
 }
 
 export async function getRefreshToken() {
-    return http.get("/refresh");
+    return http.get("/refresh", { withCredentials: true });
 }
 
 export async function getLogout() {

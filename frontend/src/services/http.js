@@ -7,7 +7,7 @@ const baseURL = import.meta.env.VITE_API_ENV === "dev" ? "http://localhost:8080"
 
 export const http = axios.create({
   withCredentials: true,
-  baseURL,
+  baseURL
 });
 
 export const noTokenHttp = axios.create({
