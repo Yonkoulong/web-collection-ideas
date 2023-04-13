@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-const adminController = require("../controllers/admin.controller");
 const ideaController = require("../controllers/idea.controller");
 const verifyJWT = require("../middleware/verifyJWT.middleware");
 const auth = require("../middleware/auth.middleware");
@@ -10,19 +9,10 @@ const departmentController = require("../controllers/department.controller");
 const campaignController = require("../controllers/campaign.controller");
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
-adminController.forEach((item) => {
-    //next, each item is element of useController or called a method which can handle a things
-    //i use descstructuring declare from javascript ES6
-    const { method, route, controller } = item;
-    router[method](route,auth.isAdmin, controller);
-    
-    //C2
-    // router[item.method](item.routeName, item.controller);
-});
 
 departmentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    router[method](route,verifyJWT,auth.isAdmin, controller);
 })
 campaignController.forEach((item) =>{
     const { method, route, controller } = item;
@@ -30,11 +20,16 @@ campaignController.forEach((item) =>{
 })
 accountController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    if(item.method =="post" && item.route=="/account"){
+        router[method](route,verifyJWT,auth.isAdmin,controller);
+    }
+    
 })
 ideaController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route, controller);
+    if(item.method =="post" && item.route=="/account"){
+        router[method](route,verifyJWT,auth.isAdmin,controller);
+    }
 })
 router.get('/admin',(req,res)=>{
     res.json('Hello admin')

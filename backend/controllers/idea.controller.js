@@ -150,17 +150,34 @@ const getIdeaById = async (req, res) => {
   try {
     //AttachMentController.getAttchmentById(req, res)
     let id = req.params.id
+    var commentArr =[]
+    let commentAuthor
     let detailIdea = await IdeaModel.findOne({_id:id}).populate(['authorId','campaignId','viewer','reaction','comment','attachment'])
     if(!detailIdea)return res.sendStatus(404);
-    let response = {
-      'status': 'Get idea success',
-      'data': detailIdea
+  
+    for (let cm of detailIdea.comment){
+      commentAuthor= await commentModel.populate(cm,{path:'authorId'})
+      commentArr.push(commentAuthor) 
     }
-    res.status(200).json(response)
+    console.log(commentAuthor)
+    Object.assign(detailIdea._doc,{commentDetail:commentArr})
+    let response =  {
+      'status': 'Get idea success',
+      'data': detailIdea    
+    }
+     res.status(200).json(response)
     
   } catch (error) {
     res.status(500).json(error.message)
   }
+}
+async function getCommentDetail(arr){
+  let commentArr
+  arr.forEach(async (element)  => {
+    commentAuthor= await commentModel.populate(element,{path:'authorId'})
+    commentArr.push(commentAuthor) 
+  })
+  return commentArr
 }
 const searchIdea = async (req, res) => {
   try {

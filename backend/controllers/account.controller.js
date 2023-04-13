@@ -1,6 +1,7 @@
 const AccountModel = require("../models/account.model");
 const cloudinary = require("../middleware/cloudinary.middleware")
 const bcrypt = require("bcrypt");
+const validator = require("email-validator");
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_KEY,
@@ -18,6 +19,7 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body?.departmentId
         let newAccount
+        if(validator.validate(email)){return res.sendStatus(404);}
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",

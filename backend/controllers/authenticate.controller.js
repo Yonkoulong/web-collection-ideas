@@ -72,10 +72,8 @@ const postLogin = async (req, res) => {
 
 const getRefreshToken = async (req, res) => {
     const cookies = req?.cookies;
-    console.log(cookies);
     if (!cookies?.jwt) return res.sendStatus(401);
     const token = req?.headers?.cookies||req?.headers?.Cookies
-    console.log("alo" +token)
     const refreshToken = cookies.jwt;
     try {
         const foundAccount = await AccountModel.findOne({ refreshToken: refreshToken })

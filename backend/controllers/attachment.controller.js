@@ -22,6 +22,8 @@ const postAttachment = async(req, res) =>{
           folder:"web_collection_ideas",
         })
         let newAttachment= await AttachmentModel.create({
+          filelName:result.original_filename,
+          fileSize:result.bytes,
           type:result.resource_type,
           publishId:result.public_id,
           url:result.secure_url,
