@@ -93,6 +93,9 @@ export const IdeaDetail = () => {
   };
 
   const handleReactionIdea = async (typeReaction) => {
+
+    if(userInfo?.role !== enumRoles.staff) {  return; }
+    
     try {
       const payload = {
         type: typeReaction,

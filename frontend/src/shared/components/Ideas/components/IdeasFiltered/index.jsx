@@ -119,6 +119,7 @@ export const IdeasFiltered = ({ filter }) => {
   });
   const [ideaIdsInTab, setIdeaIdsInTab] = useState([]);
   const [dataDownload, setDataDownload] = useState([]);
+
   //download
   const handleClickDownloadAnchor = (event) => {
     setAnchorDownloadEl(event.currentTarget);
@@ -176,6 +177,10 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   const handleClickIdea = async (idea) => {
+    if(userInfo?.role !== enumRoles.staff) { 
+      return redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`);
+    }
+
     try {
       const payload = {
         ideaId: idea?._id,
@@ -222,6 +227,8 @@ export const IdeasFiltered = ({ filter }) => {
 
   const handleReactionIdea = async (typeReaction, idIdea, e) => {
     e.stopPropagation();
+
+    if(userInfo?.role !== enumRoles.staff) {  return; }
 
     try {
       const payload = {
