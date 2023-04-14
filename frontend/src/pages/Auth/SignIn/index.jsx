@@ -148,6 +148,7 @@ export const SignIn = () => {
                 size="large"
                 disableElevation
                 variant="contained"
+                color="secondary"
               >
                 Log In
               </LoadingButton>
