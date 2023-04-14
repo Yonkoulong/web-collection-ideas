@@ -189,7 +189,7 @@ const searchIdea = async (req, res) => {
         element=mongoose.Types.ObjectId(element)
     });
    
-    let ideaFilter= await IdeaModel.find({_id:{$in:listIdea},"content": { $regex: `${filter}` }})
+    let ideaFilter= await IdeaModel.find({_id:{$in:listIdea},"content": { $regex: `${filter}` }}).populate(['authorId','reaction'])
    // let ideaFilter = await IdeaModel.find({ campaignId:campaignId ,"content": { $regex: `${filter}` }})
     if (ideaFilter) {
       response = {
