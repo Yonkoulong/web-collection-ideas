@@ -30,10 +30,11 @@ import {
   backgroundColor,
   activeColor,
   whiteColor,
-  blackColor
+  blackColor,
 } from "@/shared/utils/colors.utils";
 import { hasWhiteSpace } from "@/shared/utils/validation.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { enumRoles } from "@/shared/utils/constant.utils";
 
 import { useAppStore } from "@/stores/AppStore";
 
@@ -59,6 +60,10 @@ export const IdeaDetail = () => {
   const [isCommenting, setIsCommenting] = useState(false);
 
   const handleCommentIdea = async (e) => {
+    if (userInfo?.role !== enumRoles.STAFF) {
+      return;
+    }
+
     try {
       const payload = {
         content: e.target.value,
@@ -70,8 +75,6 @@ export const IdeaDetail = () => {
       if (e.target.value !== "" && !hasWhiteSpace(e.target.value)) {
         if (e.target.value.length >= 1) {
           setIsCommenting(true);
-        } else {
-          setIsCommenting(false);
         }
 
         if (e.key === "Enter" || e.keyCode === 13) {
@@ -82,10 +85,13 @@ export const IdeaDetail = () => {
             const respIdeaDetail = await getIdeaById({ id: idIdea });
 
             if (respIdeaDetail) {
+              setIsEnonymously(0);
               setIdeaDetail(respIdeaDetail?.data?.data);
             }
           }
         }
+      } else {
+        setIsCommenting(false);
       }
     } catch (error) {
       toast.error(error?.message);
@@ -93,9 +99,10 @@ export const IdeaDetail = () => {
   };
 
   const handleReactionIdea = async (typeReaction) => {
+    if (userInfo?.role !== enumRoles.staff) {
+      return;
+    }
 
-    if(userInfo?.role !== enumRoles.staff) {  return; }
-    
     try {
       const payload = {
         type: typeReaction,
@@ -104,8 +111,8 @@ export const IdeaDetail = () => {
       };
 
       const resp = await postReaction(payload);
-      if(resp) {
-        const respIdeaDetail = await getIdeaById({ id: idIdea })
+      if (resp) {
+        const respIdeaDetail = await getIdeaById({ id: idIdea });
         setIdeaDetail(respIdeaDetail?.data?.data);
       }
     } catch (error) {
@@ -264,7 +271,7 @@ export const IdeaDetail = () => {
           overflow: "auto",
 
           "&::-webkit-scrollbar": {
-            display: 'none',
+            display: "none",
           },
         }}
       >
@@ -360,49 +367,52 @@ export const IdeaDetail = () => {
             </StyledBadge>
           </IconButton>
         </Paper>
-        <Box mt={3}>
-          <TextField
-            id="input-with-icon-textfield"
-            label=""
-            placeholder={handleStatusIdea() ? "Comments are off" : "Comment"}
-            onKeyDown={handleCommentIdea}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <ImageIcon />
-                </InputAdornment>
-              ),
-            }}
-            disabled={handleStatusIdea()}
-            variant="outlined"
-            fullWidth
-            sx={{
-              ".MuiInputBase-root": {
-                borderRadius: "40px",
-                fontSize: "16px",
-              },
-            }}
-          />
-          {isCommenting && (
-            <Box>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    onChange={(e) => handleChangeCommentAnonymous(e)}
-                    name="enonymously"
-                    color="secondary"
-                  />
-                }
-                label="Anonymous"
-                sx={{
-                  ".MuiTypography-root": {
-                    fontSize: "15px",
-                  },
-                }}
-              />
-            </Box>
-          )}
-        </Box>
+
+        {userInfo?.role == enumRoles.STAFF ? (
+          <Box mt={3}>
+            <TextField
+              id="input-with-icon-textfield"
+              label=""
+              placeholder={handleStatusIdea() ? "Comments are off" : "Comment"}
+              onKeyUp={handleCommentIdea}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <ImageIcon />
+                  </InputAdornment>
+                ),
+              }}
+              disabled={handleStatusIdea()}
+              variant="outlined"
+              fullWidth
+              sx={{
+                ".MuiInputBase-root": {
+                  borderRadius: "40px",
+                  fontSize: "16px",
+                },
+              }}
+            />
+            {isCommenting && (
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={(e) => handleChangeCommentAnonymous(e)}
+                      name="enonymously"
+                      color="secondary"
+                    />
+                  }
+                  label="Anonymous"
+                  sx={{
+                    ".MuiTypography-root": {
+                      fontSize: "15px",
+                    },
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+        ) : null}
 
         <Box mt={3}>
           <Box

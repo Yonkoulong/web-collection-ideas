@@ -177,7 +177,7 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   const handleClickIdea = async (idea) => {
-    if(userInfo?.role !== enumRoles.staff) { 
+    if(userInfo?.role !== enumRoles.STAFF) { 
       return redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`);
     }
 
@@ -228,7 +228,7 @@ export const IdeasFiltered = ({ filter }) => {
   const handleReactionIdea = async (typeReaction, idIdea, e) => {
     e.stopPropagation();
 
-    if(userInfo?.role !== enumRoles.staff) {  return; }
+    if(userInfo?.role !== enumRoles.STAFF) {  return; }
 
     try {
       const payload = {
