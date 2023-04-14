@@ -72,7 +72,7 @@ module.exports = [
   {
     method: "get",
     controller: getCategories,
-    route: "/categories"
+    route: "/category"
   },
   {
     method: "post", //define method http

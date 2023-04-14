@@ -11,8 +11,6 @@ const postLogin = async (req, res) => {
     let password = req.body.password
     let role = req.body.role
     let response
-    console.log(email, password, role)
-
     try {
         const user = await AccountModel.findOne({
             email: email,
@@ -59,7 +57,7 @@ const postLogin = async (req, res) => {
                 return res.status(401).json(response)
             }
         } else {
-            let response = {
+            response = {
                 'status': 'account not found',
                 'code': 102
             }

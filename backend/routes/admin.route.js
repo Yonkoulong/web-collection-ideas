@@ -7,6 +7,7 @@ const auth = require("../middleware/auth.middleware");
 const accountController = require("../controllers/account.controller");
 const departmentController = require("../controllers/department.controller");
 const campaignController = require("../controllers/campaign.controller");
+const categoryController = require("../controllers/category.controller")
 //useController is exported as array, so we have to loop it.
 //forEach is method loop of javascript 
 
@@ -26,10 +27,18 @@ accountController.forEach((item) =>{
     
 })
 ideaController.forEach((item) =>{
-    const { method, route, controller } = item;
-    if(item.method =="post" && item.route=="/account"){
-        router[method](route,verifyJWT,auth.isAdmin,controller);
+    const { method, route, controller } = item;    
+    if((item.method !="post" && item.route!="/idea")
+    ||(item.method !="put" && item.route!="/idea")
+    ){
+        router[method](route,verifyJWT,auth.isAdmin, controller);
     }
+})
+categoryController.forEach((item) =>{
+    const { method, route, controller } = item;
+    if(item.route == "/category" && item.method=="get"){
+        router[method](route,verifyJWT,auth.isAdmin, controller);
+     }  
 })
 router.get('/admin',(req,res)=>{
     res.json('Hello admin')

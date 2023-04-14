@@ -27,4 +27,10 @@ reactionController.forEach((item) =>{
     const { method, route, controller } = item;
     router[method](route,verifyJWT,auth.isStaff, controller);
 })
+categoryController.forEach((item) =>{
+    const { method, route, controller } = item;
+    if(item.route == "/category" && item.method=="get"){
+        router[method](route,verifyJWT,auth.isStaff, controller);
+     }  
+})
 module.exports = router;
