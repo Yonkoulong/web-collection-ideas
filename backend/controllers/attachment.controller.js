@@ -17,33 +17,43 @@ const postAttachment = async(req, res) =>{
         const fileData = req.files.file
         const ideaId = req.body.ideaId
         const authorId = req.id
-        const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
-          resource_type:"auto",
-          folder:"web_collection_ideas",
-        })
-        let newAttachment= await AttachmentModel.create({
-          filelName:result.original_filename,
-          fileSize:result.bytes,
-          type:result.resource_type,
-          publishId:result.public_id,
-          url:result.secure_url,
-          authorId:authorId,
-          ideaId:ideaId
-
-        })
-        if(!newAttachment){
-          await cloudinary.uploader.destroy(newAttachment.publishId)
-          return res.sendStatus(406);
-        } 
-        let updateIdea = await IdeaModel.updateOne(
-          { _id: ideaId },
-          { $push: { attachment: newAttachment._id } }
-        )
+        const resultArr=[]
+        let updateIdea
+        console.log(fileData)
+        for (let file of fileData){
+          const result = await cloudinary.uploader.upload(file.tempFilePath,{
+            resource_type:"auto",
+            folder:"web_collection_ideas",
+          })
+          resultArr.push(result)
+          let newAttachment= await AttachmentModel.create({
+            filelName:result.original_filename,
+            fileSize:result.bytes,
+            type:result.resource_type,
+            publishId:result.public_id,
+            url:result.secure_url,
+            authorId:authorId,
+            ideaId:ideaId
+  
+          })
+          if(!newAttachment){
+            await cloudinary.uploader.destroy(newAttachment.publishId)
+            const index = array.indexOf(result);
+            resultArr.splice(index,1)
+            return res.sendStatus(406);
+          } 
+           updateIdea = await IdeaModel.updateOne(
+            { _id: ideaId },
+            { $push: { attachment: newAttachment._id } }
+          )
+        
+        }
         if(!updateIdea) return res.sendStatus(404);
-          response = {
-            'status': 'Upload new file success',
-            'data': result
-          }    
+        response = {
+          'status': 'Upload new file success',
+          'data': resultArr
+        } 
+          
         console.log(fileData.tempFilePath);
         res.status(200).json(response)
      } catch (error) {
