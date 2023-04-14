@@ -99,7 +99,7 @@ export const IdeaDetail = () => {
   };
 
   const handleReactionIdea = async (typeReaction) => {
-    if (userInfo?.role !== enumRoles.staff) {
+    if (userInfo?.role !== enumRoles.STAFF) {
       return;
     }
 
