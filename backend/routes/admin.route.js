@@ -13,33 +13,33 @@ const categoryController = require("../controllers/category.controller")
 
 departmentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route,verifyJWT,auth.isAdmin, controller);
+    if(item.method =="post" || item.method =="put" || item.method =="delete"){
+    router[method](route,verifyJWT, controller);
+    }
+    else {
+        router[method](route,verifyJWT,controller);
+    }
 })
 campaignController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route,verifyJWT, controller);
+    //router[method](route,verifyJWT,controller);
+    if(item.method =="post" || item.method =="put" || item.method =="delete"){
+        router[method](route,verifyJWT,auth.isAdmin,controller);
+    }
+    else {
+        router[method](route,verifyJWT,controller);
+    }
 })
 accountController.forEach((item) =>{
     const { method, route, controller } = item;
     if(item.method =="post" && item.route=="/account"){
         router[method](route,verifyJWT,auth.isAdmin,controller);
     }
-    
-})
-ideaController.forEach((item) =>{
-    const { method, route, controller } = item;    
-    if((item.method !="post" && item.route!="/idea")
-    ||(item.method !="put" && item.route!="/idea")
-    ){
-        router[method](route,verifyJWT,auth.isAdmin, controller);
+    else {
+        router[method](route,verifyJWT,controller);
     }
 })
-categoryController.forEach((item) =>{
-    const { method, route, controller } = item;
-    if(item.route == "/category" && item.method=="get"){
-        router[method](route,verifyJWT,auth.isAdmin, controller);
-     }  
-})
+
 router.get('/admin',(req,res)=>{
     res.json('Hello admin')
 })

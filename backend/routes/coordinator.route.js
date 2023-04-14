@@ -7,22 +7,15 @@ const auth = require("../middleware/auth.middleware");
 const verifyJWT = require("../middleware/verifyJWT.middleware");
 const categoryController = require("../controllers/category.controller")
 
-ideaController.forEach((item) =>{
-    const { method, route, controller } = item;    
-    if((item.method !="post" && item.route!="/idea")
-    ||(item.method !="put" && item.route!="/idea")
-    ){
-        router[method](route,verifyJWT,auth.isQAC, controller);
-    }
-})
+
 commentController.forEach((item) =>{
     const { method, route, controller } = item;
-    router[method](route,verifyJWT,auth.isQAC, controller);
-})
-categoryController.forEach((item) =>{
-    const { method, route, controller } = item;
-    if(item.route == "/category" && item.method=="get"){
+    if( item.method=="delete"){
         router[method](route,verifyJWT,auth.isQAC, controller);
-     }  
+    }
+    else {
+        router[method](route,verifyJWT, controller);
+    }
 })
+
 module.exports = router;
