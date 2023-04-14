@@ -14,7 +14,7 @@ const categoryController = require("../controllers/category.controller")
 departmentController.forEach((item) =>{
     const { method, route, controller } = item;
     if(item.method =="post" || item.method =="put" || item.method =="delete"){
-    router[method](route,verifyJWT, controller);
+    router[method](route,verifyJWT,auth.isAdmin, controller);
     }
     else {
         router[method](route,verifyJWT,controller);
