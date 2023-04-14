@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CSVLink } from "react-csv";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { ModalCreateIdea } from "../CreateIdeaModal";
@@ -117,7 +118,7 @@ export const IdeasFiltered = ({ filter }) => {
     rowsPerPage: MAX_ITEM_PER_PAGE,
   });
   const [ideaIdsInTab, setIdeaIdsInTab] = useState([]);
-
+  const [dataDownload, setDataDownload] = useState([]);
   //download
   const handleClickDownloadAnchor = (event) => {
     setAnchorDownloadEl(event.currentTarget);
@@ -160,18 +161,13 @@ export const IdeasFiltered = ({ filter }) => {
       userInfo?.role == enumRoles.STAFF
     ) {
       return (
-        <Box
-          sx={{ position: "fixed", right: "50px", bottom: "100px", zIndex: 99 }}
-        >
-          <BootstrapTooltip
-            title="Add Idea"
-            backgroundColor="primary"
+        <Box>
+          <Button
+            variant="contained"
             onClick={handleOpenCreateIdeaModal}
           >
-            <IconButton>
-              <LoupeIcon fontSize="large" color="secondary" />
-            </IconButton>
-          </BootstrapTooltip>
+            Create idea
+          </Button>
         </Box>
       );
     } else {
@@ -304,6 +300,7 @@ export const IdeasFiltered = ({ filter }) => {
      const resp = await getCSVFile();
 
      if(!resp) { return; }
+     setDataDownload(resp?.data);
   };
 
   const handleSearch = async (e) => {
@@ -497,10 +494,17 @@ export const IdeasFiltered = ({ filter }) => {
                       cursor: "pointer",
                     },
                   }}
-                  onClick={() => handleDownloadCSV()}
+                  
                 >
-                  <Typography fontSize="small">CSV</Typography>
-                  <DescriptionIcon fontSize="small" />
+                  <CSVLink
+                    data={dataDownload}
+                    asyncOnClick={true}
+                    onClick={() => handleDownloadCSV()}
+                    style={{ display: 'flex', gap: '8px', alignItems: 'center'}}
+                  >
+                    <Typography fontSize="small">CSV</Typography>
+                    <DescriptionIcon fontSize="small" />
+                  </CSVLink>
                 </Box>
                 <Box
                   sx={{
@@ -532,6 +536,7 @@ export const IdeasFiltered = ({ filter }) => {
           <Box sx={{ mr: 2 }}>
             <SearchCustomize handleChange={handleSearch}/>
           </Box>
+          {handleRenderCreateIconForIdea()}
         </Box>
       </Box>
       <Box>
@@ -677,7 +682,6 @@ export const IdeasFiltered = ({ filter }) => {
           />
         </Stack>
       </Box>
-      {handleRenderCreateIconForIdea()}
       {/* Modal */}
       <ModalCreateIdea
         open={openCreateIdeaModal}

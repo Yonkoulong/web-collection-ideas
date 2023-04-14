@@ -123,6 +123,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
       authorId: userInfo?._id,
       campaignId: idCampaign,
     };
+    delete newPayload?.agree;
 
     try {
       const respData = await postIdea(newPayload);
@@ -130,7 +131,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
       if (respData) {
         const idea = respData?.data?.data;
         setLoading(true);
-
+        debugger
         if (selectedFile) {
           const formData = new FormData();
           formData.append("file", selectedFile);
@@ -138,7 +139,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
 
           axios({
             method: "post",
-            url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account/${id}` : `https://backend-collection-ideas.onrender.com/account/${id}`,
+            url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/file` : `https://backend-collection-ideas.onrender.com/file`,
             data: formData,
             withCredentials: true,
             headers: {
@@ -299,6 +300,31 @@ export const ModalCreateIdea = ({ open, onClose }) => {
                 )}
               </ControllerInput>
             </CreateCampaignInputContainer>
+
+            <CreateCampaignInputContainer>
+              <ControllerInput
+                control={control}
+                errors={errors}
+                fieldNameErrorMessage="Terms of conditions"
+                fieldName="agree"
+                required={true}
+              >
+                {(field) => (
+                  <FormGroup>
+                    <FormControlLabel
+                      control={<Checkbox {...field} color="secondary" />}
+                      label="Terms of conditions"
+                      sx={{
+                        ".MuiTypography-root": {
+                          fontSize: "15px",
+                        },
+                      }}
+                    />
+                  </FormGroup>
+                )}
+              </ControllerInput>
+            </CreateCampaignInputContainer>
+
           </DialogContent>
           <DialogActions>
             <Button
