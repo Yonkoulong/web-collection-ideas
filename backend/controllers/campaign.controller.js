@@ -66,15 +66,19 @@ const postCampaign = async (req, res) => {
  };
  const postSearchCampaign = async(req, res) =>{
   try {
-    let departmentId = req.body.departmentId
+    let departmentId = req.body?.departmentId
     let filter = req.body.filter
+    let campaignFilter
     if (departmentId != null) {
-      let campaignFilter = await IdeaModel.find({ "name": { $regex: `${filter}` } })
+      campaignFilter= await IdeaModel.find({ departmentId:departmentId,"name": { $regex: `${filter}` } })
       let response = {
         'status': 'Get campaigns filter success',
         'data': campaignFilter
       }
       res.status(200).json(response)
+    }
+    else {
+      campaignFilter= await IdeaModel.find({ "name": { $regex: `${filter}` } })
     }
   } catch (error) {
     res.status(500).json(error.message)
