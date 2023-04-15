@@ -1,11 +1,21 @@
 import { create } from 'zustand';
-import { getCategory } from '@/services/qam.services';
+import { getCategory, postSearchCategories } from '@/services/qam.services';
 
 export const useCategoryStore = create((set) => ({
     categories: [],
     loading: false,
     totalRecord: 0,
     setLoading: () => set((payload) => ({ loading: payload})),
+
+    searchCategories: async (payload) => {
+        const response = await postSearchCategories(payload);
+
+        if(response) {
+            set({ categories: response?.data?.data })
+            set({ loading: false })
+            set({ totalRecord: response?.data?.data?.length })
+        }
+    },
 
     fetchCategorys: async () => {
         const response = await getCategory();

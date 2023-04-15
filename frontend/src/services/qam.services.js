@@ -21,6 +21,10 @@ export async function deleteCategory(payload) {
     return http.delete(`/category/${payload.id}`);
 }
 
+export async function postSearchCategories(payload) {
+    return http.post("/account/filter", payload);
+}
+
 //file
 export async function getCSVFile() {
     return http.get('/csvFile')
