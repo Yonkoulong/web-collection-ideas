@@ -50,6 +50,10 @@ export async function deleteCampaign(payload) {
     return http.delete(`/campaign/${payload.id}`);
 }
 
+export async function postSearchCampaign(payload) {
+    return http.post(`/campaign/Filter`, payload)
+}
+
 //Department
 export async function getDepartment() {
     return http.get("/department");

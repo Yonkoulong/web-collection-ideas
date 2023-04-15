@@ -20,6 +20,8 @@ import { useDepartmentStore } from "@/stores/DepartmentStore";
 import { SearchCustomize } from "@/shared/components/Search";
 import { enumRoles } from "@/shared/utils/constant.utils";
 import { redirectTo } from "@/shared/utils/history";
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 import {
   CampaignsWrapper,
@@ -41,6 +43,7 @@ export const CampaignList = () => {
     campaigns,
     fetchCampaigns,
     fetchCampaignsByDepartmentId,
+    searchCampaigns,
     loading,
     setLoading,
     totalRecord,
@@ -49,11 +52,13 @@ export const CampaignList = () => {
     (state) => state
   );
   
-  const [deparment, setDepartment] = useState("");
+  const [deparment, setDepartment] = useState(userInfo?.departmentId ? userInfo?.departmentId : null);
   const [controller, setController] = useState({
     page: 0,
     rowsPerPage: MAX_ITEM_PER_PAGE,
   });
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
   const handlePageChange = (event, newPage) => {
     setController({
@@ -70,6 +75,11 @@ export const CampaignList = () => {
     } else {
       return "green";
     }
+  };
+
+  const handleSearch = (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
   };
 
   //select department
@@ -105,6 +115,34 @@ export const CampaignList = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async() => {
+      try {
+        const newPayload = {
+          deparmentId: deparment,
+          filter: debounceSearchKey
+        }
+
+        if (searchKey.length > 0 && !hasWhiteSpace(searchKey)) {
+          await searchCampaigns(newPayload);
+        } else {
+          if (
+            userInfo?.role == enumRoles.STAFF ||
+            userInfo?.role == enumRoles.QAC
+          ) {
+            await fetchCampaignsByDepartmentId({
+              departmentId: userInfo?.departmentId,
+            });
+          } else {
+            await fetchDepartments();
+          }
+        }
+      } catch (error) {
+        
+      }
+    })()
+  }, [debounceSearchKey]);
 
   return (
     <Box p={3}>
@@ -161,7 +199,7 @@ export const CampaignList = () => {
             alignItems: "center",
           }}
         >
-          <SearchCustomize />
+          <SearchCustomize placeholder="Enter campaign name" handleChange={handleSearch}/>
         </Box>
       </Box>
       <Box>

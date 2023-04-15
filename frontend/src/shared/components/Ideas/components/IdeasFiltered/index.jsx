@@ -46,9 +46,7 @@ import {
   ideaFilter,
   reactionType,
 } from "@/shared/utils/constant.utils";
-import {
-  hasWhiteSpace
-} from "@/shared/utils/validation.utils";
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
 import {
   IdeasWrapper,
   IdeaItem,
@@ -71,6 +69,7 @@ import { getCampaignDetail } from "@/services/admin.services";
 import { postView } from "@/services/idea.services";
 import { postReaction } from "@/services/reaction.services";
 import { getCSVFile } from "@/services/qam.services";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -95,8 +94,6 @@ export const IdeasFiltered = ({ filter }) => {
   const {
     ideas,
     loading,
-    isSearching,
-    setIsSearching,
     ideasFiltered,
     setLoading,
     fetchIdeas,
@@ -105,7 +102,7 @@ export const IdeasFiltered = ({ filter }) => {
     fetchIdeaMostView,
     fetchIdeaLatest,
     fetchIdeaMostComment,
-    filterIdeas
+    filterIdeas,
   } = useIdeaStore((state) => state);
   const { categories, fetchCategorys } = useCategoryStore((state) => state);
 
@@ -117,7 +114,9 @@ export const IdeasFiltered = ({ filter }) => {
     page: 0,
     rowsPerPage: MAX_ITEM_PER_PAGE,
   });
-  const [ideaIdsInTab, setIdeaIdsInTab] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
   const [dataDownload, setDataDownload] = useState([]);
 
   //download
@@ -140,7 +139,7 @@ export const IdeasFiltered = ({ filter }) => {
   const handleChangeCategory = async (e) => {
     try {
       setCategory(e.target.value);
-      await fetchIdeas({ campaignId: idCampaign, categoryId: e.target.value });
+      handleFilterAndSortCommon(e.target.value);
     } catch (error) {
       toast.error(error);
     }
@@ -163,10 +162,7 @@ export const IdeasFiltered = ({ filter }) => {
     ) {
       return (
         <Box>
-          <Button
-            variant="contained"
-            onClick={handleOpenCreateIdeaModal}
-          >
+          <Button variant="contained" onClick={handleOpenCreateIdeaModal}>
             Create idea
           </Button>
         </Box>
@@ -177,7 +173,7 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   const handleClickIdea = async (idea) => {
-    if(userInfo?.role !== enumRoles.STAFF) { 
+    if (userInfo?.role !== enumRoles.STAFF) {
       return redirectTo(`/campaigns/${idea?.campaignId}/ideas/${idea?._id}`);
     }
 
@@ -228,7 +224,9 @@ export const IdeasFiltered = ({ filter }) => {
   const handleReactionIdea = async (typeReaction, idIdea, e) => {
     e.stopPropagation();
 
-    if(userInfo?.role !== enumRoles.STAFF) {  return; }
+    if (userInfo?.role !== enumRoles.STAFF) {
+      return;
+    }
 
     try {
       const payload = {
@@ -239,64 +237,7 @@ export const IdeasFiltered = ({ filter }) => {
 
       const resp = await postReaction(payload);
       if (resp) {
-        switch (filter) {
-          case ideaFilter.ALL: {
-            (async () => {
-              try {
-                await fetchIdeas({ campaignId: idCampaign });
-                await fetchCategorys();
-              } catch (error) {
-                const errorMessage = error?.data?.status || error;
-                toast.error(errorMessage);
-              }
-            })();
-            break;
-          }
-          case ideaFilter.MOST_POPULAR: {
-            (async () => {
-              try {
-                await fetchIdeaMostLike({ campaignId: idCampaign, categoryId: category ? category : null });
-              } catch (error) {
-                const errorMessage = error?.data?.status || error;
-                toast.error(errorMessage);
-              }
-            })();
-            break;
-          }
-          case ideaFilter.MOST_VIEWED: {
-            (async () => {
-              try {
-                await fetchIdeaMostView({ campaignId: idCampaign, categoryId: category ? category : null });
-              } catch (error) {
-                const errorMessage = error?.data?.status || error;
-                toast.error(errorMessage);
-              }
-            })();
-            break;
-          }
-          case ideaFilter.LASTEST_IDEAS: {
-            (async () => {
-              try {
-                await fetchIdeaLatest({ campaignId: idCampaign, categoryId: category ? category : null });
-              } catch (error) {
-                const errorMessage = error?.data?.status || error;
-                toast.error(errorMessage);
-              }
-            })();
-            break;
-          }
-          case ideaFilter.MOST_COMMENTS: {
-            (async () => {
-              try {
-                await fetchIdeaMostComment({ campaignId: idCampaign, categoryId: category ? category : null });
-              } catch (error) {
-                const errorMessage = error?.data?.status || error;
-                toast.error(errorMessage);
-              }
-            })();
-            break;
-          }
-        }
+        handleFilterAndSortCommon();
       }
     } catch (error) {
       toast.error(error);
@@ -304,42 +245,28 @@ export const IdeasFiltered = ({ filter }) => {
   };
 
   const handleDownloadCSV = async () => {
-     const resp = await getCSVFile();
+    const resp = await getCSVFile();
 
-     if(!resp) { return; }
-     setDataDownload(resp?.data);
+    if (!resp) {
+      return;
+    }
+    setDataDownload(resp?.data);
   };
 
-  const handleSearch = async (e) => {
-    const keyFilter = e.target.value;
-    let newIdeaIds = [];
-
-    ideas.forEach((idea) => newIdeaIds.push(idea?._id));
-
-    if(keyFilter.length > 0 && !hasWhiteSpace(keyFilter)) {
-      const payload = {
-        filter: keyFilter,
-        listIdea: newIdeaIds
-      };
-
-      const resp = await filterIdeas(payload);
-      
-    }
-  }
-
-  const openDownloadAnchor = Boolean(anchorDownloadEl);
-
-  const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
-
-  useEffect(() => {
+  const handleSearch = (e) => {
+    setSearchKey(e.target.value);
     setLoading(true);
+  };
 
+  const handleFilterAndSortCommon = async (categoryValue) => {
     switch (filter) {
       case ideaFilter.ALL: {
         (async () => {
           try {
-            await fetchIdeas({ campaignId: idCampaign });
-            await fetchCategorys();
+            await fetchIdeas({
+              campaignId: idCampaign,
+              categoryId: categoryValue ? categoryValue : null,
+            });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -350,7 +277,10 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.MOST_POPULAR: {
         (async () => {
           try {
-            await fetchIdeaMostLike({ campaignId: idCampaign, categoryId: category ? category : null });
+            await fetchIdeaMostLike({
+              campaignId: idCampaign,
+              categoryId: categoryValue ? categoryValue : null,
+            });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -361,7 +291,10 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.MOST_VIEWED: {
         (async () => {
           try {
-            await fetchIdeaMostView({ campaignId: idCampaign, categoryId: category ? category : null });
+            await fetchIdeaMostView({
+              campaignId: idCampaign,
+              categoryId: categoryValue ? categoryValue : null,
+            });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -372,7 +305,10 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.LASTEST_IDEAS: {
         (async () => {
           try {
-            await fetchIdeaLatest({ campaignId: idCampaign, categoryId: category ? category : null });
+            await fetchIdeaLatest({
+              campaignId: idCampaign,
+              categoryId: categoryValue ? categoryValue : null,
+            });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -383,7 +319,10 @@ export const IdeasFiltered = ({ filter }) => {
       case ideaFilter.MOST_COMMENTS: {
         (async () => {
           try {
-            await fetchIdeaMostComment({ campaignId: idCampaign, categoryId: category ? category : null });
+            await fetchIdeaMostComment({
+              campaignId: idCampaign,
+              categoryId: categoryValue ? categoryValue : null,
+            });
           } catch (error) {
             const errorMessage = error?.data?.status || error;
             toast.error(errorMessage);
@@ -392,6 +331,19 @@ export const IdeasFiltered = ({ filter }) => {
         break;
       }
     }
+  };
+
+  const openDownloadAnchor = Boolean(anchorDownloadEl);
+
+  const idDownloadAnchor = openDownloadAnchor ? "download-popover" : undefined;
+
+  useEffect(() => {
+    setLoading(true);
+    (async () => {
+      await fetchCategorys();
+    })();
+
+    handleFilterAndSortCommon();
   }, [filter]);
 
   useEffect(() => {
@@ -411,28 +363,52 @@ export const IdeasFiltered = ({ filter }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        let newIdeaIds = [];
+  
+        ideas.forEach((idea) => newIdeaIds.push(idea?._id));
+  
+        if (searchKey.length > 0 && !hasWhiteSpace(searchKey)) {
+          setIsSearching(true);
+          const payload = {
+            filter: debounceSearchKey,
+            listIdea: newIdeaIds,
+          };
+  
+          await filterIdeas(payload);
+        } else {
+          setIsSearching(false);
+          handleFilterAndSortCommon(category);
+        }
+      } catch (error) {
+        // toast.error(error?.message);
+      }
+    })();
+  }, [debounceSearchKey]);
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center'}}>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
         <ArrowCircleLeftIcon
           sx={{
             fontSize: "30px",
             ":hover": {
               color: primaryColor,
               cursor: "pointer",
-
             },
           }}
           onClick={() => redirectTo("/campaigns")}
         />
-        <Typography sx={{ marginLeft: '8px'}}>Ideas</Typography>
+        <Typography sx={{ marginLeft: "8px" }}>Ideas</Typography>
       </Box>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: '16px'
+          marginTop: "16px",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -501,13 +477,16 @@ export const IdeasFiltered = ({ filter }) => {
                       cursor: "pointer",
                     },
                   }}
-                  
                 >
                   <CSVLink
                     data={dataDownload}
                     asyncOnClick={true}
                     onClick={() => handleDownloadCSV()}
-                    style={{ display: 'flex', gap: '8px', alignItems: 'center'}}
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      alignItems: "center",
+                    }}
                   >
                     <Typography fontSize="small">CSV</Typography>
                     <DescriptionIcon fontSize="small" />
@@ -541,7 +520,7 @@ export const IdeasFiltered = ({ filter }) => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize handleChange={handleSearch}/>
+            <SearchCustomize handleChange={handleSearch} />
           </Box>
           {handleRenderCreateIconForIdea()}
         </Box>
@@ -554,9 +533,8 @@ export const IdeasFiltered = ({ filter }) => {
                 <CircularProgress color="inherit" size={30} />
               </Box>
             )}
-
             {!loading &&
-              ideas
+              (isSearching ? ideasFiltered : ideas)
                 ?.slice(
                   controller.page * controller.rowsPerPage,
                   controller.page * controller.rowsPerPage +
@@ -564,7 +542,11 @@ export const IdeasFiltered = ({ filter }) => {
                 )
                 ?.map((idea) => {
                   return (
-                    <IdeaItem elevation={3} key={idea?._id} onClick={() => handleClickIdea(idea)}>
+                    <IdeaItem
+                      elevation={3}
+                      key={idea?._id}
+                      onClick={() => handleClickIdea(idea)}
+                    >
                       <IdeaItemHead>
                         <Box
                           width="50px"
@@ -619,7 +601,8 @@ export const IdeasFiltered = ({ filter }) => {
                                 onClick={(event) =>
                                   handleReactionIdea(
                                     reactionType.LIKE,
-                                    idea?._id, event
+                                    idea?._id,
+                                    event
                                   )
                                 }
                               />

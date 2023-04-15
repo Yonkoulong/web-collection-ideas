@@ -4,12 +4,10 @@ import { getIdeaFilter, getIdeaMostLike, getIdeasMostView, getIdeasLatest, getId
 export const useIdeaStore = create((set) => ({
     ideas: [],
     ideasFiltered: [],
-    isSearching: false,
     loading: false,
     totalRecord: 0,
     setLoading: () => set((payload) => ({ loading: payload})),
-    setIsSearching: () => set((payload) => ({ isSearching: payload })),
-   
+
     fetchIdeas: async (payload) => {
         const response = await getIdeaFilter(payload);
         if(response) {
@@ -18,7 +16,6 @@ export const useIdeaStore = create((set) => ({
             set({ totalRecord: response?.data?.data?.length })
         }
     },
-
     fetchIdeaMostLike: async (payload) => {
         const response = await getIdeaMostLike(payload);
         if(response) {
