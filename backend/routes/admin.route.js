@@ -23,7 +23,7 @@ departmentController.forEach((item) =>{
 campaignController.forEach((item) =>{
     const { method, route, controller } = item;
     //router[method](route,verifyJWT,controller);
-    if(item.method =="post" || item.method =="put" || item.method =="delete"){
+    if(item.method =="post" || item.method =="put" || item.method =="delete" || item.route=="/campaign/Filter"){
         router[method](route,verifyJWT,auth.isAdmin,controller);
     }
     else {
