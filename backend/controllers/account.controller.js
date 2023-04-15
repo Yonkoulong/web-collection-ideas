@@ -19,7 +19,7 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body?.departmentId
         let newAccount
-        if(validator.validate(email)){return res.sendStatus(404);}
+        //if(validator.validate(email)){return res.sendStatus(404);}
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
