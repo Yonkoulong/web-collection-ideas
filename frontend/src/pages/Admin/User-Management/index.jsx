@@ -191,7 +191,7 @@ export const UserManagement = () => {
                           }}
                           onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
-                          {accounts?.name}
+                          {account?.name}
                         </TableCell>
                         <TableCell
                           sx={{
