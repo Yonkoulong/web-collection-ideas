@@ -63,6 +63,7 @@ export const IdeaDetail = () => {
 
   const { idIdea, idCampaign } = useParams();
   const [ideaDetail, setIdeaDetail] = useState({});
+  const [idCommentEdit, setIdCommentEdit] = useState(null);
   const [isEnonymously, setIsEnonymously] = useState(0);
   const [isCommenting, setIsCommenting] = useState(false);
   const [isHoverComment, setIsHoverComment] = useState(null);
@@ -88,7 +89,12 @@ export const IdeaDetail = () => {
         }
 
         if (e.key === "Enter" || e.keyCode === 13) {
-          const resp = await postComment(payload);
+          let resp;
+          if(idCommentEdit) {
+            resp = await putComment(idCommentEdit, payload);
+          } else {
+            resp = await postComment(payload);
+          }
           if (resp) {
             e.target.value = "";
             setIsCommenting(false);
@@ -243,7 +249,6 @@ export const IdeaDetail = () => {
 
   const handleMouseOver = (comment) => {
     setIsHoverComment(comment);
-    console.log(comment);
   };
 
   const handleMouseOut = () => {
@@ -274,8 +279,17 @@ export const IdeaDetail = () => {
     }
   }
 
-  const handleUpdateComment = () => {
+  const handleUpdateComment = (cmt) => {
+    const inputComment = commentRef.current?.querySelector('input');
 
+    if(!inputComment) { return; }
+
+    inputComment.focus();
+    inputComment.value = cmt?.content;
+    setIsCommenting(true);
+    setIsEnonymously(cmt?.enonymously ? 1 : 0);
+    setIdCommentEdit(cmt?._id)
+    handleCloseAnchorFeatureComment();
   }
 
   useEffect(() => {
@@ -435,6 +449,7 @@ export const IdeaDetail = () => {
               disabled={handleStatusIdea()}
               variant="outlined"
               fullWidth
+              ref={commentRef}
               sx={{
                 ".MuiInputBase-root": {
                   borderRadius: "40px",
@@ -450,6 +465,7 @@ export const IdeaDetail = () => {
                       onChange={(e) => handleChangeCommentAnonymous(e)}
                       name="enonymously"
                       color="secondary"
+                      defaultChecked={isEnonymously == 0 ? true : false}
                     />
                   }
                   label="Anonymous"

@@ -12,8 +12,8 @@ export async function getCommentById(payload) {
     return await http.get(`/comment/${payload?.id}`);
 }
 
-export async function putComment(payload) {
-    return await http.put(`/comment/${payload?.id}`, payload)
+export async function putComment(id, payload) {
+    return await http.put(`/comment/${id}`, payload)
 }
 
 export async function deleteComment(payload) {
