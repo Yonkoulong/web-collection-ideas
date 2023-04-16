@@ -22,7 +22,7 @@ export async function deleteCategory(payload) {
 }
 
 export async function postSearchCategories(payload) {
-    return http.post("/account/filter", payload);
+    return http.post("/category/filter", payload);
 }
 
 //file

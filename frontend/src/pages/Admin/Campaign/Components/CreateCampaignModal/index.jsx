@@ -118,32 +118,19 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
   const onSubmit = async (data) => {
     try {
       let payload = {};
-
       //check final clouse date
-
       if (!data?.finalClosureDate) {
         let newFinalClousureDate = new Date(data?.firstClosureDate).setDate(
           new Date(data?.firstClosureDate).getDate() + 7
         );
-        payload = {
-          ...data,
+        payload = { ...data,
           finalClosureDate: new Date(newFinalClousureDate).toISOString(),
         };
-      } else {
-        payload = { ...data };
-      }
+      } else { payload = { ...data }; }
 
-      if (payload == "{}") {
-        return;
-      }
+      if (payload == "{}") { return; }
 
-      if (
-        handleCheckDateBeforeCreateCapaign(
-          payload?.startTime,
-          payload?.firstClosureDate,
-          payload?.finalClosureDate
-        )
-      ) {
+      if (handleCheckDateBeforeCreateCapaign(payload?.startTime, payload?.firstClosureDate, payload?.finalClosureDate)) {
         if (editCampaign) {
           if(payload?.departmentId) {
             delete payload?.departmentId;
@@ -163,7 +150,6 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
           const respData = await postCampaign(payload);
 
           if (respData) {
-            debugger
             setLoading(true);
             fetchCampaigns();
             toast.success("Create Campaign successfully.");
@@ -374,6 +360,7 @@ export const ModalCreateCampaign = ({ open, onClose, editCampaign }) => {
                     size="small"
                     value={field?.value || ""}
                     sx={{ fontSize: "15px" }}
+                    disabled={editCampaign ? true : false}
                   >
                     {departments.map((option) => (
                       <MenuItem

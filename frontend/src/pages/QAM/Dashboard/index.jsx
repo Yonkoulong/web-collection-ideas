@@ -77,12 +77,8 @@ export const Dashboard = () => {
   const [ideas, setIdeas] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
 
-  const [loadingBarChat, setLoadingBarChat] = useState(false);
-  const [loadingLineChat, setLoadingLineChat] = useState(false);
-  const [loadingPieChat, setLoadingPieChat] = useState(false);
 
-
-  const handleDataBarChart = () => {
+  const handleDataPieChart = () => {
     let newData = [];
     let countIdea = 0;
 
@@ -139,7 +135,7 @@ export const Dashboard = () => {
     }
   }
 
-  const handleDataPieChart = () => {
+  const handleDataBarChart = () => {
     let lablesBarChart = [];
     let dataDislike = [];
     let dataLike = [];
@@ -269,7 +265,7 @@ export const Dashboard = () => {
             maxHeight: "400px",
           }}
         >
-          <Bar options={optionsBarChart} data={handleDataPieChart() || { datasets: [] }} />
+          <Bar options={optionsBarChart} data={handleDataBarChart() || { datasets: [] }} />
         </Paper>
         <Paper
           elevation={3}
@@ -282,7 +278,7 @@ export const Dashboard = () => {
             justifyContent: "center",
           }}
         >
-          <Pie options={optionPieChart} data={handleDataBarChart() || { datasets: [] }} />
+          <Pie options={optionPieChart} data={handleDataPieChart() || { datasets: [] }} />
         </Paper>
       </Box>
       <Box sx={{ marginTop: "24px" }}>

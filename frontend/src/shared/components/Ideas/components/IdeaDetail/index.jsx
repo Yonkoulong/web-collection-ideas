@@ -39,8 +39,9 @@ import { enumRoles } from "@/shared/utils/constant.utils";
 import { useAppStore } from "@/stores/AppStore";
 
 import { getIdeaById } from "@/services/idea.services";
-import { postComment } from "@/services/comment.services";
+import { postComment, deleteComment, putComment } from "@/services/comment.services";
 import { postReaction } from "@/services/reaction.services";
+import { customizeScrollbar } from "@/shared/utils/constant.utils";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -58,6 +59,7 @@ export const IdeaDetail = () => {
   const [ideaDetail, setIdeaDetail] = useState({});
   const [isEnonymously, setIsEnonymously] = useState(0);
   const [isCommenting, setIsCommenting] = useState(false);
+  const [isHoverComment, setIsHoverComment] = useState({});
 
   const handleCommentIdea = async (e) => {
     if (userInfo?.role !== enumRoles.STAFF) {
@@ -305,7 +307,7 @@ export const IdeaDetail = () => {
               {ideaDetail?.enonymously
                 ? "unknown"
                 : ideaDetail?.authorId?.email}{" "}
-              - {dayjs(ideaDetail?.updatedAt).format("MM/DD/YYYY HH:mm A")}
+              - {dayjs(ideaDetail?.createdAt).format("MM/DD/YYYY HH:mm A")}
             </Typography>
           </Box>
         </Box>
@@ -422,6 +424,7 @@ export const IdeaDetail = () => {
               display: "flex",
               flexDirection: "column",
               gap: "16px",
+              ...customizeScrollbar
             }}
           >
             {ideaDetail?.comment?.length > 0 &&
@@ -459,10 +462,11 @@ export const IdeaDetail = () => {
                         borderRadius: "20px",
                         width: "100%",
                       }}
+                      
                     >
                       <Typography fontSize="15px" fontWeight="bold">
                         {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email} -{" "}
-                        {dayjs(cmt?.updatedAt).format("MM/DD/YYYY HH:mm A")}
+                        {dayjs(cmt?.createdAt).format("MM/DD/YYYY HH:mm A")}
                       </Typography>
                       <Box fontSize="14px">{cmt?.content}</Box>
                     </Box>

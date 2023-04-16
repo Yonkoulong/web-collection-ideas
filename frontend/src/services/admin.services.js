@@ -76,5 +76,5 @@ export async function deleteDepartment(payload) {
 }
 
 export async function postSearchDepartment(payload) {
-    return http.post("/account/filter", payload);
+    return http.post("/department/filter", payload);
 }
