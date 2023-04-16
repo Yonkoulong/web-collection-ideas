@@ -166,22 +166,25 @@ const getAccountByDepartment = async (req, res) => {
 
 const putAccount = async (req, res) => {
     try {
-        let id = req.params.id==null?req.id:req.params.id
+        let id = req.params.id
         let name = req.body?.name
-        let dob = req.body.dob
-        let departmentId = req.body.departmentId
-        const result = await cloudinary.uploader.upload(fileData.tempFilePath, {
-            resource_type: "auto",
-            folder: "web_collection_ideas",
-        })
+        let dob = req.body?.dob
+        const fileData = req.files?.file
+        let result
+        if(fileData != null){
+             result = await cloudinary.uploader.upload(fileData.tempFilePath, {
+                resource_type: "auto",
+                folder: "web_collection_ideas",
+            })
+        }
+       
         let foundAccount = await AccountModel.findOne({ _id: id })
         if (foundAccount) {
             let updateAccount = await AccountModel.findByIdAndUpdate(id, {
-                name: name == null ? foundAccount.name : name,
-                dob: dob == null ? foundAccount.dob : dob,
-                departmentId:departmentId,
-                publishId: result.public_id,
-                avartarUrl: result.secure_url == null ? foundAccount.avartarUrl : result.secure_url,
+                name: name,
+                dob: dob,
+                publishId: result?.public_id,
+                avartarUrl: result?.secure_url 
             });
             if (updateAccount) {
                 response = {
@@ -268,12 +271,12 @@ module.exports = [
     {
         method: "put", //define method http
         controller: putAccount, //this is method handle when have request on server
-        route: "/account", //define API
+        route: "/account/:id", //define API
     },
     {
         method: "put", //define method http
         controller: putPasswordForAccount, //this is method handle when have request on server
-        route: "/account/:id", //define API
+        route: "/account/password/:id", //define API
     },
     {
         method: "delete", //define method http
