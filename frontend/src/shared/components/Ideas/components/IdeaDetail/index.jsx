@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { styled } from "@mui/material/styles";
 import { reactionType, isObjectEmpty } from "@/shared/utils/constant.utils";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { ModalCreateIdea } from "../CreateIdeaModal";
 
 import {
   Box,
@@ -63,6 +64,7 @@ export const IdeaDetail = () => {
 
   const { idIdea, idCampaign } = useParams();
   const [ideaDetail, setIdeaDetail] = useState({});
+  const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
   const [idCommentEdit, setIdCommentEdit] = useState(null);
   const [isEnonymously, setIsEnonymously] = useState(0);
   const [isCommenting, setIsCommenting] = useState(false);
@@ -291,6 +293,10 @@ export const IdeaDetail = () => {
     setIdCommentEdit(cmt?._id)
     handleCloseAnchorFeatureComment();
   }
+
+  const handleOpenCreateIdeaModal = () => {
+    setOpenCreateIdeaModal(true);
+  };
 
   useEffect(() => {
     (async () => {
@@ -616,6 +622,11 @@ export const IdeaDetail = () => {
           </Box>
         </Box>
       </Paper>
+      {/* Modal */}
+      <ModalCreateIdea
+        open={openCreateIdeaModal}
+        onClose={setOpenCreateIdeaModal}
+      />
     </Box>
   );
 };
