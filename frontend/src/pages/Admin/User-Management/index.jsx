@@ -24,11 +24,13 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { redirectTo } from "@/shared/utils/history";
 import { deleteAccount } from "@/services/admin.services";
 import { formatDate } from '@/shared/utils/constant.utils';
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const maxHeight = 700;
 
 export const UserManagement = () => {
-  const { accounts, fetchAccounts, totalRecord, loading, setLoading } =
+  const { accounts, fetchAccounts, totalRecord, loading, setLoading, searchAccounts } =
     useAccountStore((state) => state);
 
   const [openPopupConfirm, setOpenPopupConfirm] = useState(false);
@@ -37,6 +39,8 @@ export const UserManagement = () => {
     page: 0,
     rowsPerPage: 10,
   });
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
   const handlePageChange = (event, newPage) => {
     setController({
@@ -75,8 +79,9 @@ export const UserManagement = () => {
     }
   }
 
-  const handleSearchAccountByEmail = async () => {
-    
+  const handleSearch = async (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
   }
 
   useEffect(() => {
@@ -90,6 +95,23 @@ export const UserManagement = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async() => {
+      try {
+        const newPayload = {
+          filter: debounceSearchKey
+        }
+        if (debounceSearchKey.length > 0 && !hasWhiteSpace(debounceSearchKey)) {
+          await searchAccounts(newPayload);
+        } else {
+          await fetchAccounts();
+        }
+      } catch (error) {
+        // toast.error(error?.message);
+      }
+    })()
+  }, [debounceSearchKey]);
 
   return (
     <Box
@@ -106,7 +128,7 @@ export const UserManagement = () => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize placeholder="Search by email"/>
+            <SearchCustomize placeholder="Search by email" handleChange={handleSearch}/>
           </Box>
           <Button
             variant="contained"
@@ -169,7 +191,7 @@ export const UserManagement = () => {
                           }}
                           onClick={() => redirectTo(`admin/user/${account?._id}`)}
                         >
-                          {accounts?.name}
+                          {account?.name}
                         </TableCell>
                         <TableCell
                           sx={{

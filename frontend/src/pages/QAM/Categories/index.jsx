@@ -28,6 +28,8 @@ import {
   deleteCategory,
   getCategoryDetail,
 } from "@/services/qam.services";
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const maxHeight = 700;
 
@@ -42,8 +44,10 @@ export const CategoryManagement = () => {
     page: 0,
     rowsPerPage: 10,
   });
-  const { categories, fetchCategorys, loading, setLoading, totalRecord } =
+  const { categories, fetchCategorys, loading, setLoading, totalRecord, searchCategories } =
     useCategoryStore((state) => state);
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
   const handlePageChange = (event, newPage) => {
     setController({
@@ -91,6 +95,11 @@ export const CategoryManagement = () => {
     setOpenPopupConfirm(false);
   };
 
+  const handleSearch = async (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
+  }
+
   useEffect(() => {
     setLoading(true);
     (async () => {
@@ -102,6 +111,23 @@ export const CategoryManagement = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async() => {
+      try {
+        const newPayload = {
+          filter: debounceSearchKey
+        }
+        if (debounceSearchKey.length > 0 && !hasWhiteSpace(debounceSearchKey)) {
+          await searchCategories(newPayload);
+        } else {
+          await fetchCategorys();
+        }
+      } catch (error) {
+        // toast.error(error?.message);
+      }
+    })()
+  }, [debounceSearchKey]);
 
   return (
     <Box
@@ -118,7 +144,7 @@ export const CategoryManagement = () => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize />
+            <SearchCustomize placeholder="Search by category name" handleChange={handleSearch}/>
           </Box>
           <Button
             variant="contained"

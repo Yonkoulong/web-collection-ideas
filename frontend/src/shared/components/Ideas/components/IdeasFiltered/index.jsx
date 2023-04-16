@@ -578,7 +578,7 @@ export const IdeasFiltered = ({ filter }) => {
                             </IdeaItemHeadNameText>
                             -
                             <IdeaItemHeadDateText>
-                              {dayjs(idea?.updatedAt).format(
+                              {dayjs(idea?.createdAt).format(
                                 "MM/DD/YYYY HH:mm A"
                               )}
                             </IdeaItemHeadDateText>

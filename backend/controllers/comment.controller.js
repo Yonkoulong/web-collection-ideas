@@ -108,7 +108,6 @@ const putComment = async (req, res) => {
 const deleteComment = async (req, res) => {
   try {
     let id = req.params.id
-    let content = req.body.content
     let authorId = req.id
     let ideaId = req.body.ideaId
     let response

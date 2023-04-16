@@ -28,6 +28,8 @@ import {
   deleteDepartment,
   getDepartmentDetail,
 } from "@/services/admin.services";
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const maxHeight = 700;
 
@@ -42,8 +44,10 @@ export const DepartmentManagement = () => {
     page: 0,
     rowsPerPage: 10,
   });
-  const { departments, fetchDepartments, loading, setLoading, totalRecord } =
+  const { departments, fetchDepartments, searchDepartments, loading, setLoading, totalRecord } =
     useDepartmentStore((state) => state);
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
   const handlePageChange = (event, newPage) => {
     setController({
@@ -103,6 +107,11 @@ export const DepartmentManagement = () => {
     }
   };
 
+  const handleSearch = async (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
+  }
+
   useEffect(() => {
     setLoading(true);
     (async () => {
@@ -114,6 +123,23 @@ export const DepartmentManagement = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async() => {
+      try {
+        const newPayload = {
+          filter: debounceSearchKey
+        }
+        if (debounceSearchKey.length > 0 && !hasWhiteSpace(debounceSearchKey)) {
+          await searchDepartments(newPayload);
+        } else {
+          await fetchDepartments();
+        }
+      } catch (error) {
+        // toast.error(error?.message);
+      }
+    })()
+  }, [debounceSearchKey]);
 
   return (
     <Box
@@ -130,7 +156,7 @@ export const DepartmentManagement = () => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize />
+            <SearchCustomize placeholder="Search name department" handleChange={handleSearch}/>
           </Box>
           <Button
             variant="contained"

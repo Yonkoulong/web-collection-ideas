@@ -8,7 +8,6 @@ export const useCampaignStore = create((set) => ({
     setLoading: () => set((payload) => ({ loading: payload })),
 
     searchCampaigns: async (payload) => {
-        console.log(payload);
         const response = await postSearchCampaign(payload);
         if(response) {
             set({ campaigns: response?.data?.data })

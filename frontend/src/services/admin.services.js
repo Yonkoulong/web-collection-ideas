@@ -74,3 +74,7 @@ export async function putDepartment(departmentId, payload) {
 export async function deleteDepartment(payload) {
     return http.delete(`/department/${payload.id}`);
 }
+
+export async function postSearchDepartment(payload) {
+    return http.post("/department/filter", payload);
+}

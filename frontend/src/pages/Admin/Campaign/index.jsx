@@ -26,11 +26,13 @@ import { PopUpConfirm } from "@/shared/components/Popup";
 import { useCampaignStore } from "@/stores/CampaignStore";
 import { redirectTo } from "@/shared/utils/history";
 import { deleteCampaign, getCampaignDetail } from '@/services/admin.services'
+import { hasWhiteSpace } from "@/shared/utils/validation.utils";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const maxHeight = 700;
 
 export const CampaignManagement = () => {
-  const { campaigns, fetchCampaigns, loading, setLoading, totalRecord } =
+  const { campaigns, fetchCampaigns, loading, setLoading, totalRecord, searchCampaigns } =
     useCampaignStore((state) => state);
 
   const [idSelected, setIdSelected] = useState(0);
@@ -41,6 +43,8 @@ export const CampaignManagement = () => {
     page: 0,
     rowsPerPage: 10,  
   });
+  const [searchKey, setSearchKey] = useState();
+  const debounceSearchKey = useDebounce(searchKey, 500);
 
   const handlePageChange = (event, newPage) => {
     setController({
@@ -101,6 +105,11 @@ export const CampaignManagement = () => {
     }
   }
 
+  const handleSearch = async (e) => {
+    setSearchKey(e.target.value);
+    setLoading(true);
+  }
+
   useEffect(() => {
     setLoading(true);
     
@@ -114,6 +123,24 @@ export const CampaignManagement = () => {
     })();
 
   }, []);
+
+  useEffect(() => {
+    (async() => {
+      try {
+        const newPayload = {
+          filter: debounceSearchKey,
+          departmentId: null
+        }
+        if (debounceSearchKey.length > 0 && !hasWhiteSpace(debounceSearchKey)) {
+          await searchCampaigns(newPayload);
+        } else {
+          await fetchCampaigns();
+        }
+      } catch (error) {
+        // toast.error(error?.message);
+      }
+    })()
+  }, [debounceSearchKey]);
 
   return (
     <Box
@@ -130,7 +157,7 @@ export const CampaignManagement = () => {
           }}
         >
           <Box sx={{ mr: 2 }}>
-            <SearchCustomize />
+            <SearchCustomize placeholder="Search by campaign name" handleChange={handleSearch}/>
           </Box>
           <Button
             variant="contained"
