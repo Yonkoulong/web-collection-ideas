@@ -140,6 +140,10 @@ export const IdeasFiltered = ({ filter }) => {
     try {
       setCategory(e.target.value);
       handleFilterAndSortCommon(e.target.value);
+      setController({
+        ...controller,
+        page: 0,
+      });
     } catch (error) {
       toast.error(error);
     }
@@ -256,6 +260,10 @@ export const IdeasFiltered = ({ filter }) => {
   const handleSearch = (e) => {
     setSearchKey(e.target.value);
     setLoading(true);
+    setController({
+      ...controller,
+      page: 0,
+    });
   };
 
   const handleFilterAndSortCommon = async (categoryValue) => {
@@ -361,7 +369,7 @@ export const IdeasFiltered = ({ filter }) => {
         toast.error(errorMessage);
       }
     })();
-  }, []);
+  }, []); 
 
   useEffect(() => {
     (async () => {
@@ -667,6 +675,7 @@ export const IdeasFiltered = ({ filter }) => {
         >
           <Pagination
             onChange={handlePageChange}
+            page={controller.page + 1}
             count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
             color="secondary"
           />

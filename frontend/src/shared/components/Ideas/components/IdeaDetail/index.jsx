@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { collapseToast, toast } from "react-toastify";
 import dayjs from "dayjs";
 import { styled } from "@mui/material/styles";
 import { reactionType, isObjectEmpty } from "@/shared/utils/constant.utils";
@@ -16,8 +16,10 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
+  Popover,
 } from "@/shared/components";
 
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -39,7 +41,11 @@ import { enumRoles } from "@/shared/utils/constant.utils";
 import { useAppStore } from "@/stores/AppStore";
 
 import { getIdeaById } from "@/services/idea.services";
-import { postComment, deleteComment, putComment } from "@/services/comment.services";
+import {
+  postComment,
+  deleteComment,
+  putComment,
+} from "@/services/comment.services";
 import { postReaction } from "@/services/reaction.services";
 import { customizeScrollbar } from "@/shared/utils/constant.utils";
 
@@ -59,7 +65,9 @@ export const IdeaDetail = () => {
   const [ideaDetail, setIdeaDetail] = useState({});
   const [isEnonymously, setIsEnonymously] = useState(0);
   const [isCommenting, setIsCommenting] = useState(false);
-  const [isHoverComment, setIsHoverComment] = useState({});
+  const [isHoverComment, setIsHoverComment] = useState(null);
+  const [anchorFeatureComment, setAnchorFeatureComment] = React.useState(null);
+  const commentRef = useRef(null);
 
   const handleCommentIdea = async (e) => {
     if (userInfo?.role !== enumRoles.STAFF) {
@@ -233,6 +241,43 @@ export const IdeaDetail = () => {
     }
   };
 
+  const handleMouseOver = (comment) => {
+    setIsHoverComment(comment);
+    console.log(comment);
+  };
+
+  const handleMouseOut = () => {
+    setIsHoverComment(null);
+  };
+
+  const handleClickFeatureComment = (event) => {
+    setAnchorFeatureComment(event.currentTarget);
+  };
+
+  const handleCloseAnchorFeatureComment = () => {
+    setAnchorFeatureComment(null);
+  };
+
+  const handleDeleteComment = async (cmt) => {
+    try {
+      if(cmt) {
+        const resp = await deleteComment({ id: cmt?._id })
+
+        if(resp) {
+          const respIdeaDetail = await getIdeaById({ id: idIdea });
+          setIdeaDetail(respIdeaDetail?.data?.data);
+          handleCloseAnchorFeatureComment();
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const handleUpdateComment = () => {
+
+  }
+
   useEffect(() => {
     (async () => {
       if (idIdea) {
@@ -246,6 +291,9 @@ export const IdeaDetail = () => {
       }
     })();
   }, []);
+
+  const openFeatureComment = Boolean(anchorFeatureComment);
+  const idFeatureComment = openFeatureComment ? "comment-popover" : undefined;
 
   return (
     <Box>
@@ -424,13 +472,24 @@ export const IdeaDetail = () => {
               display: "flex",
               flexDirection: "column",
               gap: "16px",
-              ...customizeScrollbar
+              ...customizeScrollbar,
             }}
           >
             {ideaDetail?.comment?.length > 0 &&
               ideaDetail?.comment.map((cmt) => {
                 return (
-                  <Box sx={{ display: "flex" }} key={cmt?._id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      ":hover": {
+                        cursor: "pointer",
+                        opacity: 0.8,
+                      },
+                    }}
+                    key={cmt?._id}
+                    onMouseOver={() => handleMouseOver(cmt)}
+                    onMouseOut={handleMouseOut}
+                  >
                     <Box
                       width={50}
                       height={50}
@@ -456,19 +515,84 @@ export const IdeaDetail = () => {
                     </Box>
                     <Box
                       sx={{
-                        marginLeft: "8px",
                         backgroundColor: activeColor,
                         padding: "8px 16px",
                         borderRadius: "20px",
                         width: "100%",
+                        display: "flex",
+                        alignItems: "center",
                       }}
-                      
                     >
-                      <Typography fontSize="15px" fontWeight="bold">
-                        {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email} -{" "}
-                        {dayjs(cmt?.createdAt).format("MM/DD/YYYY HH:mm A")}
-                      </Typography>
-                      <Box fontSize="14px">{cmt?.content}</Box>
+                      <Box
+                        sx={{
+                          marginLeft: "8px",
+                          flex: 1,
+                        }}
+                      >
+                        <Typography fontSize="15px" fontWeight="bold">
+                          {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email}{" "}
+                          - {dayjs(cmt?.createdAt).format("MM/DD/YYYY HH:mm A")}
+                        </Typography>
+                        <Box fontSize="14px">{cmt?.content}</Box>
+                      </Box>
+
+                      {(isHoverComment?.authorId?._id == userInfo?._id &&
+                        isHoverComment?._id == cmt?._id) ||
+                      (ideaDetail?.authorId?._id == userInfo?._id &&
+                        isHoverComment?._id == cmt?._id) ? (
+                        <Box>
+                          <Popover
+                            id={idFeatureComment}
+                            open={openFeatureComment}
+                            anchorEl={anchorFeatureComment}
+                            onClose={handleCloseAnchorFeatureComment}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            sx={{
+                              ".Muipopover-root": {
+                                borderRadius: "10px",
+                                padding: "4px",
+                              },
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                padding: "4px 8px",
+                                ":hover": {
+                                  cursor: "pointer",
+                                  opacity: 0.8,
+                                },
+                              }}
+                              fontSize="small"
+                              onClick={() => handleDeleteComment(cmt)}
+                            >
+                              Delete comment
+                            </Typography>
+                            <Typography
+                              sx={{
+                                padding: "4px 8px",
+                                ":hover": {
+                                  cursor: "pointer",
+                                  opacity: 0.8,
+                                },
+                              }}
+                              fontSize="small"
+                              onClick={() => handleUpdateComment(cmt)}
+                            >
+                              Edit comment
+                            </Typography>
+                          </Popover>
+                          <MoreVertIcon
+                            aria-describedby={idFeatureComment}
+                            onClick={handleClickFeatureComment}
+                            fontSize="small"
+                          />
+                        </Box>
+                      ) : (
+                        ""
+                      )}
                     </Box>
                   </Box>
                 );
