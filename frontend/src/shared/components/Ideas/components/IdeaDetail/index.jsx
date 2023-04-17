@@ -92,7 +92,7 @@ export const IdeaDetail = () => {
 
         if (e.key === "Enter" || e.keyCode === 13) {
           let resp;
-          if(idCommentEdit) {
+          if (idCommentEdit) {
             resp = await putComment(idCommentEdit, payload);
           } else {
             resp = await postComment(payload);
@@ -184,69 +184,81 @@ export const IdeaDetail = () => {
     }
   };
 
-  const handleShowContentWithType = (file) => {
-    switch (file.type) {
-      case "raw": {
-        return (
-          <Box
-            component="a"
-            href={content?.content}
-            download
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              borderRadius: "10px",
-              // backgroundColor: hoverTextColor,
-              width: "max-content",
-              padding: "4px 8px",
-              marginTop: 1,
-            }}
-          >
-            <Box
-              sx={{
-                width: "34px",
-                height: "34px",
-                // backgroundColor: primaryColor,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <DescriptionIcon sx={{ color: whiteColor }} />
-            </Box>
-            <Typography ml={1} sx={{ color: blackColor }}>
-              filename.path
-            </Typography>
-          </Box>
-        );
-      }
-      case "image": {
-        return (
-          <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
-            <img
-              src={file?.url}
-              alt="image-message"
-              style={{ width: "100%", objectFit: "contain" }}
-            />
-          </Paper>
-        );
-      }
-      case "video": {
-        return (
-          <Paper sx={{ width: "fit-content", marginTop: 1 }}>
-            <video
-              width="320"
-              height="100%"
-              style={{ borderRadius: "4px" }}
-              controls
-            >
-              <source src={file?.url} type="video/mp4" />
-            </video>
-          </Paper>
-        );
-      }
-    }
+  const handleShowContentWithType = (file) => {   
+        switch (file?.type) {
+          case "raw": {
+            return (
+              <Box
+                key={file?._id}
+                component="a"
+                href={file?.url}
+                download
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: "10px",
+                  width: "max-content",
+                  padding: "4px 8px",
+                  marginTop: 1,
+
+                  ':hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "34px",
+                    height: "34px",
+                    backgroundColor: primaryColor,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <DescriptionIcon sx={{ color: whiteColor }} />
+                </Box>
+                <Typography ml={1} sx={{ color: blackColor }}>
+                  {file?.filelName}
+                </Typography>
+              </Box>
+            );
+          }
+          case "image": {
+            return (
+              <Paper
+                key={file?._id}
+                sx={{ width: "360px", height: "360px", marginTop: 1 }}
+              >
+                <img
+                  src={file?.url}
+                  alt="image-message"
+                  style={{ width: "100%", objectFit: "contain" }}
+                />
+              </Paper>
+            );
+          }
+          case "video": {
+            return (
+              <Paper
+                key={file?._id}
+                sx={{ width: "fit-content", marginTop: 1 }}
+              >
+                <video
+                  width="320"
+                  height="100%"
+                  style={{ borderRadius: "4px" }}
+                  controls
+                >
+                  <source src={file?.url} type="video/mp4" />
+                </video>
+              </Paper>
+            );
+          }
+          default:
+            return <></>;
+        }
   };
 
   const handleMouseOver = (comment) => {
@@ -267,10 +279,10 @@ export const IdeaDetail = () => {
 
   const handleDeleteComment = async (cmt) => {
     try {
-      if(cmt) {
-        const resp = await deleteComment({ id: cmt?._id })
+      if (cmt) {
+        const resp = await deleteComment({ id: cmt?._id });
 
-        if(resp) {
+        if (resp) {
           const respIdeaDetail = await getIdeaById({ id: idIdea });
           setIdeaDetail(respIdeaDetail?.data?.data);
           handleCloseAnchorFeatureComment();
@@ -279,20 +291,22 @@ export const IdeaDetail = () => {
     } catch (error) {
       throw error;
     }
-  }
+  };
 
   const handleUpdateComment = (cmt) => {
-    const inputComment = commentRef.current?.querySelector('input');
+    const inputComment = commentRef.current?.querySelector("input");
 
-    if(!inputComment) { return; }
+    if (!inputComment) {
+      return;
+    }
 
     inputComment.focus();
     inputComment.value = cmt?.content;
     setIsCommenting(true);
     setIsEnonymously(cmt?.enonymously ? 1 : 0);
-    setIdCommentEdit(cmt?._id)
+    setIdCommentEdit(cmt?._id);
     handleCloseAnchorFeatureComment();
-  }
+  };
 
   const handleOpenCreateIdeaModal = () => {
     setOpenCreateIdeaModal(true);
@@ -381,9 +395,10 @@ export const IdeaDetail = () => {
         </Box>
 
         {/* description */}
+        {console.log(handleShowContentWithType(ideaDetail?.attachment))}
         <Box sx={{ margin: "24px 0" }}>
           {!isObjectEmpty(ideaDetail) && ideaDetail?.attachment.length > 0
-            ? handleShowContentWithType(ideaDetail?.attachment[0])
+            ? ideaDetail?.attachment.map((file) => handleShowContentWithType(file))
             : "No content"}
         </Box>
         {/* end description */}
