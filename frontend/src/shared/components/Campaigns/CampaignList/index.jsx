@@ -124,22 +124,22 @@ export const CampaignList = () => {
           filter: debounceSearchKey
         }
 
-        if (searchKey.length > 0 && !hasWhiteSpace(searchKey)) {
+        if (debounceSearchKey?.length > 0 && !hasWhiteSpace(debounceSearchKey)) {
           await searchCampaigns(newPayload);
         } else {
           if (
             userInfo?.role == enumRoles.STAFF ||
             userInfo?.role == enumRoles.QAC
           ) {
-            await fetchCampaignsByDepartmentId({
+              await fetchCampaignsByDepartmentId({
               departmentId: userInfo?.departmentId,
             });
           } else {
-            await fetchDepartments();
+            await fetchCampaigns();
           }
         }
       } catch (error) {
-        
+        throw error;
       }
     })()
   }, [debounceSearchKey]);

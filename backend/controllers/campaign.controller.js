@@ -70,11 +70,11 @@ const postCampaign = async (req, res) => {
     let filter = req.body.filter
     let campaignFilter
     if (departmentId != null) {
-      campaignFilter= await IdeaModel.find({ departmentId:departmentId,"name": { $regex: `${filter}` } })
+      campaignFilter= await CampaignModel.find({ departmentId:departmentId,"name": { $regex: `${filter}` } })
      
     }
     else {
-      campaignFilter= await IdeaModel.find({ "name": { $regex: `${filter}` } })
+      campaignFilter= await CampaignModel.find({ "name": { $regex: `${filter}` } })
     }
     if(campaignFilter == null) return res.sendStatus(401);
     let response = {
