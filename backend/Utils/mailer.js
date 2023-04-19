@@ -12,7 +12,6 @@ exports.sendMail = (to, subject, htmlContent) => {
             pass: mailConfig.PASSWORD,
         }
     })
-
     const options = {
         from: mailConfig.FROM_ADDRESS,
         to: to,

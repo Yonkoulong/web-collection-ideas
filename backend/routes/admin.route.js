@@ -32,7 +32,8 @@ campaignController.forEach((item) =>{
 })
 accountController.forEach((item) =>{
     const { method, route, controller } = item;
-    if(item.method =="post" && item.route=="/account"){
+    router[method](route,verifyJWT,controller);
+    if(item.method =="post" || item.method =="put"||item.method =="delete"){
         router[method](route,verifyJWT,auth.isAdmin,controller);
     }
     else {
@@ -40,7 +41,4 @@ accountController.forEach((item) =>{
     }
 })
 
-router.get('/admin',(req,res)=>{
-    res.json('Hello admin')
-})
 module.exports = router;

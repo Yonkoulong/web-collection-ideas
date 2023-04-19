@@ -1,8 +1,10 @@
 const AccountModel = require("../models/account.model");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
+
 const verifyJWT = async (req, res, next) => {
-    const authHeader = req.headers.authorization || req.headers.Authorization;
+    const authHeader = await req.headers.authorization || req.headers.Authorization;
+    if (!authHeader) return res.sendStatus(401);
     let response
     try {
         if (!authHeader?.startsWith('Bearer')) {

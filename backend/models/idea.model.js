@@ -4,6 +4,7 @@ const ideaSchema  = new Schema({
     content:{
         type: String,
         required: true,
+        min
     },
     viewer:[
         {   type: mongoose.Schema.Types.ObjectId, 

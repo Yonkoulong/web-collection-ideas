@@ -3,7 +3,7 @@ const CommentModel = require("../models/comment.model");
 const IdeaModel = require("../models/idea.model");
 const AccountModel = require("../models/account.model")
 const mailer = require("../Utils/mailer");
-const validator = require("email-validator");
+const emailValidator = require('deep-email-validator');
 const getComment = async (_req, res) => {
   //create an array of documents
   try {
@@ -55,9 +55,10 @@ const postComment = async (req, res) => {
     if (!newComment) return res.sendStatus(404);
     let idea = await IdeaModel.findOne({ _id: ideaId }).populate('authorId')
     let poster = await AccountModel.findOne({ _id: authorId })
-
-    if (validator.validate(idea.authorId.email)) {
-      let infor = await mailer.sendMail(idea.authorId.email, `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`, `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+    if(emailValidator.validate(idea.authorId.email)){
+       await mailer.sendMail(idea.authorId.email, 
+        `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,
+         `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
     }
 
     let updateIdea = await IdeaModel.updateOne(
@@ -84,15 +85,16 @@ const putComment = async (req, res) => {
   try {
     let id = req.params.id
     let content = req.body.content
-    let authorId = req.id
     let ideaId = req.body.ideaId
-    let response
+    let authorId = req.id
+    let enonymously = (req.body.enonymously === 1) ? true : false
     let comment = await CommentModel.findOneAndUpdate({
       _id: id,
       authorId: authorId,
       ideaId: ideaId
     }, {
-      content: content
+      content: content,
+      enonymously:enonymously
     })
     if (comment) {
       response = {
@@ -108,12 +110,10 @@ const putComment = async (req, res) => {
 const deleteComment = async (req, res) => {
   try {
     let id = req.params.id
-    let authorId = req.id
     let ideaId = req.body.ideaId
     let response
     let comment = await CommentModel.findByIdAndDelete({
       _id: id,
-      authorId: authorId,
       ideaId: ideaId
     })
     if (comment) {

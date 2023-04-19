@@ -19,7 +19,7 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body?.departmentId
         let newAccount
-        //if(validator.validate(email)){return res.sendStatus(404);}
+        if(validator.validate(email)){return res.sendStatus(404);}
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
@@ -170,6 +170,7 @@ const putAccount = async (req, res) => {
         let name = req.body?.name
         let dob = req.body?.dob
         const fileData = req.files?.file
+        console.log(req.body)
         let result
         if(fileData != null){
              result = await cloudinary.uploader.upload(fileData.tempFilePath, {
@@ -177,7 +178,6 @@ const putAccount = async (req, res) => {
                 folder: "web_collection_ideas",
             })
         }
-       
         let foundAccount = await AccountModel.findOne({ _id: id })
         if (foundAccount) {
             let updateAccount = await AccountModel.findByIdAndUpdate(id, {

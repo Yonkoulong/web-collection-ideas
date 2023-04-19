@@ -12,6 +12,7 @@ const AttachMentController = require("../controllers/attachment.controller")
 const mongoose = require("mongoose");
 const commentModel = require("../models/comment.model");
 const path = require("path");
+const emailValidator = require('deep-email-validator');
 
 const postIdeaMostLike = async (req, res) => {
   try {
@@ -146,6 +147,9 @@ const postIdeaFilter = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
+const getIdeaHasPosted = async (req, res)=>{
+
+}
 const getIdeaById = async (req, res) => {
   try {
     //AttachMentController.getAttchmentById(req, res)
@@ -224,7 +228,10 @@ const postIdea = async (req, res) => {
       let qac= await accountModel.find({role:"qac",departmentId:campaign.departmentId})
       let qacArr = []
       qac.forEach(element => {
-        qacArr.push(element.email)
+        if(emailValidator.validate(element.email)){
+          qacArr.push(element.email)
+        }
+       
       });
       if(qac){
         console.log(qac);
@@ -249,7 +256,7 @@ const postIdea = async (req, res) => {
 const putIdea = async (req, res) => {
   let id = req.params.id
   let newContent = req.body.content
-  let enonymously = req.body.enonymously
+  let enonymously = (req.body.enonymously === 1) ? true : false
   let response
   IdeaModel.findByIdAndUpdate(id, {
     content: newContent,
