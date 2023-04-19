@@ -104,9 +104,6 @@ const getCSVfile = async(req, res)=>{
           let filename= path.join(uniqueFileName(__dirname,'..','public/files','csvFile'))
           let stream= fs.writeFile(filename, csv, function(error){
             if(error) throw  console.log(error)
-            let baseFileName = path.basename(filename)
-            
-            //res.download(`./public/files/${baseFileName}`);
             res.status(200).json(csv)
           })  
          }

@@ -1,7 +1,7 @@
 const AccountModel = require("../models/account.model");
 const cloudinary = require("../middleware/cloudinary.middleware")
 const bcrypt = require("bcrypt");
-const validator = require("email-validator");
+const emailValidator = require('deep-email-validator');
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_KEY,
@@ -19,7 +19,7 @@ const postAccount = async (req, res) => {
         let role = req.body.role
         let departmentId = req.body?.departmentId
         let newAccount
-        if(validator.validate(email)){return res.sendStatus(404);}
+        if(emailValidator.validate(email)){return res.sendStatus(404);}
         const fileData = req.files.file
         const result = await cloudinary.uploader.upload(fileData.tempFilePath,{
             resource_type:"auto",
@@ -41,7 +41,7 @@ const postAccount = async (req, res) => {
             return res.sendStatus(409).json(response);
         }
         // hash pasword
-        let hashedPwd = await bcrypt.hash(password, 10,)
+        let hashedPwd = await bcrypt.hash(password, 10)
         //upload image
         
         //create account
