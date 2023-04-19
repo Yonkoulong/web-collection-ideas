@@ -58,7 +58,7 @@ const postComment = async (req, res) => {
     if(emailValidator.validate(idea.authorId.email)){
        await mailer.sendMail(idea.authorId.email, 
         `${poster.name} has post new comment at${(await newComment).createdAt} .Content: ${(await newComment).content}`,
-         `${process.env.APP_URL}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
+         `${process.env.NODE_ENV === "dev" ? "http://localhost:5173" : "https://frontend-collection-ideas.onrender.com"}/campaigns/${idea.campaignId}/ideas/${ideaId}`)
     }
 
     let updateIdea = await IdeaModel.updateOne(

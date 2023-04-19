@@ -235,7 +235,7 @@ const postIdea = async (req, res) => {
       });
       if(qac){
         console.log(qac);
-        let infor= await mailer.sendMail(qacArr,`${currentAccount.name} has post new idea at${(await newIdea).createdAt} .Content: ${(await newIdea).content}`,`${process.env.APP_URL}/campaigns/${campaignId}/ideas/${(await newIdea)._id}`)
+        let infor= await mailer.sendMail(qacArr,`${currentAccount.name} has post new idea at${(await newIdea).createdAt} .Content: ${(await newIdea).content}`,`${process.env.NODE_ENV === "dev" ? "http://localhost:5173" : "https://frontend-collection-ideas.onrender.com"}/campaigns/${campaignId}/ideas/${(await newIdea)._id}`)
         // sau này tính làm sau
         if(!infor){
           let response = {
