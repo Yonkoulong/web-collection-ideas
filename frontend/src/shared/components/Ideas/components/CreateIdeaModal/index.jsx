@@ -111,8 +111,8 @@ export const ModalCreateIdea = ({ open, onClose }) => {
   };
 
   const handleChangeFile = (e) => {
-    const [file] = e.target.files;
-    setSelectedFile(file);
+    const files = e.target.files;
+    setSelectedFile(files);
   };
 
   const onSubmit = async (data) => {
@@ -131,10 +131,14 @@ export const ModalCreateIdea = ({ open, onClose }) => {
       if (respData) {
         const idea = respData?.data?.data;
         setLoading(true);
-        debugger
-        if (selectedFile) {
+  
+        if (selectedFile?.length > 0) {
           const formData = new FormData();
-          formData.append("file", selectedFile);
+
+          for(let i = 0; i < selectedFile.length; i++) {
+            formData.append("file", selectedFile[i])
+          }
+          
           formData.append("ideaId", idea?._id);
 
           axios({
@@ -293,6 +297,7 @@ export const ModalCreateIdea = ({ open, onClose }) => {
                 {(field) => (
                   <input
                     type="file"
+                    name='files[]'
                     multiple
                     {...field}
                     onChange={handleChangeFile}

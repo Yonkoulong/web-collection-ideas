@@ -97,6 +97,7 @@ export const CreateAndEditUser = () => {
       if(!data.departmentId) {
         delete data.departmentId;
       }
+      const token = localStorage.getItem('token');
 
       const [file] = fileRef.current.files;
       const formData = new FormData();
@@ -120,14 +121,15 @@ export const CreateAndEditUser = () => {
           method: "put",
           url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account/${id}` : `https://backend-collection-ideas.onrender.com/account/${id}`,
           data: formData,
+          withCredentials: "true",
           headers: {
-            withCredentials: "true",
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token && token}`
           },
         })
           .then(function (response) {
             if (response) {
-              toast.success("Create account successfully!");
+              toast.success("Update account successfully!");
               fetchAccounts();
               redirectTo("/admin/user-management");
             }
@@ -136,7 +138,6 @@ export const CreateAndEditUser = () => {
             throw error;
           });
       } else {
-        const token = localStorage.getItem('token');
         axios({
           method: "post",
           url: import.meta.env.VITE_API_ENV === "dev" ? `http://localhost:8080/account` : `https://backend-collection-ideas.onrender.com/account`,

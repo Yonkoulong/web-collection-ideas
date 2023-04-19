@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { collapseToast, toast } from "react-toastify";
 import dayjs from "dayjs";
 import { styled } from "@mui/material/styles";
 import { reactionType, isObjectEmpty } from "@/shared/utils/constant.utils";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { ModalCreateIdea } from "../CreateIdeaModal";
 
 import {
   Box,
@@ -16,8 +17,10 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
+  Popover,
 } from "@/shared/components";
 
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -39,7 +42,11 @@ import { enumRoles } from "@/shared/utils/constant.utils";
 import { useAppStore } from "@/stores/AppStore";
 
 import { getIdeaById } from "@/services/idea.services";
-import { postComment, deleteComment, putComment } from "@/services/comment.services";
+import {
+  postComment,
+  deleteComment,
+  putComment,
+} from "@/services/comment.services";
 import { postReaction } from "@/services/reaction.services";
 import { customizeScrollbar } from "@/shared/utils/constant.utils";
 
@@ -57,9 +64,13 @@ export const IdeaDetail = () => {
 
   const { idIdea, idCampaign } = useParams();
   const [ideaDetail, setIdeaDetail] = useState({});
+  const [openCreateIdeaModal, setOpenCreateIdeaModal] = useState(false);
+  const [idCommentEdit, setIdCommentEdit] = useState(null);
   const [isEnonymously, setIsEnonymously] = useState(0);
   const [isCommenting, setIsCommenting] = useState(false);
-  const [isHoverComment, setIsHoverComment] = useState({});
+  const [isHoverComment, setIsHoverComment] = useState(null);
+  const [anchorFeatureComment, setAnchorFeatureComment] = React.useState(null);
+  const commentRef = useRef(null);
 
   const handleCommentIdea = async (e) => {
     if (userInfo?.role !== enumRoles.STAFF) {
@@ -80,7 +91,12 @@ export const IdeaDetail = () => {
         }
 
         if (e.key === "Enter" || e.keyCode === 13) {
-          const resp = await postComment(payload);
+          let resp;
+          if (idCommentEdit) {
+            resp = await putComment(idCommentEdit, payload);
+          } else {
+            resp = await postComment(payload);
+          }
           if (resp) {
             e.target.value = "";
             setIsCommenting(false);
@@ -168,69 +184,132 @@ export const IdeaDetail = () => {
     }
   };
 
-  const handleShowContentWithType = (file) => {
-    switch (file.type) {
-      case "raw": {
-        return (
-          <Box
-            component="a"
-            href={content?.content}
-            download
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              borderRadius: "10px",
-              // backgroundColor: hoverTextColor,
-              width: "max-content",
-              padding: "4px 8px",
-              marginTop: 1,
-            }}
-          >
-            <Box
-              sx={{
-                width: "34px",
-                height: "34px",
-                // backgroundColor: primaryColor,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <DescriptionIcon sx={{ color: whiteColor }} />
-            </Box>
-            <Typography ml={1} sx={{ color: blackColor }}>
-              filename.path
-            </Typography>
-          </Box>
-        );
+  const handleShowContentWithType = (file) => {   
+        switch (file?.type) {
+          case "raw": {
+            return (
+              <Box
+                key={file?._id}
+                component="a"
+                href={file?.url}
+                download
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: "10px",
+                  width: "max-content",
+                  padding: "4px 8px",
+                  marginTop: 1,
+
+                  ':hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "34px",
+                    height: "34px",
+                    backgroundColor: primaryColor,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <DescriptionIcon sx={{ color: whiteColor }} />
+                </Box>
+                <Typography ml={1} sx={{ color: blackColor }}>
+                  {file?.filelName}
+                </Typography>
+              </Box>
+            );
+          }
+          case "image": {
+            return (
+              <Paper
+                key={file?._id}
+                sx={{ width: "360px", height: "360px", marginTop: 1 }}
+              >
+                <img
+                  src={file?.url}
+                  alt="image-message"
+                  style={{ width: "100%", objectFit: "contain" }}
+                />
+              </Paper>
+            );
+          }
+          case "video": {
+            return (
+              <Paper
+                key={file?._id}
+                sx={{ width: "fit-content", marginTop: 1 }}
+              >
+                <video
+                  width="320"
+                  height="100%"
+                  style={{ borderRadius: "4px" }}
+                  controls
+                >
+                  <source src={file?.url} type="video/mp4" />
+                </video>
+              </Paper>
+            );
+          }
+          default:
+            return <></>;
+        }
+  };
+
+  const handleMouseOver = (comment) => {
+    setIsHoverComment(comment);
+  };
+
+  const handleMouseOut = () => {
+    setIsHoverComment(null);
+  };
+
+  const handleClickFeatureComment = (event) => {
+    setAnchorFeatureComment(event.currentTarget);
+  };
+
+  const handleCloseAnchorFeatureComment = () => {
+    setAnchorFeatureComment(null);
+  };
+
+  const handleDeleteComment = async (cmt) => {
+    try {
+      if (cmt) {
+        const resp = await deleteComment({ id: cmt?._id });
+
+        if (resp) {
+          const respIdeaDetail = await getIdeaById({ id: idIdea });
+          setIdeaDetail(respIdeaDetail?.data?.data);
+          handleCloseAnchorFeatureComment();
+        }
       }
-      case "image": {
-        return (
-          <Paper sx={{ width: "360px", height: "360px", marginTop: 1 }}>
-            <img
-              src={file?.url}
-              alt="image-message"
-              style={{ width: "100%", objectFit: "contain" }}
-            />
-          </Paper>
-        );
-      }
-      case "video": {
-        return (
-          <Paper sx={{ width: "fit-content", marginTop: 1 }}>
-            <video
-              width="320"
-              height="100%"
-              style={{ borderRadius: "4px" }}
-              controls
-            >
-              <source src={file?.url} type="video/mp4" />
-            </video>
-          </Paper>
-        );
-      }
+    } catch (error) {
+      throw error;
     }
+  };
+
+  const handleUpdateComment = (cmt) => {
+    const inputComment = commentRef.current?.querySelector("input");
+
+    if (!inputComment) {
+      return;
+    }
+
+    inputComment.focus();
+    inputComment.value = cmt?.content;
+    setIsCommenting(true);
+    setIsEnonymously(cmt?.enonymously ? 1 : 0);
+    setIdCommentEdit(cmt?._id);
+    handleCloseAnchorFeatureComment();
+  };
+
+  const handleOpenCreateIdeaModal = () => {
+    setOpenCreateIdeaModal(true);
   };
 
   useEffect(() => {
@@ -246,6 +325,9 @@ export const IdeaDetail = () => {
       }
     })();
   }, []);
+
+  const openFeatureComment = Boolean(anchorFeatureComment);
+  const idFeatureComment = openFeatureComment ? "comment-popover" : undefined;
 
   return (
     <Box>
@@ -313,9 +395,10 @@ export const IdeaDetail = () => {
         </Box>
 
         {/* description */}
+        {console.log(handleShowContentWithType(ideaDetail?.attachment))}
         <Box sx={{ margin: "24px 0" }}>
           {!isObjectEmpty(ideaDetail) && ideaDetail?.attachment.length > 0
-            ? handleShowContentWithType(ideaDetail?.attachment[0])
+            ? ideaDetail?.attachment.map((file) => handleShowContentWithType(file))
             : "No content"}
         </Box>
         {/* end description */}
@@ -387,6 +470,7 @@ export const IdeaDetail = () => {
               disabled={handleStatusIdea()}
               variant="outlined"
               fullWidth
+              ref={commentRef}
               sx={{
                 ".MuiInputBase-root": {
                   borderRadius: "40px",
@@ -402,6 +486,7 @@ export const IdeaDetail = () => {
                       onChange={(e) => handleChangeCommentAnonymous(e)}
                       name="enonymously"
                       color="secondary"
+                      defaultChecked={isEnonymously == 0 ? true : false}
                     />
                   }
                   label="Anonymous"
@@ -424,13 +509,24 @@ export const IdeaDetail = () => {
               display: "flex",
               flexDirection: "column",
               gap: "16px",
-              ...customizeScrollbar
+              ...customizeScrollbar,
             }}
           >
             {ideaDetail?.comment?.length > 0 &&
               ideaDetail?.comment.map((cmt) => {
                 return (
-                  <Box sx={{ display: "flex" }} key={cmt?._id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      ":hover": {
+                        cursor: "pointer",
+                        opacity: 0.8,
+                      },
+                    }}
+                    key={cmt?._id}
+                    onMouseOver={() => handleMouseOver(cmt)}
+                    onMouseOut={handleMouseOut}
+                  >
                     <Box
                       width={50}
                       height={50}
@@ -456,19 +552,84 @@ export const IdeaDetail = () => {
                     </Box>
                     <Box
                       sx={{
-                        marginLeft: "8px",
                         backgroundColor: activeColor,
                         padding: "8px 16px",
                         borderRadius: "20px",
                         width: "100%",
+                        display: "flex",
+                        alignItems: "center",
                       }}
-                      
                     >
-                      <Typography fontSize="15px" fontWeight="bold">
-                        {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email} -{" "}
-                        {dayjs(cmt?.createdAt).format("MM/DD/YYYY HH:mm A")}
-                      </Typography>
-                      <Box fontSize="14px">{cmt?.content}</Box>
+                      <Box
+                        sx={{
+                          marginLeft: "8px",
+                          flex: 1,
+                        }}
+                      >
+                        <Typography fontSize="15px" fontWeight="bold">
+                          {cmt?.enonymously ? "Unknown" : cmt?.authorId?.email}{" "}
+                          - {dayjs(cmt?.createdAt).format("MM/DD/YYYY HH:mm A")}
+                        </Typography>
+                        <Box fontSize="14px">{cmt?.content}</Box>
+                      </Box>
+
+                      {(isHoverComment?.authorId?._id == userInfo?._id &&
+                        isHoverComment?._id == cmt?._id) ||
+                      (ideaDetail?.authorId?._id == userInfo?._id &&
+                        isHoverComment?._id == cmt?._id) ? (
+                        <Box>
+                          <Popover
+                            id={idFeatureComment}
+                            open={openFeatureComment}
+                            anchorEl={anchorFeatureComment}
+                            onClose={handleCloseAnchorFeatureComment}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            sx={{
+                              ".Muipopover-root": {
+                                borderRadius: "10px",
+                                padding: "4px",
+                              },
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                padding: "4px 8px",
+                                ":hover": {
+                                  cursor: "pointer",
+                                  opacity: 0.8,
+                                },
+                              }}
+                              fontSize="small"
+                              onClick={() => handleDeleteComment(cmt)}
+                            >
+                              Delete comment
+                            </Typography>
+                            <Typography
+                              sx={{
+                                padding: "4px 8px",
+                                ":hover": {
+                                  cursor: "pointer",
+                                  opacity: 0.8,
+                                },
+                              }}
+                              fontSize="small"
+                              onClick={() => handleUpdateComment(cmt)}
+                            >
+                              Edit comment
+                            </Typography>
+                          </Popover>
+                          <MoreVertIcon
+                            aria-describedby={idFeatureComment}
+                            onClick={handleClickFeatureComment}
+                            fontSize="small"
+                          />
+                        </Box>
+                      ) : (
+                        ""
+                      )}
                     </Box>
                   </Box>
                 );
@@ -476,6 +637,11 @@ export const IdeaDetail = () => {
           </Box>
         </Box>
       </Paper>
+      {/* Modal */}
+      <ModalCreateIdea
+        open={openCreateIdeaModal}
+        onClose={setOpenCreateIdeaModal}
+      />
     </Box>
   );
 };

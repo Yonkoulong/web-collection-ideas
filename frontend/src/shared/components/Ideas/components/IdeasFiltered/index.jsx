@@ -3,6 +3,8 @@ import { CSVLink } from "react-csv";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { ModalCreateIdea } from "../CreateIdeaModal";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 
 import {
@@ -140,6 +142,10 @@ export const IdeasFiltered = ({ filter }) => {
     try {
       setCategory(e.target.value);
       handleFilterAndSortCommon(e.target.value);
+      setController({
+        ...controller,
+        page: 0,
+      });
     } catch (error) {
       toast.error(error);
     }
@@ -253,9 +259,45 @@ export const IdeasFiltered = ({ filter }) => {
     setDataDownload(resp?.data);
   };
 
+  const handleDownloadZip = async () => {
+    //filter ideas file with all idea
+    if(ideas.length <= 0) { return; }
+    const listFile = ['https://res.cloudinary.com/drt4qtuwv/image/upload/v1681445748/web_collection_ideas/nxcqvgojebdhx9kcs7im.png'];
+    // ideas?.forEach((idea) => {
+    //   if(idea?.attachment?.length > 0) {
+    //     idea?.attachment.forEach((file) => {
+    //       listFile.push(file?.url)
+    //     })
+    //   }
+    // })
+
+    // create a new JSZip instance
+    const zip = new JSZip();
+
+    // add each file to the zip archive
+    await Promise.all(
+      listFile?.map(async (link) => {
+        const response = await fetch(link);
+        const blob = await response.blob();
+        const fileName = link.substring(link.lastIndexOf("/") + 1);
+        zip.file(fileName, blob);
+      })
+    );
+
+    // generate the zip archive
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+
+    // download the zip archive using FileSaver
+    saveAs(zipBlob, "files_idea.zip");
+  };
+
   const handleSearch = (e) => {
     setSearchKey(e.target.value);
     setLoading(true);
+    setController({
+      ...controller,
+      page: 0,
+    });
   };
 
   const handleFilterAndSortCommon = async (categoryValue) => {
@@ -367,16 +409,16 @@ export const IdeasFiltered = ({ filter }) => {
     (async () => {
       try {
         let newIdeaIds = [];
-  
+
         ideas.forEach((idea) => newIdeaIds.push(idea?._id));
-  
+
         if (searchKey.length > 0 && !hasWhiteSpace(searchKey)) {
           setIsSearching(true);
           const payload = {
             filter: debounceSearchKey,
             listIdea: newIdeaIds,
           };
-  
+
           await filterIdeas(payload);
         } else {
           setIsSearching(false);
@@ -504,6 +546,7 @@ export const IdeasFiltered = ({ filter }) => {
                       cursor: "pointer",
                     },
                   }}
+                  onClick={() => handleDownloadZip()}
                 >
                   <Typography fontSize="small">Zip</Typography>
                   <FolderZipIcon fontSize="small" />
@@ -667,6 +710,7 @@ export const IdeasFiltered = ({ filter }) => {
         >
           <Pagination
             onChange={handlePageChange}
+            page={controller.page + 1}
             count={Math.ceil(totalRecord / MAX_ITEM_PER_PAGE)}
             color="secondary"
           />
